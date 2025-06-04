@@ -17,12 +17,10 @@ const UserProfile: React.FC = () => {
   const toast = useToast();
 
   useEffect(() => {
-    // Check if user is authenticated but user data is not loaded
     if (isAuthenticated && !user) {
       fetchUserInfo();
     }
     
-    // If not authenticated, redirect to login
     if (!isAuthenticated && !isLoading) {
       navigate('/login');
     }

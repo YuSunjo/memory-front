@@ -34,22 +34,20 @@ const useUserStore = create<UserState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/member/login`;
-      
+
       const response = await axios.post(apiUrl, {
         email,
         password
       });
-      
+
       if (response.status === 200 || response.status === 201) {
         const { accessToken, refreshToken } = response.data.data as AuthTokens;
-        
-        // Store tokens in localStorage
+
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
-        
+
         set({ isAuthenticated: true });
-        
-        // Fetch user info
+
         await get().fetchUserInfo();
         return true;
       }
@@ -64,11 +62,9 @@ const useUserStore = create<UserState>((set, get) => ({
   },
 
   logout: () => {
-    // Remove tokens from localStorage
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    
-    // Reset state
+
     set({
       user: null,
       isAuthenticated: false,
@@ -77,24 +73,28 @@ const useUserStore = create<UserState>((set, get) => ({
   },
 
   fetchUserInfo: async () => {
+    if (get().user) {
+      return;
+    }
+
     const accessToken = localStorage.getItem('accessToken');
-    
+
     if (!accessToken) {
       set({ error: 'No access token found' });
       return;
     }
-    
+
     set({ isLoading: true, error: null });
-    
+
     try {
       const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/member/me`;
-      
+
       const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         }
       });
-      
+
       if (response.status === 200) {
         const userData = response.data.data as User;
         set({
@@ -105,8 +105,7 @@ const useUserStore = create<UserState>((set, get) => ({
     } catch (error) {
       console.error('Error fetching user info:', error);
       set({ error: 'Failed to fetch user information' });
-      
-      // If unauthorized, logout
+
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         get().logout();
       }
