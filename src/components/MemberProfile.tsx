@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Heading,
@@ -12,21 +12,13 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import useMemberStore from '../store/memberStore';
+import useAuth from '../hooks/useAuth';
 
 const MemberProfile: React.FC = () => {
-  const { member, isAuthenticated, isLoading, error, fetchMemberInfo, logout } = useMemberStore();
+  const { logout, fetchMemberInfo } = useMemberStore();
+  const { member, isLoading, error } = useAuth(true);
   const navigate = useNavigate();
   const toast = useToast();
-
-  useEffect(() => {
-    if (isAuthenticated && !member) {
-      fetchMemberInfo();
-    }
-
-    if (!isAuthenticated && !isLoading) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, member, fetchMemberInfo, navigate, isLoading]);
 
   const handleLogout = () => {
     logout();

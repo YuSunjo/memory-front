@@ -17,9 +17,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useMemberStore from '../store/memberStore';
+import useAuth from '../hooks/useAuth';
 
 const ProfileEditPage: React.FC = () => {
-  const { member, isAuthenticated, isLoading, error, updateMemberProfile } = useMemberStore();
+  const { updateMemberProfile } = useMemberStore();
+  const { member, isLoading, error } = useAuth(true);
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -32,17 +34,12 @@ const ProfileEditPage: React.FC = () => {
   const [uploadError, setUploadError] = useState('');
 
   useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
-      navigate('/login');
-      return;
-    }
-
     if (member) {
       setNickname(member.nickname || '');
       setProfileImageUrl(member.profileImageUrl || '');
       setPreviewUrl(member.profileImageUrl || '');
     }
-  }, [member, isAuthenticated, isLoading, navigate]);
+  }, [member]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

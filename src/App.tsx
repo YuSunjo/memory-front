@@ -6,21 +6,24 @@ import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
 import ProfileEditPage from './pages/ProfileEditPage'
+import AuthProvider from './components/AuthProvider'
 
 function App() {
   return (
     <ChakraProvider>
       <Router>
-        <Box display="flex" flexDirection="column" minHeight="100vh" bg="gray.50">
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/profile/edit" element={<ProfileEditPage />} />
-          </Routes>
-        </Box>
+        <AuthProvider>
+          <Box display="flex" flexDirection="column" minHeight="100vh" bg="gray.50">
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile/edit" element={<ProfileEditPage />} />
+            </Routes>
+          </Box>
+        </AuthProvider>
       </Router>
     </ChakraProvider>
   )

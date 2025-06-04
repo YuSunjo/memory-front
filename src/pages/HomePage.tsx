@@ -1,16 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Heading, Text, VStack, Container } from '@chakra-ui/react';
-import useMemberStore from '../store/memberStore';
 
 const HomePage: React.FC = () => {
-  const { isAuthenticated, fetchMemberInfo } = useMemberStore();
-
-  useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    if (accessToken && !isAuthenticated) {
-      fetchMemberInfo();
-    }
-  }, [isAuthenticated, fetchMemberInfo]);
 
   return (
     <Container maxW="container.lg" centerContent flex="1" py={8}>
