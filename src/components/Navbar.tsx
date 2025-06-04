@@ -15,13 +15,18 @@ const Navbar: React.FC = () => {
       boxShadow="0 2px 4px rgba(0, 0, 0, 0.1)"
       width="100%"
     >
-      <Box>
+      <Box cursor="pointer" onClick={() => navigate('/')}>
         <Heading as="h1" size="md" fontWeight="bold" color="gray.700">
           Memory
         </Heading>
       </Box>
       <HStack spacing={4}>
-        <Button variant="ghost" color="gray.700" _hover={{ bg: 'gray.100' }}>
+        <Button 
+          variant="ghost" 
+          color="gray.700" 
+          _hover={{ bg: 'gray.100' }}
+          onClick={() => navigate('/login')}
+        >
           Login
         </Button>
         <Button 
