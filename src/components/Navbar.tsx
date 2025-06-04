@@ -39,6 +39,7 @@ const Navbar: React.FC = () => {
               <Avatar 
                 size="sm" 
                 name={member?.name || member?.nickname} 
+                src={member?.profileImageUrl}
                 bg="blue.500" 
                 color="white"
                 cursor="pointer"
