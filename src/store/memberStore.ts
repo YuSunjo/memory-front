@@ -6,6 +6,7 @@ interface Member {
   email?: string;
   name?: string;
   nickname?: string;
+  profileImageUrl?: string;
 }
 
 interface AuthTokens {
@@ -22,6 +23,7 @@ interface MemberState {
   logout: () => void;
   fetchMemberInfo: () => Promise<void>;
   setMember: (member: Member) => void;
+  updateMemberProfile: (nickname: string, profileImageUrl?: string) => Promise<boolean>;
 }
 
 const useMemberStore = create<MemberState>((set, get) => ({
@@ -116,6 +118,54 @@ const useMemberStore = create<MemberState>((set, get) => ({
 
   setMember: (member: Member) => {
     set({ member, isAuthenticated: true });
+  },
+
+  updateMemberProfile: async (nickname: string, profileImageUrl?: string) => {
+    console.log('updateMemberProfile', nickname, profileImageUrl);
+    set({ isLoading: true, error: null });
+
+    const accessToken = localStorage.getItem('accessToken');
+
+    if (!accessToken) {
+      set({ error: 'No access token found', isLoading: false });
+      return false;
+    }
+
+    try {
+      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/member/me`;
+
+      const updateData: Partial<Member> = { nickname };
+      if (profileImageUrl) {
+        updateData.profileImageUrl = profileImageUrl;
+      }
+
+      const response = await axios.put(apiUrl, updateData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+
+      if (response.status === 200) {
+        // Update the member in the store with the new data
+        const currentMember = get().member;
+        if (currentMember) {
+          set({
+            member: {
+              ...currentMember,
+              ...updateData
+            }
+          });
+        }
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error updating member profile:', error);
+      set({ error: 'Failed to update member profile' });
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
   }
 }));
 
