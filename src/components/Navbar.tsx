@@ -1,11 +1,11 @@
 import React from 'react';
 import { Flex, Box, Heading, Button, HStack, Avatar, Menu, MenuButton, MenuList, MenuItem, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import useUserStore from '../store/userStore';
+import useMemberStore from '../store/memberStore';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, user, logout } = useUserStore();
+  const { isAuthenticated, member, logout } = useMemberStore();
 
   const handleLogout = () => {
     logout();
@@ -38,7 +38,7 @@ const Navbar: React.FC = () => {
             <MenuButton>
               <Avatar 
                 size="sm" 
-                name={user?.name || user?.nickname} 
+                name={member?.name || member?.nickname} 
                 bg="blue.500" 
                 color="white"
                 cursor="pointer"

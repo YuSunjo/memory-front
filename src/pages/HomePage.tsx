@@ -1,16 +1,16 @@
 import React, { useEffect } from 'react';
 import { Heading, Text, VStack, Container } from '@chakra-ui/react';
-import useUserStore from '../store/userStore';
+import useMemberStore from '../store/memberStore';
 
 const HomePage: React.FC = () => {
-  const { isAuthenticated, fetchUserInfo } = useUserStore();
+  const { isAuthenticated, fetchMemberInfo } = useMemberStore();
 
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
     if (accessToken && !isAuthenticated) {
-      fetchUserInfo();
+      fetchMemberInfo();
     }
-  }, [isAuthenticated, fetchUserInfo]);
+  }, [isAuthenticated, fetchMemberInfo]);
 
   return (
     <Container maxW="container.lg" centerContent flex="1" py={8}>

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
-interface User {
+interface Member {
   id?: number;
   email?: string;
   name?: string;
@@ -13,19 +13,19 @@ interface AuthTokens {
   refreshToken: string;
 }
 
-interface UserState {
-  user: User | null;
+interface MemberState {
+  member: Member | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  fetchUserInfo: () => Promise<void>;
-  setUser: (user: User) => void;
+  fetchMemberInfo: () => Promise<void>;
+  setMember: (member: Member) => void;
 }
 
-const useUserStore = create<UserState>((set, get) => ({
-  user: null,
+const useMemberStore = create<MemberState>((set, get) => ({
+  member: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
@@ -48,7 +48,7 @@ const useUserStore = create<UserState>((set, get) => ({
 
         set({ isAuthenticated: true });
 
-        await get().fetchUserInfo();
+        await get().fetchMemberInfo();
         return true;
       }
       return false;
@@ -66,14 +66,14 @@ const useUserStore = create<UserState>((set, get) => ({
     localStorage.removeItem('refreshToken');
 
     set({
-      user: null,
+      member: null,
       isAuthenticated: false,
       error: null
     });
   },
 
-  fetchUserInfo: async () => {
-    if (get().user) {
+  fetchMemberInfo: async () => {
+    if (get().member) {
       return;
     }
 
@@ -96,15 +96,15 @@ const useUserStore = create<UserState>((set, get) => ({
       });
 
       if (response.status === 200) {
-        const userData = response.data.data as User;
+        const memberData = response.data.data as Member;
         set({
-          user: userData,
+          member: memberData,
           isAuthenticated: true
         });
       }
     } catch (error) {
-      console.error('Error fetching user info:', error);
-      set({ error: 'Failed to fetch user information' });
+      console.error('Error fetching member info:', error);
+      set({ error: 'Failed to fetch member information' });
 
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         get().logout();
@@ -114,9 +114,9 @@ const useUserStore = create<UserState>((set, get) => ({
     }
   },
 
-  setUser: (user: User) => {
-    set({ user, isAuthenticated: true });
+  setMember: (member: Member) => {
+    set({ member, isAuthenticated: true });
   }
 }));
 
-export default useUserStore;
+export default useMemberStore;

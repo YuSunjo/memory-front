@@ -9,22 +9,22 @@ import {
   useToast
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import useUserStore from '../store/userStore';
+import useMemberStore from '../store/memberStore';
 
-const UserProfile: React.FC = () => {
-  const { user, isAuthenticated, isLoading, error, fetchUserInfo, logout } = useUserStore();
+const MemberProfile: React.FC = () => {
+  const { member, isAuthenticated, isLoading, error, fetchMemberInfo, logout } = useMemberStore();
   const navigate = useNavigate();
   const toast = useToast();
 
   useEffect(() => {
-    if (isAuthenticated && !user) {
-      fetchUserInfo();
+    if (isAuthenticated && !member) {
+      fetchMemberInfo();
     }
     
     if (!isAuthenticated && !isLoading) {
       navigate('/login');
     }
-  }, [isAuthenticated, user, fetchUserInfo, navigate, isLoading]);
+  }, [isAuthenticated, member, fetchMemberInfo, navigate, isLoading]);
 
   const handleLogout = () => {
     logout();
@@ -42,7 +42,7 @@ const UserProfile: React.FC = () => {
     return (
       <Box textAlign="center" py={10}>
         <Spinner size="xl" />
-        <Text mt={4}>Loading user information...</Text>
+        <Text mt={4}>Loading member information...</Text>
       </Box>
     );
   }
@@ -52,17 +52,17 @@ const UserProfile: React.FC = () => {
       <Box textAlign="center" py={10}>
         <Heading size="md" color="red.500">Error</Heading>
         <Text mt={4}>{error}</Text>
-        <Button mt={4} onClick={() => fetchUserInfo()}>
+        <Button mt={4} onClick={() => fetchMemberInfo()}>
           Try Again
         </Button>
       </Box>
     );
   }
 
-  if (!user) {
+  if (!member) {
     return (
       <Box textAlign="center" py={10}>
-        <Text>No user information available</Text>
+        <Text>No member information available</Text>
       </Box>
     );
   }
@@ -70,21 +70,21 @@ const UserProfile: React.FC = () => {
   return (
     <Box bg="white" p={6} rounded="md" shadow="md" w="100%">
       <VStack spacing={4} align="stretch">
-        <Heading size="lg">User Profile</Heading>
+        <Heading size="lg">Member Profile</Heading>
         
         <Box>
           <Text fontWeight="bold">Email:</Text>
-          <Text>{user.email}</Text>
+          <Text>{member.email}</Text>
         </Box>
         
         <Box>
           <Text fontWeight="bold">Name:</Text>
-          <Text>{user.name}</Text>
+          <Text>{member.name}</Text>
         </Box>
         
         <Box>
           <Text fontWeight="bold">Nickname:</Text>
-          <Text>{user.nickname}</Text>
+          <Text>{member.nickname}</Text>
         </Box>
         
         <Button colorScheme="red" onClick={handleLogout} mt={4}>
@@ -95,4 +95,4 @@ const UserProfile: React.FC = () => {
   );
 };
 
-export default UserProfile;
+export default MemberProfile;

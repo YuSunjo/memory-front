@@ -13,12 +13,12 @@ import {
   Container
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import useUserStore from '../store/userStore';
+import useMemberStore from '../store/memberStore';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
-  const { login, isLoading, error } = useUserStore();
+  const { login, isLoading, error } = useMemberStore();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -76,7 +76,7 @@ const LoginPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Use the login function from userStore
+      // Use the login function from memberStore
       const success = await login(formData.email, formData.password);
 
       if (success) {
