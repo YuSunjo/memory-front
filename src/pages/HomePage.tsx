@@ -1,7 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Heading, Text, VStack, Container } from '@chakra-ui/react';
+import useUserStore from '../store/userStore';
 
 const HomePage: React.FC = () => {
+  const { isAuthenticated, fetchUserInfo } = useUserStore();
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken && !isAuthenticated) {
+      fetchUserInfo();
+    }
+  }, [isAuthenticated, fetchUserInfo]);
+
   return (
     <Container maxW="container.lg" centerContent flex="1" py={8}>
       <VStack spacing={4} textAlign="center">

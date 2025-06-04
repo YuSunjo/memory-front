@@ -123,8 +123,8 @@ const SignupPage: React.FC = () => {
           isClosable: true,
         });
 
-        // Redirect to login page or home page
-        navigate('/');
+        // Redirect to login page after successful signup
+        navigate('/login');
       }
     } catch (error) {
       toast({

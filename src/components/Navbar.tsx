@@ -1,9 +1,16 @@
 import React from 'react';
-import { Flex, Box, Heading, Button, HStack } from '@chakra-ui/react';
+import { Flex, Box, Heading, Button, HStack, Avatar, Menu, MenuButton, MenuList, MenuItem, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import useUserStore from '../store/userStore';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useUserStore();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <Flex
@@ -15,28 +22,57 @@ const Navbar: React.FC = () => {
       boxShadow="0 2px 4px rgba(0, 0, 0, 0.1)"
       width="100%"
     >
-      <Box cursor="pointer" onClick={() => navigate('/')}>
+      <Box 
+        cursor="pointer" 
+        onClick={() => {
+          navigate('/');
+        }}
+      >
         <Heading as="h1" size="md" fontWeight="bold" color="gray.700">
           Memory
         </Heading>
       </Box>
       <HStack spacing={4}>
-        <Button 
-          variant="ghost" 
-          color="gray.700" 
-          _hover={{ bg: 'gray.100' }}
-          onClick={() => navigate('/login')}
-        >
-          Login
-        </Button>
-        <Button 
-          bg="#646cff" 
-          color="white" 
-          _hover={{ bg: '#535bf2' }}
-          onClick={() => navigate('/signup')}
-        >
-          SignUp
-        </Button>
+        {isAuthenticated ? (
+          <Menu>
+            <MenuButton>
+              <Avatar 
+                size="sm" 
+                name={user?.name || user?.nickname} 
+                bg="blue.500" 
+                color="white"
+                cursor="pointer"
+              />
+            </MenuButton>
+            <MenuList>
+              <MenuItem onClick={() => navigate('/profile')}>
+                <Text fontWeight="bold">Profile</Text>
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <Text color="red.500">Logout</Text>
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        ) : (
+          <>
+            <Button 
+              variant="ghost" 
+              color="gray.700" 
+              _hover={{ bg: 'gray.100' }}
+              onClick={() => navigate('/login')}
+            >
+              Login
+            </Button>
+            <Button 
+              bg="#646cff" 
+              color="white" 
+              _hover={{ bg: '#535bf2' }}
+              onClick={() => navigate('/signup')}
+            >
+              SignUp
+            </Button>
+          </>
+        )}
       </HStack>
     </Flex>
   );
