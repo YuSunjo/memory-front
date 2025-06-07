@@ -6,8 +6,8 @@ import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
 import ProfileEditPage from './pages/ProfileEditPage'
-import RelationshipPage from './pages/RelationshipPage'
 import AuthProvider from './components/AuthProvider'
+import RelationshipPage from "./pages/RelationshipPage.tsx";
 
 function App() {
   return (

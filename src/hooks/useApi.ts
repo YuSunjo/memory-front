@@ -5,12 +5,14 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-const noAuthEndpoints = ['/v1/member/login', '/v1/member/signup'];
+const noAuthEndpoints = ['/v1/member/login', '/v1/member/signup', '/v1/member/email'];
 
 api.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem('accessToken');
     const url = config.url || '';
+
+    console.log('Request URL:', url);
 
     const requiresAuth = !noAuthEndpoints.some(endpoint => url.includes(endpoint));
 
