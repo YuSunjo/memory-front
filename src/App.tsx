@@ -6,6 +6,7 @@ import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
 import ProfileEditPage from './pages/ProfileEditPage'
+import RelationshipPage from './pages/RelationshipPage'
 import AuthProvider from './components/AuthProvider'
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/profile/edit" element={<ProfileEditPage />} />
+              <Route path="/relationship" element={<RelationshipPage />} />
             </Routes>
           </Box>
         </AuthProvider>

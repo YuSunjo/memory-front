@@ -107,7 +107,6 @@ const useMemberStore = create<MemberState>((set, get) => ({
   },
 
   updateMemberProfile: async (nickname: string, profileImageUrl?: string) => {
-    console.log('updateMemberProfile', nickname, profileImageUrl);
     set({ isLoading: true, error: null });
 
     try {
