@@ -39,6 +39,9 @@ const RelationshipPage: React.FC = () => {
   const [searchedMember, setSearchedMember] = useState<MemberResponse['data'] | null>(null);
   const [searching, setSearching] = useState<boolean>(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [requestLoading, setRequestLoading] = useState<boolean>(false);
+  const [requestSuccess, setRequestSuccess] = useState<boolean>(false);
+  const [requestError, setRequestError] = useState<string | null>(null);
   const api = useApi();
 
   useEffect(() => {
@@ -63,6 +66,8 @@ const RelationshipPage: React.FC = () => {
     // Reset previous search results and errors
     setSearchedMember(null);
     setSearchError(null);
+    setRequestSuccess(false);
+    setRequestError(null);
 
     // Validate email is not empty
     if (!email.trim()) {
@@ -79,6 +84,26 @@ const RelationshipPage: React.FC = () => {
       setSearchError('회원을 찾을 수 없습니다. 이메일을 확인해주세요.');
     } finally {
       setSearching(false);
+    }
+  };
+
+  const handleCoupleRequest = async () => {
+    if (!searchedMember) return;
+
+    setRequestSuccess(false);
+    setRequestError(null);
+
+    try {
+      setRequestLoading(true);
+      await api.post('/v1/relationship/request', {
+        relatedMemberId: searchedMember.id
+      });
+      setRequestSuccess(true);
+    } catch (err) {
+      console.error('Error sending relationship request:', err);
+      setRequestError('관계 요청을 보내는데 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setRequestLoading(false);
     }
   };
 
@@ -119,17 +144,42 @@ const RelationshipPage: React.FC = () => {
 
             {searchedMember && (
               <Box p={4} borderWidth="1px" borderRadius="md" width="100%" mt={4}>
-                <HStack spacing={4}>
-                  <Avatar 
-                    name={searchedMember.name || searchedMember.nickname} 
-                    src={searchedMember.profileImageUrl}
-                    size="md"
-                  />
-                  <Box>
-                    <Text fontWeight="bold">{searchedMember.name || searchedMember.nickname}</Text>
-                    <Text fontSize="sm" color="gray.500">{searchedMember.email}</Text>
-                  </Box>
+                <HStack spacing={4} justify="space-between">
+                  <HStack spacing={4}>
+                    <Avatar 
+                      name={searchedMember.name || searchedMember.nickname} 
+                      src={searchedMember.profileImageUrl}
+                      size="md"
+                    />
+                    <Box>
+                      <Text fontWeight="bold">{searchedMember.name || searchedMember.nickname}</Text>
+                      <Text fontSize="sm" color="gray.500">{searchedMember.email}</Text>
+                    </Box>
+                  </HStack>
+                  <Button 
+                    colorScheme="pink" 
+                    onClick={handleCoupleRequest}
+                    isLoading={requestLoading}
+                    loadingText="요청 중"
+                    isDisabled={requestSuccess}
+                  >
+                    커플
+                  </Button>
                 </HStack>
+
+                {requestSuccess && (
+                  <Alert status="success" mt={2} borderRadius="md">
+                    <AlertIcon />
+                    커플 요청이 성공적으로 전송되었습니다.
+                  </Alert>
+                )}
+
+                {requestError && (
+                  <Alert status="error" mt={2} borderRadius="md">
+                    <AlertIcon />
+                    {requestError}
+                  </Alert>
+                )}
               </Box>
             )}
           </VStack>
