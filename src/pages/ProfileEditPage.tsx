@@ -15,9 +15,9 @@ import {
   Spinner
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import useMemberStore from '../store/memberStore';
 import useAuth from '../hooks/useAuth';
+import { api } from '../hooks/useApi';
 
 const ProfileEditPage: React.FC = () => {
   const { updateMemberProfile } = useMemberStore();
@@ -26,7 +26,6 @@ const ProfileEditPage: React.FC = () => {
   const toast = useToast();
 
   const [nickname, setNickname] = useState('');
-  const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,8 +43,6 @@ const ProfileEditPage: React.FC = () => {
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setProfileImage(file);
-      // Create a preview URL for the selected image
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
 
@@ -57,20 +54,12 @@ const ProfileEditPage: React.FC = () => {
         const formData = new FormData();
         formData.append('image', file);
 
-        const accessToken = localStorage.getItem('accessToken');
-        if (!accessToken) {
-          setUploadError('No access token found');
-          setIsUploading(false);
-          return;
-        }
-
-        const response = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/v1/image`,
+        const response = await api.post(
+          '/v1/image',
           formData,
           {
             headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${accessToken}`
+              'Content-Type': 'multipart/form-data'
             }
           }
         );

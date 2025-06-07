@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import axios from 'axios';
+import { AxiosError } from 'axios';
+import { api } from '../hooks/useApi';
 
 interface Member {
   id?: number;
@@ -35,9 +36,7 @@ const useMemberStore = create<MemberState>((set, get) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/member/login`;
-
-      const response = await axios.post(apiUrl, {
+      const response = await api.post('/v1/member/login', {
         email,
         password
       });
@@ -79,23 +78,10 @@ const useMemberStore = create<MemberState>((set, get) => ({
       return;
     }
 
-    const accessToken = localStorage.getItem('accessToken');
-
-    if (!accessToken) {
-      set({ error: 'No access token found' });
-      return;
-    }
-
     set({ isLoading: true, error: null });
 
     try {
-      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/member/me`;
-
-      const response = await axios.get(apiUrl, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      });
+      const response = await api.get('/v1/member/me');
 
       if (response.status === 200) {
         const memberData = response.data.data as Member;
@@ -108,7 +94,7 @@ const useMemberStore = create<MemberState>((set, get) => ({
       console.error('Error fetching member info:', error);
       set({ error: 'Failed to fetch member information' });
 
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
+      if (error instanceof AxiosError && error.response?.status === 401) {
         get().logout();
       }
     } finally {
@@ -124,26 +110,13 @@ const useMemberStore = create<MemberState>((set, get) => ({
     console.log('updateMemberProfile', nickname, profileImageUrl);
     set({ isLoading: true, error: null });
 
-    const accessToken = localStorage.getItem('accessToken');
-
-    if (!accessToken) {
-      set({ error: 'No access token found', isLoading: false });
-      return false;
-    }
-
     try {
-      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/member/me`;
-
       const updateData: Partial<Member> = { nickname };
       if (profileImageUrl) {
         updateData.profileImageUrl = profileImageUrl;
       }
 
-      const response = await axios.put(apiUrl, updateData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      });
+      const response = await api.put('/v1/member/me', updateData);
 
       if (response.status === 200) {
         // Update the member in the store with the new data

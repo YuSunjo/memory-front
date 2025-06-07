@@ -12,8 +12,8 @@ import {
   useToast,
   Container
 } from '@chakra-ui/react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../hooks/useApi';
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
@@ -105,9 +105,7 @@ const SignupPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/v1/member/signup`;
-
-      const response = await axios.post(apiUrl, {
+      const response = await api.post('/v1/member/signup', {
         email: formData.email,
         password: formData.password,
         name: formData.name,
