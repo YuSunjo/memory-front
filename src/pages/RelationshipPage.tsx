@@ -19,6 +19,14 @@ interface RelationshipResponse {
   };
 }
 
+interface ReceivedRelationshipResponse {
+  statusCode: number;
+  message: string;
+  data: {
+    relationships: Relationship[];
+  };
+}
+
 interface MemberResponse {
   statusCode: number;
   message: string;
@@ -33,6 +41,7 @@ interface MemberResponse {
 
 const RelationshipPage: React.FC = () => {
   const [relationships, setRelationships] = useState<Relationship[]>([]);
+  const [receivedRequests, setReceivedRequests] = useState<Relationship[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string>('');
@@ -48,8 +57,20 @@ const RelationshipPage: React.FC = () => {
     const fetchRelationships = async () => {
       try {
         setLoading(true);
+        // First, check for existing relationships
         const response = await api.get<RelationshipResponse>('/v1/relationship');
-        setRelationships(response.data.data.relationships);
+        const relationships = response.data.data.relationships;
+        setRelationships(relationships);
+
+        if (relationships.length === 0) {
+          try {
+            const receivedResponse = await api.get<ReceivedRelationshipResponse>('/v1/relationship/received');
+            setReceivedRequests(receivedResponse.data.data.relationships);
+          } catch (receivedErr) {
+            console.error('Error fetching received relationship requests:', receivedErr);
+          }
+        }
+
         setError(null);
       } catch (err) {
         console.error('Error fetching relationships:', err);
@@ -116,7 +137,34 @@ const RelationshipPage: React.FC = () => {
           </Center>
         ) : error ? (
           <Text color="red.500">{error}</Text>
-        ) : relationships.length === 0 ? (
+        ) : relationships.length > 0 ? (
+          <VStack spacing={4} align="stretch">
+            {relationships.map((relationship) => (
+              <Box key={relationship.id} p={4} borderWidth="1px" borderRadius="md">
+                <Text>ID: {relationship.id}</Text>
+                <Text>Status: {relationship.relationshipStatus}</Text>
+                <Text>Start Date: {new Date(relationship.startDate).toLocaleDateString()}</Text>
+                {relationship.endDate && (
+                  <Text>End Date: {new Date(relationship.endDate).toLocaleDateString()}</Text>
+                )}
+              </Box>
+            ))}
+          </VStack>
+        ) : receivedRequests.length > 0 ? (
+          <VStack spacing={4} align="stretch">
+            <Text fontSize="xl" fontWeight="medium" mb={2}>받은 관계 요청</Text>
+            {receivedRequests.map((request) => (
+              <Box key={request.id} p={4} borderWidth="1px" borderRadius="md">
+                <Text>ID: {request.id}</Text>
+                <Text>Status: {request.relationshipStatus}</Text>
+                <Text>Start Date: {new Date(request.startDate).toLocaleDateString()}</Text>
+                {request.endDate && (
+                  <Text>End Date: {new Date(request.endDate).toLocaleDateString()}</Text>
+                )}
+              </Box>
+            ))}
+          </VStack>
+        ) : (
           <VStack spacing={4} py={10} width="100%">
             <Text fontSize="xl" fontWeight="medium">짝을 찾아보세요</Text>
             <HStack width="100%" spacing={2}>
@@ -182,19 +230,6 @@ const RelationshipPage: React.FC = () => {
                 )}
               </Box>
             )}
-          </VStack>
-        ) : (
-          <VStack spacing={4} align="stretch">
-            {relationships.map((relationship) => (
-              <Box key={relationship.id} p={4} borderWidth="1px" borderRadius="md">
-                <Text>ID: {relationship.id}</Text>
-                <Text>Status: {relationship.relationshipStatus}</Text>
-                <Text>Start Date: {new Date(relationship.startDate).toLocaleDateString()}</Text>
-                {relationship.endDate && (
-                  <Text>End Date: {new Date(relationship.endDate).toLocaleDateString()}</Text>
-                )}
-              </Box>
-            ))}
           </VStack>
         )}
       </Box>
