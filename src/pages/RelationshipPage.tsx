@@ -2,13 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { Container, Box, Text, VStack, Spinner, Center, Input, Button, HStack, Alert, AlertIcon, Avatar } from '@chakra-ui/react';
 import useApi from '../hooks/useApi';
 
+interface Member {
+  id: number;
+  email: string;
+  name: string;
+  nickname: string;
+  profileImageUrl: string;
+}
+
 interface Relationship {
   id: number;
-  memberId: number;
-  relatedMemberId: number;
+  member: Member;
+  relatedMember: Member;
   relationshipStatus: string;
   startDate: string;
-  endDate: string;
+  endDate: string | null;
 }
 
 interface RelationshipResponse {
@@ -141,12 +149,56 @@ const RelationshipPage: React.FC = () => {
           <VStack spacing={4} align="stretch">
             {relationships.map((relationship) => (
               <Box key={relationship.id} p={4} borderWidth="1px" borderRadius="md">
-                <Text>ID: {relationship.id}</Text>
-                <Text>Status: {relationship.relationshipStatus}</Text>
-                <Text>Start Date: {new Date(relationship.startDate).toLocaleDateString()}</Text>
-                {relationship.endDate && (
-                  <Text>End Date: {new Date(relationship.endDate).toLocaleDateString()}</Text>
-                )}
+                <VStack spacing={4} align="stretch">
+                  <HStack justify="space-between">
+                    <Text fontWeight="bold">Status: {relationship.relationshipStatus}</Text>
+                    <Text fontSize="sm" color="gray.500">
+                      {new Date(relationship.startDate).toLocaleDateString()} 부터
+                      {relationship.endDate && ` ~ ${new Date(relationship.endDate).toLocaleDateString()} 까지`}
+                    </Text>
+                  </HStack>
+
+                  <HStack spacing={6} align="flex-start">
+                    {/* Member */}
+                    <Box flex="1">
+                      <VStack align="start" spacing={2}>
+                        <HStack>
+                          <Avatar 
+                            name={relationship.member.name || relationship.member.nickname} 
+                            src={relationship.member.profileImageUrl}
+                            size="md"
+                          />
+                          <Box>
+                            <Text fontWeight="bold">{relationship.member.name || relationship.member.nickname}</Text>
+                            <Text fontSize="sm" color="gray.500">{relationship.member.email}</Text>
+                          </Box>
+                        </HStack>
+                      </VStack>
+                    </Box>
+
+                    {/* Divider with arrow */}
+                    <Center>
+                      <Text fontSize="xl">↔️</Text>
+                    </Center>
+
+                    {/* Related Member */}
+                    <Box flex="1">
+                      <VStack align="start" spacing={2}>
+                        <HStack>
+                          <Avatar 
+                            name={relationship.relatedMember.name || relationship.relatedMember.nickname} 
+                            src={relationship.relatedMember.profileImageUrl}
+                            size="md"
+                          />
+                          <Box>
+                            <Text fontWeight="bold">{relationship.relatedMember.name || relationship.relatedMember.nickname}</Text>
+                            <Text fontSize="sm" color="gray.500">{relationship.relatedMember.email}</Text>
+                          </Box>
+                        </HStack>
+                      </VStack>
+                    </Box>
+                  </HStack>
+                </VStack>
               </Box>
             ))}
           </VStack>
@@ -155,12 +207,56 @@ const RelationshipPage: React.FC = () => {
             <Text fontSize="xl" fontWeight="medium" mb={2}>받은 관계 요청</Text>
             {receivedRequests.map((request) => (
               <Box key={request.id} p={4} borderWidth="1px" borderRadius="md">
-                <Text>ID: {request.id}</Text>
-                <Text>Status: {request.relationshipStatus}</Text>
-                <Text>Start Date: {new Date(request.startDate).toLocaleDateString()}</Text>
-                {request.endDate && (
-                  <Text>End Date: {new Date(request.endDate).toLocaleDateString()}</Text>
-                )}
+                <VStack spacing={4} align="stretch">
+                  <HStack justify="space-between">
+                    <Text fontWeight="bold">Status: {request.relationshipStatus}</Text>
+                    <Text fontSize="sm" color="gray.500">
+                      {new Date(request.startDate).toLocaleDateString()} 부터
+                      {request.endDate && ` ~ ${new Date(request.endDate).toLocaleDateString()} 까지`}
+                    </Text>
+                  </HStack>
+
+                  <HStack spacing={6} align="flex-start">
+                    {/* Member */}
+                    <Box flex="1">
+                      <VStack align="start" spacing={2}>
+                        <HStack>
+                          <Avatar 
+                            name={request.member.name || request.member.nickname} 
+                            src={request.member.profileImageUrl}
+                            size="md"
+                          />
+                          <Box>
+                            <Text fontWeight="bold">{request.member.name || request.member.nickname}</Text>
+                            <Text fontSize="sm" color="gray.500">{request.member.email}</Text>
+                          </Box>
+                        </HStack>
+                      </VStack>
+                    </Box>
+
+                    {/* Divider with arrow */}
+                    <Center>
+                      <Text fontSize="xl">↔️</Text>
+                    </Center>
+
+                    {/* Related Member */}
+                    <Box flex="1">
+                      <VStack align="start" spacing={2}>
+                        <HStack>
+                          <Avatar 
+                            name={request.relatedMember.name || request.relatedMember.nickname} 
+                            src={request.relatedMember.profileImageUrl}
+                            size="md"
+                          />
+                          <Box>
+                            <Text fontWeight="bold">{request.relatedMember.name || request.relatedMember.nickname}</Text>
+                            <Text fontSize="sm" color="gray.500">{request.relatedMember.email}</Text>
+                          </Box>
+                        </HStack>
+                      </VStack>
+                    </Box>
+                  </HStack>
+                </VStack>
               </Box>
             ))}
           </VStack>
