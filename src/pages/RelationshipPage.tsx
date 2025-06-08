@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Box, Text, VStack, Spinner, Center, Input, Button, HStack, Alert, AlertIcon, Avatar } from '@chakra-ui/react';
 import useApi from '../hooks/useApi';
+import useMemberStore from '../store/memberStore';
 
 interface Member {
   id: number;
@@ -59,7 +60,10 @@ const RelationshipPage: React.FC = () => {
   const [requestLoading, setRequestLoading] = useState<boolean>(false);
   const [requestSuccess, setRequestSuccess] = useState<boolean>(false);
   const [requestError, setRequestError] = useState<string | null>(null);
+  const [acceptLoading, setAcceptLoading] = useState<boolean>(false);
+  const [acceptError, setAcceptError] = useState<string | null>(null);
   const api = useApi();
+  const { member } = useMemberStore();
 
   useEffect(() => {
     const fetchRelationships = async () => {
@@ -133,6 +137,27 @@ const RelationshipPage: React.FC = () => {
       setRequestError('관계 요청을 보내는데 실패했습니다. 다시 시도해주세요.');
     } finally {
       setRequestLoading(false);
+    }
+  };
+
+  const handleAcceptRequest = async (relationshipId: number) => {
+    setAcceptError(null);
+
+    try {
+      setAcceptLoading(true);
+      await api.post(`/v1/relationship/accept/${relationshipId}`);
+
+      // Refresh the relationships data after accepting
+      const response = await api.get<RelationshipResponse>('/v1/relationship');
+      setRelationships(response.data.data.relationships);
+
+      // Clear received requests since the request has been accepted
+      setReceivedRequests([]);
+    } catch (err) {
+      console.error('Error accepting relationship request:', err);
+      setAcceptError('관계 요청을 수락하는데 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setAcceptLoading(false);
     }
   };
 
@@ -256,6 +281,30 @@ const RelationshipPage: React.FC = () => {
                       </VStack>
                     </Box>
                   </HStack>
+
+                  {/* Accept button - only show if logged in member is the relatedMember and status is PENDING */}
+                  {member && 
+                   member.id === request.relatedMember.id && 
+                   request.relationshipStatus === "PENDING" && (
+                    <Box mt={2}>
+                      <Button 
+                        colorScheme="green" 
+                        onClick={() => handleAcceptRequest(request.id)}
+                        isLoading={acceptLoading}
+                        loadingText="수락 중"
+                        width="100%"
+                      >
+                        수락하기
+                      </Button>
+
+                      {acceptError && (
+                        <Alert status="error" mt={2} borderRadius="md">
+                          <AlertIcon />
+                          {acceptError}
+                        </Alert>
+                      )}
+                    </Box>
+                  )}
                 </VStack>
               </Box>
             ))}
