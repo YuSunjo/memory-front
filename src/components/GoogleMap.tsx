@@ -6,6 +6,7 @@ import type {LocationData, MapData} from './types';
 interface GoogleMapProps {
   apiKey: string;
   onLocationSelect?: (location: LocationData) => void;
+  onMapSelect?: (map: MapData) => void;
   maps?: MapData[];
 }
 
@@ -20,7 +21,7 @@ const defaultCenter = {
   lng: 126.9780 // Default to Seoul, Korea
 };
 
-const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, maps = [] }) => {
+const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, onMapSelect, maps = [] }) => {
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: apiKey,
@@ -154,7 +155,12 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, maps = 
               lat: parseFloat(mapData.latitude),
               lng: parseFloat(mapData.longitude)
             }}
-            onClick={() => setSelectedMapMarker(mapData)}
+            onClick={() => {
+              setSelectedMapMarker(mapData);
+              if (onMapSelect) {
+                onMapSelect(mapData);
+              }
+            }}
           />
         ))}
 
