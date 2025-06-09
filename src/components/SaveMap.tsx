@@ -1,12 +1,25 @@
 import React, { useState } from 'react';
-import { Box, VStack, Heading, Text, Input, Button, useToast } from '@chakra-ui/react';
+import { Box, VStack, Heading, Text, Input, Button, useToast, Alert, AlertIcon } from '@chakra-ui/react';
+import type {LocationData} from './types';
+import useApi from '../hooks/useApi';
 
-const SaveMap: React.FC = () => {
+interface SaveMapProps {
+  selectedLocation: LocationData | null;
+}
+
+const SaveMap: React.FC<SaveMapProps> = ({ selectedLocation }) => {
   const [mapName, setMapName] = useState<string>('');
   const [mapDescription, setMapDescription] = useState<string>('');
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const toast = useToast();
+  const api = useApi();
 
-  const handleSaveMap = () => {
+  const handleSaveMap = async () => {
+    // Reset error state
+    setError(null);
+
+    // Validate inputs
     if (!mapName.trim()) {
       toast({
         title: 'Name is required',
@@ -18,26 +31,76 @@ const SaveMap: React.FC = () => {
       return;
     }
 
-    // Here you would typically make an API call to save the map
-    console.log('Saving map:', { name: mapName, description: mapDescription });
+    if (!selectedLocation) {
+      toast({
+        title: 'Location is required',
+        description: 'Please select a location on the map',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
 
-    toast({
-      title: 'Map saved',
-      description: 'Your map has been saved successfully',
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
+    try {
+      setIsSaving(true);
 
-    // Clear the form
-    setMapName('');
-    setMapDescription('');
+      // Prepare request data
+      const mapData = {
+        name: mapName,
+        description: mapDescription,
+        address: selectedLocation.address,
+        latitude: selectedLocation.latitude.toString(),
+        longitude: selectedLocation.longitude.toString(),
+        mapType: "USER_PLACE"
+      };
+
+      // todo - 지도 다시 불러오기
+      await api.post('/v1/maps', mapData);
+      // Show success toast
+      toast({
+        title: 'Map saved',
+        description: 'Your map has been saved successfully',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+
+      // Clear the form
+      setMapName('');
+      setMapDescription('');
+    } catch (err) {
+      console.error('Error saving map:', err);
+      setError('Failed to save map. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <Box height="50%" p={4}>
       <VStack spacing={4} align="start">
         <Heading as="h2" size="lg" color="gray.700">Save a map</Heading>
+
+        {selectedLocation ? (
+          <Alert status="info" borderRadius="md">
+            <AlertIcon />
+            Selected location: {selectedLocation.address}
+          </Alert>
+        ) : (
+          <Alert status="warning" borderRadius="md">
+            <AlertIcon />
+            Click on the map to select a location
+          </Alert>
+        )}
+
+        {error && (
+          <Alert status="error" borderRadius="md">
+            <AlertIcon />
+            {error}
+          </Alert>
+        )}
+
         <VStack width="100%" spacing={3} align="start">
           <Box width="100%">
             <Text mb={1}>Name</Text>
@@ -59,6 +122,9 @@ const SaveMap: React.FC = () => {
             colorScheme="blue" 
             mt={2}
             onClick={handleSaveMap}
+            isLoading={isSaving}
+            loadingText="Saving"
+            isDisabled={!selectedLocation}
           >
             Save
           </Button>

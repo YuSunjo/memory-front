@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Heading, Text, VStack, Container, Flex, Box } from '@chakra-ui/react';
 import GoogleMap from '../components/GoogleMap';
+import type {LocationData} from '../components/types';
 import UpcomingEvents from '../components/UpcomingEvents';
 import SaveMap from '../components/SaveMap';
 
 const HomePage: React.FC = () => {
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
+
+  const handleLocationSelect = (location: LocationData) => {
+    setSelectedLocation(location);
+  };
 
   return (
     <Container maxW="container.xl" p={0} flex="1">
@@ -15,7 +21,10 @@ const HomePage: React.FC = () => {
           <Flex height="100%">
             {/* Google Map - takes up 2/3 of the screen width */}
             <Box width="66.67%" height="100%">
-              <GoogleMap apiKey={googleMapsApiKey} />
+              <GoogleMap 
+                apiKey={googleMapsApiKey} 
+                onLocationSelect={handleLocationSelect}
+              />
             </Box>
 
             {/* Content - takes up 1/3 of the screen width */}
@@ -24,7 +33,7 @@ const HomePage: React.FC = () => {
               <UpcomingEvents />
 
               {/* Bottom section - Save a map */}
-              <SaveMap />
+              <SaveMap selectedLocation={selectedLocation} />
             </Box>
           </Flex>
         </Box>

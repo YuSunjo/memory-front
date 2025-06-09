@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
-import { GoogleMap as GoogleMapComponent, useJsApiLoader } from '@react-google-maps/api';
+import { GoogleMap as GoogleMapComponent, useJsApiLoader, Marker } from '@react-google-maps/api';
+import type {LocationData} from './types';
 
 interface GoogleMapProps {
   apiKey: string;
+  onLocationSelect?: (location: LocationData) => void;
 }
 
 const containerStyle = {
@@ -17,21 +19,61 @@ const center = {
   lng: 126.9780 // Default to Seoul, Korea
 };
 
-const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey }) => {
+const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect }) => {
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: apiKey
+    googleMapsApiKey: apiKey,
+    libraries: ['places']
   });
 
-  const [map, setMap] = React.useState<google.maps.Map | null>(null);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [selectedPosition, setSelectedPosition] = useState<google.maps.LatLngLiteral | null>(null);
+  const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
 
-  const onLoad = React.useCallback((map: google.maps.Map) => {
+  // Initialize geocoder when map is loaded
+  useEffect(() => {
+    if (isLoaded && !geocoder) {
+      setGeocoder(new google.maps.Geocoder());
+    }
+  }, [isLoaded, geocoder]);
+
+  const onLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
   }, []);
 
-  const onUnmount = React.useCallback(() => {
+  const onUnmount = useCallback(() => {
     setMap(null);
   }, []);
+
+  const handleMapClick = useCallback((e: google.maps.MapMouseEvent) => {
+    if (e.latLng) {
+      const position = {
+        lat: e.latLng.lat(),
+        lng: e.latLng.lng()
+      };
+      setSelectedPosition(position);
+
+      // Get address from coordinates using geocoder
+      if (geocoder) {
+        geocoder.geocode({ location: position }, (results, status) => {
+          if (status === 'OK' && results && results[0]) {
+            const address = results[0].formatted_address;
+
+            // Pass location data to parent component
+            if (onLocationSelect) {
+              onLocationSelect({
+                latitude: position.lat,
+                longitude: position.lng,
+                address
+              });
+            }
+          } else {
+            console.error('Geocoder failed due to: ' + status);
+          }
+        });
+      }
+    }
+  }, [geocoder, onLocationSelect]);
 
   if (loadError) {
     return <Box>Error loading maps</Box>;
@@ -55,7 +97,14 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey }) => {
         zoom={12}
         onLoad={onLoad}
         onUnmount={onUnmount}
-      />
+        onClick={handleMapClick}
+      >
+        {selectedPosition && (
+          <Marker
+            position={selectedPosition}
+          />
+        )}
+      </GoogleMapComponent>
     </Box>
   );
 };
