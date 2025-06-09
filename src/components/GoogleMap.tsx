@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
-import { GoogleMap as GoogleMapComponent, useJsApiLoader, Marker } from '@react-google-maps/api';
-import type {LocationData} from './types';
+import { GoogleMap as GoogleMapComponent, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import type {LocationData, MapData} from './types';
 
 interface GoogleMapProps {
   apiKey: string;
   onLocationSelect?: (location: LocationData) => void;
+  maps?: MapData[];
 }
 
 const containerStyle = {
@@ -19,7 +20,7 @@ const center = {
   lng: 126.9780 // Default to Seoul, Korea
 };
 
-const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect }) => {
+const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, maps = [] }) => {
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: apiKey,
@@ -29,6 +30,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect }) => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<google.maps.LatLngLiteral | null>(null);
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
+  const [selectedMapMarker, setSelectedMapMarker] = useState<MapData | null>(null);
 
   // Initialize geocoder when map is loaded
   useEffect(() => {
@@ -99,10 +101,40 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect }) => {
         onUnmount={onUnmount}
         onClick={handleMapClick}
       >
+        {/* Display marker for selected position */}
         {selectedPosition && (
           <Marker
             position={selectedPosition}
           />
+        )}
+
+        {/* Display markers for each map */}
+        {maps.map((mapData) => (
+          <Marker
+            key={mapData.id}
+            position={{
+              lat: parseFloat(mapData.latitude),
+              lng: parseFloat(mapData.longitude)
+            }}
+            onClick={() => setSelectedMapMarker(mapData)}
+          />
+        ))}
+
+        {/* Display info window for selected map marker */}
+        {selectedMapMarker && (
+          <InfoWindow
+            position={{
+              lat: parseFloat(selectedMapMarker.latitude),
+              lng: parseFloat(selectedMapMarker.longitude)
+            }}
+            onCloseClick={() => setSelectedMapMarker(null)}
+          >
+            <div>
+              <h3>{selectedMapMarker.name}</h3>
+              <p>{selectedMapMarker.description}</p>
+              <p>{selectedMapMarker.address}</p>
+            </div>
+          </InfoWindow>
         )}
       </GoogleMapComponent>
     </Box>

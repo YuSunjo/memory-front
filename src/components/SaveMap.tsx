@@ -5,9 +5,10 @@ import useApi from '../hooks/useApi';
 
 interface SaveMapProps {
   selectedLocation: LocationData | null;
+  onMapSaved?: () => void;
 }
 
-const SaveMap: React.FC<SaveMapProps> = ({ selectedLocation }) => {
+const SaveMap: React.FC<SaveMapProps> = ({ selectedLocation, onMapSaved }) => {
   const [mapName, setMapName] = useState<string>('');
   const [mapDescription, setMapDescription] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -69,6 +70,11 @@ const SaveMap: React.FC<SaveMapProps> = ({ selectedLocation }) => {
       // Clear the form
       setMapName('');
       setMapDescription('');
+
+      // Call the onMapSaved callback if provided
+      if (onMapSaved) {
+        onMapSaved();
+      }
     } catch (err) {
       console.error('Error saving map:', err);
       setError('Failed to save map. Please try again.');

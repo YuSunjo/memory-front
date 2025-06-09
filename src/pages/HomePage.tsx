@@ -1,13 +1,44 @@
-import React, { useState } from 'react';
-import { Heading, Text, VStack, Container, Flex, Box } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
+import { Heading, Text, VStack, Container, Flex, Box, Spinner, Alert, AlertIcon } from '@chakra-ui/react';
 import GoogleMap from '../components/GoogleMap';
-import type {LocationData} from '../components/types';
+import type {LocationData, MapData, MapsResponse} from '../components/types';
 import UpcomingEvents from '../components/UpcomingEvents';
 import SaveMap from '../components/SaveMap';
+import useApi from '../hooks/useApi';
+import useMemberStore from '../store/memberStore';
 
 const HomePage: React.FC = () => {
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
+  const [maps, setMaps] = useState<MapData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const api = useApi();
+  const { isAuthenticated } = useMemberStore();
+
+  const fetchMaps = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Determine which endpoint to use based on authentication status
+      const endpoint = isAuthenticated 
+        ? '/v1/maps/member'
+        : '/v1/maps';
+
+      const response = await api.get<MapsResponse>(endpoint);
+      setMaps(response.data.data || []);
+    } catch (err) {
+      console.error('Error fetching maps:', err);
+      setError('Failed to load maps. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMaps();
+  }, [isAuthenticated]);
 
   const handleLocationSelect = (location: LocationData) => {
     setSelectedLocation(location);
@@ -20,10 +51,43 @@ const HomePage: React.FC = () => {
         <Box height="66.67%" width="100%">
           <Flex height="100%">
             {/* Google Map - takes up 2/3 of the screen width */}
-            <Box width="66.67%" height="100%">
+            <Box width="66.67%" height="100%" position="relative">
+              {loading && (
+                <Box 
+                  position="absolute" 
+                  top="0" 
+                  left="0" 
+                  width="100%" 
+                  height="100%" 
+                  bg="rgba(255, 255, 255, 0.7)" 
+                  zIndex="1" 
+                  display="flex" 
+                  alignItems="center" 
+                  justifyContent="center"
+                >
+                  <Spinner size="xl" />
+                </Box>
+              )}
+
+              {error && (
+                <Box 
+                  position="absolute" 
+                  top="4" 
+                  left="4" 
+                  zIndex="1" 
+                  maxWidth="80%"
+                >
+                  <Alert status="error" borderRadius="md">
+                    <AlertIcon />
+                    {error}
+                  </Alert>
+                </Box>
+              )}
+
               <GoogleMap 
                 apiKey={googleMapsApiKey} 
                 onLocationSelect={handleLocationSelect}
+                maps={maps}
               />
             </Box>
 
@@ -33,7 +97,10 @@ const HomePage: React.FC = () => {
               <UpcomingEvents />
 
               {/* Bottom section - Save a map */}
-              <SaveMap selectedLocation={selectedLocation} />
+              <SaveMap 
+                selectedLocation={selectedLocation} 
+                onMapSaved={fetchMaps}
+              />
             </Box>
           </Flex>
         </Box>
