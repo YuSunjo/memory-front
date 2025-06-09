@@ -56,7 +56,6 @@ const SaveMap: React.FC<SaveMapProps> = ({ selectedLocation, onMapSaved }) => {
         mapType: "USER_PLACE"
       };
 
-      // todo - 지도 다시 불러오기
       await api.post('/v1/maps', mapData);
       // Show success toast
       toast({
