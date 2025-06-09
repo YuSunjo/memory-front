@@ -15,7 +15,7 @@ const containerStyle = {
   minHeight: '500px'
 };
 
-const center = {
+const defaultCenter = {
   lat: 37.5665,
   lng: 126.9780 // Default to Seoul, Korea
 };
@@ -31,6 +31,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, maps = 
   const [selectedPosition, setSelectedPosition] = useState<google.maps.LatLngLiteral | null>(null);
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
   const [selectedMapMarker, setSelectedMapMarker] = useState<MapData | null>(null);
+  const [currentCenter, setCurrentCenter] = useState<google.maps.LatLngLiteral>(defaultCenter);
 
   // Initialize geocoder when map is loaded
   useEffect(() => {
@@ -38,6 +39,29 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, maps = 
       setGeocoder(new google.maps.Geocoder());
     }
   }, [isLoaded, geocoder]);
+
+  // Get user's current location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // Success: update center to user's location
+          setCurrentCenter({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          // Error: keep using default center
+          console.error('Error getting current location:', error);
+        },
+        { timeout: 10000, enableHighAccuracy: true }
+      );
+    } else {
+      // Geolocation not supported: keep using default center
+      console.log('Geolocation is not supported by this browser.');
+    }
+  }, []);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
@@ -95,12 +119,26 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, maps = 
     >
       <GoogleMapComponent
         mapContainerStyle={containerStyle}
-        center={center}
+        center={currentCenter}
         zoom={12}
         onLoad={onLoad}
         onUnmount={onUnmount}
         onClick={handleMapClick}
       >
+        {/* Display marker for current location */}
+        <Marker
+          position={currentCenter}
+          icon={{
+            path: google.maps.SymbolPath.CIRCLE,
+            fillColor: '#4285F4',
+            fillOpacity: 1,
+            strokeColor: '#FFFFFF',
+            strokeWeight: 2,
+            scale: 8
+          }}
+          title="Your current location"
+        />
+
         {/* Display marker for selected position */}
         {selectedPosition && (
           <Marker
