@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heading, Text, VStack, Container, Flex, Box, Spinner, Alert, AlertIcon } from '@chakra-ui/react';
+import { Container, Flex, Box, Spinner, Alert, AlertIcon } from '@chakra-ui/react';
 import GoogleMap from '../components/GoogleMap';
 import type {LocationData, MapData, MapsResponse} from '../components/types';
 import UpcomingEvents from '../components/UpcomingEvents';
@@ -103,14 +103,6 @@ const HomePage: React.FC = () => {
               />
             </Box>
           </Flex>
-        </Box>
-
-        {/* Bottom section - takes up 1/3 of the screen height */}
-        <Box height="33.33%" width="100%" bg="gray.100" p={8}>
-          <VStack spacing={4} textAlign="center">
-            <Heading as="h2" size="xl" color="gray.700">Explore Your Memories</Heading>
-            <Text fontSize="lg" color="gray.600">Discover and share your special moments</Text>
-          </VStack>
         </Box>
       </Flex>
     </Container>

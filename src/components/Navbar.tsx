@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Flex, Box, Heading, Button, HStack, Avatar, Menu, MenuButton, MenuList, MenuItem, Text, Badge, Center} from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useMemberStore from '../store/memberStore';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, member, logout } = useMemberStore();
   // Mock notifications data - in a real app, this would come from an API
   const [notifications, setNotifications] = useState([
@@ -40,15 +41,58 @@ const Navbar: React.FC = () => {
       boxShadow="0 2px 4px rgba(0, 0, 0, 0.1)"
       width="100%"
     >
-      <Box 
-        cursor="pointer" 
-        onClick={() => {
-          navigate('/');
-        }}
-      >
-        <Heading as="h1" size="md" fontWeight="bold" color="gray.700">
-          Memory
-        </Heading>
+      <Box>
+        <Box 
+          cursor="pointer" 
+          onClick={() => {
+            navigate('/');
+          }}
+        >
+          <Heading as="h1" size="md" fontWeight="bold" color="gray.700">
+            Memory
+          </Heading>
+        </Box>
+        <HStack spacing={4} mt={2}>
+          <Text 
+            fontSize="sm" 
+            fontWeight={location.pathname === '/memories-with-gf' ? "bold" : "normal"}
+            color={location.pathname === '/memories-with-gf' ? "blue.500" : "gray.600"} 
+            cursor="pointer" 
+            _hover={{ color: "blue.500" }}
+            onClick={() => navigate('/memories-with-gf')}
+            borderBottom={location.pathname === '/memories-with-gf' ? "2px solid" : "none"}
+            borderColor="blue.500"
+            pb={1}
+          >
+            Memories with GF
+          </Text>
+          <Text 
+            fontSize="sm" 
+            fontWeight={location.pathname === '/my-memories' ? "bold" : "normal"}
+            color={location.pathname === '/my-memories' ? "blue.500" : "gray.600"} 
+            cursor="pointer" 
+            _hover={{ color: "blue.500" }}
+            onClick={() => navigate('/my-memories')}
+            borderBottom={location.pathname === '/my-memories' ? "2px solid" : "none"}
+            borderColor="blue.500"
+            pb={1}
+          >
+            My Memories
+          </Text>
+          <Text 
+            fontSize="sm" 
+            fontWeight={location.pathname === '/sharing-memories' ? "bold" : "normal"}
+            color={location.pathname === '/sharing-memories' ? "blue.500" : "gray.600"} 
+            cursor="pointer" 
+            _hover={{ color: "blue.500" }}
+            onClick={() => navigate('/sharing-memories')}
+            borderBottom={location.pathname === '/sharing-memories' ? "2px solid" : "none"}
+            borderColor="blue.500"
+            pb={1}
+          >
+            Sharing Memories
+          </Text>
+        </HStack>
       </Box>
       <HStack spacing={4}>
         {isAuthenticated ? (
