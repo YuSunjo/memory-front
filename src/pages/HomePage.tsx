@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Flex, Box, Spinner, Alert, AlertIcon } from '@chakra-ui/react';
 import GoogleMap from '../components/GoogleMap';
-import type {LocationData, MapData, MapsResponse} from '../components/types';
+import type {LocationData, MapData} from '../types';
 import UpcomingEvents from '../components/UpcomingEvents';
 import SaveMap from '../components/SaveMap';
 import useApi from '../hooks/useApi';
@@ -26,7 +26,7 @@ const HomePage: React.FC = () => {
         ? '/v1/maps/member'
         : '/v1/maps';
 
-      const response = await api.get<MapsResponse>(endpoint);
+      const response = await api.get<MapData[]>(endpoint);
       setMaps(response.data.data || []);
     } catch (err) {
       console.error('Error fetching maps:', err);

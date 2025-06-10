@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, VStack, Heading, Text, Input, Button, useToast, Alert, AlertIcon } from '@chakra-ui/react';
-import type {LocationData} from './types';
+import type {LocationData} from '../types';
 import useApi from '../hooks/useApi';
 
 interface SaveMapProps {

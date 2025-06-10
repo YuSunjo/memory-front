@@ -19,3 +19,12 @@ export interface MapsResponse {
   message: string;
   data: MapData[];
 }
+
+export interface MapFormData {
+  name: string;
+  description: string;
+  address: string;
+  latitude: string;
+  longitude: string;
+  mapType: string; // e.g., "USER_PLACE", "FAVORITE_PLACE"
+}

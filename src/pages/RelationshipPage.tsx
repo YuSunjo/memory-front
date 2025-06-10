@@ -2,51 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Box, Text, VStack, Spinner, Center, Input, Button, HStack, Alert, AlertIcon, Avatar } from '@chakra-ui/react';
 import useApi from '../hooks/useApi';
 import useMemberStore from '../store/memberStore';
-
-interface Member {
-  id: number;
-  email: string;
-  name: string;
-  nickname: string;
-  profileImageUrl: string;
-}
-
-interface Relationship {
-  id: number;
-  member: Member;
-  relatedMember: Member;
-  relationshipStatus: string;
-  startDate: string;
-  endDate: string | null;
-}
-
-interface RelationshipResponse {
-  statusCode: number;
-  message: string;
-  data: {
-    relationships: Relationship[];
-  };
-}
-
-interface ReceivedRelationshipResponse {
-  statusCode: number;
-  message: string;
-  data: {
-    relationships: Relationship[];
-  };
-}
-
-interface MemberResponse {
-  statusCode: number;
-  message: string;
-  data: {
-    id: number;
-    email: string;
-    name: string;
-    nickname: string;
-    profileImageUrl: string;
-  };
-}
+import type {MemberResponse, Relationship} from "../types";
 
 const RelationshipPage: React.FC = () => {
   const [relationships, setRelationships] = useState<Relationship[]>([]);
@@ -70,13 +26,13 @@ const RelationshipPage: React.FC = () => {
       try {
         setLoading(true);
         // First, check for existing relationships
-        const response = await api.get<RelationshipResponse>('/v1/relationship');
+        const response = await api.get<{ relationships: Relationship[] }>('/v1/relationship');
         const relationships = response.data.data.relationships;
         setRelationships(relationships);
 
         if (relationships.length === 0) {
           try {
-            const receivedResponse = await api.get<ReceivedRelationshipResponse>('/v1/relationship/received');
+            const receivedResponse = await api.get<{ relationships: Relationship[] }>('/v1/relationship/received');
             setReceivedRequests(receivedResponse.data.data.relationships);
           } catch (receivedErr) {
             console.error('Error fetching received relationship requests:', receivedErr);
@@ -110,7 +66,13 @@ const RelationshipPage: React.FC = () => {
 
     try {
       setSearching(true);
-      const response = await api.get<MemberResponse>(`/v1/member/email?email=${encodeURIComponent(email)}`);
+      const response = await api.get<{
+        id: number;
+        email: string;
+        name: string;
+        nickname: string;
+        profileImageUrl: string;
+      }>(`/v1/member/email?email=${encodeURIComponent(email)}`);
       setSearchedMember(response.data.data);
     } catch (err) {
       console.error('Error searching for member:', err);
@@ -148,7 +110,7 @@ const RelationshipPage: React.FC = () => {
       await api.post(`/v1/relationship/accept/${relationshipId}`);
 
       // Refresh the relationships data after accepting
-      const response = await api.get<RelationshipResponse>('/v1/relationship');
+      const response = await api.get<{ relationships: Relationship[] }>('/v1/relationship');
       setRelationships(response.data.data.relationships);
 
       // Clear received requests since the request has been accepted

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
 import { GoogleMap as GoogleMapComponent, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
-import type {LocationData, MapData} from './types';
+import type {LocationData, MapData} from '../types';
 
 interface GoogleMapProps {
   apiKey: string;

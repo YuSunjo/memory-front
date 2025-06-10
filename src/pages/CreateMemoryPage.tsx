@@ -21,17 +21,9 @@ import {
   HStack
 } from '@chakra-ui/react';
 import GoogleMap from '../components/GoogleMap';
-import type { MapData, MapsResponse, LocationData } from '../components/types';
 import useApi from '../hooks/useApi';
 import useMemberStore from '../store/memberStore';
-
-interface MemoryFormData {
-  title: string;
-  content: string;
-  locationName: string;
-  mapId: number | null;
-  memoryType: 'PUBLIC' | 'PRIVATE' | 'RELATIONSHIP';
-}
+import type {LocationData, MapData, MapFormData, MemoryFormData} from "../types";
 
 const CreateMemoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -59,7 +51,7 @@ const CreateMemoryPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await api.get<MapsResponse>('/v1/maps/member');
+      const response = await api.get<MapData[]>('/v1/maps/member');
       setMaps(response.data.data || []);
     } catch (err) {
       console.error('Error fetching maps:', err);
@@ -167,7 +159,7 @@ const CreateMemoryPage: React.FC = () => {
       // If no map is selected but a location is selected, create a new map first
       if (!mapId && selectedLocation) {
         // Prepare map data
-        const mapData = {
+        const mapData: MapFormData = {
           name: formData.locationName,
           description: formData.locationName,
           address: selectedLocation.address,
@@ -178,7 +170,7 @@ const CreateMemoryPage: React.FC = () => {
 
         try {
           // Create a new map
-          const mapResponse = await api.post('/v1/maps', mapData)
+          const mapResponse = await api.post<MapData, MapFormData>('/v1/maps', mapData)
           mapId = mapResponse.data.data.id;
         } catch (mapErr) {
           console.error('Error creating map:', mapErr);
@@ -189,7 +181,7 @@ const CreateMemoryPage: React.FC = () => {
             duration: 3000,
             isClosable: true,
           });
-          throw mapErr; // Re-throw to stop the memory creation process
+          throw mapErr;
         }
       }
 
@@ -199,7 +191,6 @@ const CreateMemoryPage: React.FC = () => {
         mapId
       });
 
-      // Show success message
       toast({
         title: 'Memory created successfully',
         status: 'success',
@@ -207,7 +198,6 @@ const CreateMemoryPage: React.FC = () => {
         isClosable: true,
       });
 
-      // Navigate based on memory type
       if (formData.memoryType === 'PUBLIC') {
         navigate('/sharing-memories');
       } else if (formData.memoryType === 'PRIVATE') {

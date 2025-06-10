@@ -1,4 +1,5 @@
 import axios, {type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import type {ServerResponse} from '../types';
 
 // Create a base axios instance with the API base URL
 const api = axios.create({
@@ -28,20 +29,20 @@ api.interceptors.request.use(
 
 // Hook for making API requests
 const useApi = () => {
-  const get = <T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return api.get<T>(url, config);
+  const get = <T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
+    return api.get<ServerResponse<T>>(url, config);
   };
 
-  const post = <T, D>(url: string, data?: D, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return api.post<T>(url, data, config);
+  const post = <T, D>(url: string, data?: D, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
+    return api.post<ServerResponse<T>>(url, data, config);
   };
 
-  const put = <T, D>(url: string, data?: D, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return api.put<T>(url, data, config);
+  const put = <T, D>(url: string, data?: D, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
+    return api.put<ServerResponse<T>>(url, data, config);
   };
 
-  const del = <T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return api.delete<T>(url, config);
+  const del = <T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
+    return api.delete<ServerResponse<T>>(url, config);
   };
 
   return {
