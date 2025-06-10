@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Container, 
   Box, 
@@ -14,10 +15,13 @@ import {
   AlertIcon,
   useToast,
   Flex,
-  Text
+  Text,
+  RadioGroup,
+  Radio,
+  HStack
 } from '@chakra-ui/react';
 import GoogleMap from '../components/GoogleMap';
-import type { MapData, MapsResponse } from '../components/types';
+import type { MapData, MapsResponse, LocationData } from '../components/types';
 import useApi from '../hooks/useApi';
 import useMemberStore from '../store/memberStore';
 
@@ -26,21 +30,25 @@ interface MemoryFormData {
   content: string;
   locationName: string;
   mapId: number | null;
+  memoryType: 'PUBLIC' | 'PRIVATE' | 'RELATIONSHIP';
 }
 
 const CreateMemoryPage: React.FC = () => {
+  const navigate = useNavigate();
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
   const [formData, setFormData] = useState<MemoryFormData>({
     title: '',
     content: '',
     locationName: '',
-    mapId: null
+    mapId: null,
+    memoryType: 'PUBLIC'
   });
   const [maps, setMaps] = useState<MapData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedMap, setSelectedMap] = useState<MapData | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
   const api = useApi();
   const { isAuthenticated } = useMemberStore();
   const toast = useToast();
@@ -76,13 +84,33 @@ const CreateMemoryPage: React.FC = () => {
     }));
   };
 
+  // Handle memory type change
+  const handleMemoryTypeChange = (value: 'PUBLIC' | 'PRIVATE' | 'RELATIONSHIP') => {
+    setFormData(prev => ({
+      ...prev,
+      memoryType: value
+    }));
+  };
+
   // Handle map marker click
   const handleMapClick = (map: MapData) => {
     setSelectedMap(map);
+    setSelectedLocation(null); // Clear selected location when a map is selected
     setFormData(prev => ({
       ...prev,
       mapId: map.id,
       locationName: map.name
+    }));
+  };
+
+  // Handle location select (when clicking on the map)
+  const handleLocationSelect = (location: LocationData) => {
+    setSelectedLocation(location);
+    setSelectedMap(null); // Clear selected map when a location is selected
+    setFormData(prev => ({
+      ...prev,
+      mapId: null,
+      locationName: location.address
     }));
   };
 
@@ -121,9 +149,10 @@ const CreateMemoryPage: React.FC = () => {
       return;
     }
 
-    if (!formData.mapId) {
+    // Check if we have either a selected map or a selected location
+    if (!formData.mapId && !selectedLocation) {
       toast({
-        title: 'Please select a map',
+        title: 'Please select a location',
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -133,9 +162,42 @@ const CreateMemoryPage: React.FC = () => {
 
     try {
       setSubmitting(true);
+      let mapId = formData.mapId;
 
-      // Send the form data to the API
-      await api.post('/v1/memories', formData);
+      // If no map is selected but a location is selected, create a new map first
+      if (!mapId && selectedLocation) {
+        // Prepare map data
+        const mapData = {
+          name: formData.locationName,
+          description: formData.locationName,
+          address: selectedLocation.address,
+          latitude: selectedLocation.latitude.toString(),
+          longitude: selectedLocation.longitude.toString(),
+          mapType: "USER_PLACE"
+        };
+
+        try {
+          // Create a new map
+          const mapResponse = await api.post('/v1/maps', mapData)
+          mapId = mapResponse.data.data.id;
+        } catch (mapErr) {
+          console.error('Error creating map:', mapErr);
+          toast({
+            title: 'Failed to create map',
+            description: 'Please try again later',
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });
+          throw mapErr; // Re-throw to stop the memory creation process
+        }
+      }
+
+      // Send the form data to the API with the map ID
+      await api.post('/v1/memories', {
+        ...formData,
+        mapId
+      });
 
       // Show success message
       toast({
@@ -145,14 +207,25 @@ const CreateMemoryPage: React.FC = () => {
         isClosable: true,
       });
 
+      // Navigate based on memory type
+      if (formData.memoryType === 'PUBLIC') {
+        navigate('/sharing-memories');
+      } else if (formData.memoryType === 'PRIVATE') {
+        navigate('/my-memories');
+      } else if (formData.memoryType === 'RELATIONSHIP') {
+        navigate('/memories-with-gf');
+      }
+
       // Reset form
       setFormData({
         title: '',
         content: '',
         locationName: '',
-        mapId: null
+        mapId: null,
+        memoryType: 'PUBLIC'
       });
       setSelectedMap(null);
+      setSelectedLocation(null);
 
     } catch (err) {
       console.error('Error creating memory:', err);
@@ -209,10 +282,31 @@ const CreateMemoryPage: React.FC = () => {
                 />
               </FormControl>
 
+              <FormControl isRequired>
+                <FormLabel>Memory Type</FormLabel>
+                <RadioGroup 
+                  value={formData.memoryType} 
+                  onChange={handleMemoryTypeChange}
+                >
+                  <HStack spacing={4}>
+                    <Radio value="PUBLIC">Public</Radio>
+                    <Radio value="PRIVATE">Private</Radio>
+                    <Radio value="RELATIONSHIP">Relationship</Radio>
+                  </HStack>
+                </RadioGroup>
+              </FormControl>
+
               {selectedMap && (
                 <Alert status="info" borderRadius="md">
                   <AlertIcon />
                   Selected map: {selectedMap.name} (ID: {selectedMap.id})
+                </Alert>
+              )}
+
+              {selectedLocation && !selectedMap && (
+                <Alert status="info" borderRadius="md">
+                  <AlertIcon />
+                  Selected location: {selectedLocation.address}
                 </Alert>
               )}
 
@@ -271,6 +365,7 @@ const CreateMemoryPage: React.FC = () => {
             apiKey={googleMapsApiKey} 
             maps={maps}
             onMapSelect={handleMapClick}
+            onLocationSelect={handleLocationSelect}
           />
         </Box>
       </Flex>

@@ -77,6 +77,13 @@ const SaveMap: React.FC<SaveMapProps> = ({ selectedLocation, onMapSaved }) => {
     } catch (err) {
       console.error('Error saving map:', err);
       setError('Failed to save map. Please try again.');
+      toast({
+        title: 'Failed to create map',
+        description: 'Please try again later',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     } finally {
       setIsSaving(false);
     }
