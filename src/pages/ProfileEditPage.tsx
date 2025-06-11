@@ -52,10 +52,10 @@ const ProfileEditPage: React.FC = () => {
 
       try {
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append('file', file);
 
         const response = await api.post(
-          '/v1/image',
+          '/v1/file',
           formData,
           {
             headers: {
