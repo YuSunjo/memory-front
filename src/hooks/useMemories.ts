@@ -7,9 +7,10 @@ type MemoryType = 'PUBLIC' | 'PRIVATE' | 'RELATIONSHIP';
 interface UseMemoriesProps {
   memoryType: MemoryType;
   pageSize?: number;
+  skipFetch?: boolean;
 }
 
-const useMemories = ({ memoryType, pageSize = 5 }: UseMemoriesProps) => {
+const useMemories = ({ memoryType, pageSize = 5, skipFetch = false }: UseMemoriesProps) => {
   const api = useApi();
   const [memories, setMemories] = useState<MemoryResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -17,7 +18,7 @@ const useMemories = ({ memoryType, pageSize = 5 }: UseMemoriesProps) => {
   const memoriesRef = useRef<MemoryResponse[]>([]);
 
   const fetchMemories = useCallback(async (lastMemoryId?: number) => {
-    if (loading || !hasMore) return;
+    if (loading || !hasMore || skipFetch) return;
 
     setLoading(true);
     try {
@@ -43,12 +44,14 @@ const useMemories = ({ memoryType, pageSize = 5 }: UseMemoriesProps) => {
     } finally {
       setLoading(false);
     }
-  }, [api, memoryType, pageSize, loading, hasMore]);
+  }, [api, memoryType, pageSize, loading, hasMore, skipFetch]);
 
   // Initial load
   useEffect(() => {
-    fetchMemories();
-  }, [fetchMemories]);
+    if (!skipFetch) {
+      fetchMemories();
+    }
+  }, [fetchMemories, skipFetch]);
 
   return {
     memories,

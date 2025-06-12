@@ -4,9 +4,10 @@ import type { MemoryResponse } from '../types';
 
 interface UsePublicMemoriesProps {
   pageSize?: number;
+  skipFetch?: boolean;
 }
 
-const usePublicMemories = ({ pageSize = 5 }: UsePublicMemoriesProps = {}) => {
+const usePublicMemories = ({ pageSize = 5, skipFetch = false }: UsePublicMemoriesProps = {}) => {
   const api = useApi();
   const [memories, setMemories] = useState<MemoryResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -14,7 +15,7 @@ const usePublicMemories = ({ pageSize = 5 }: UsePublicMemoriesProps = {}) => {
   const memoriesRef = useRef<MemoryResponse[]>([]);
 
   const fetchMemories = useCallback(async (lastMemoryId?: number) => {
-    if (loading || !hasMore) return;
+    if (loading || !hasMore || skipFetch) return;
 
     setLoading(true);
     try {
@@ -40,12 +41,14 @@ const usePublicMemories = ({ pageSize = 5 }: UsePublicMemoriesProps = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [api, pageSize, loading, hasMore]);
+  }, [api, pageSize, loading, hasMore, skipFetch]);
 
   // Initial load
   useEffect(() => {
-    fetchMemories();
-  }, [fetchMemories]);
+    if (!skipFetch) {
+      fetchMemories();
+    }
+  }, [fetchMemories, skipFetch]);
 
   return {
     memories,

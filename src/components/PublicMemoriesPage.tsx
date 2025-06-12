@@ -13,12 +13,16 @@ interface PublicMemoriesPageProps {
 
 const PublicMemoriesPage: React.FC<PublicMemoriesPageProps> = ({ title, requireAuth = false }) => {
   const navigate = useNavigate();
-  const { memories, loading, hasMore, memoriesRef, fetchMemories } = usePublicMemories();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingRef = useRef<HTMLDivElement | null>(null);
 
   // Redirect to login if not authenticated and requireAuth is true
-  useAuth(requireAuth);
+  const { isAuthenticated } = useAuth(requireAuth);
+
+  // Only fetch memories if authentication is not required or user is authenticated
+  const { memories, loading, hasMore, memoriesRef, fetchMemories } = usePublicMemories({ 
+    skipFetch: requireAuth && !isAuthenticated
+  });
 
   const handleCreateMemory = () => {
     navigate('/create-memory');
