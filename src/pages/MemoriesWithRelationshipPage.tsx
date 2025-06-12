@@ -7,7 +7,7 @@ import useApi from '../hooks/useApi';
 import useAuth from '../hooks/useAuth';
 import type { MemoryResponse } from '../types';
 
-const MyMemoriesPage: React.FC = () => {
+const MemoriesWithRelationshipPage: React.FC = () => {
   const navigate = useNavigate();
   const api = useApi();
   const [memories, setMemories] = useState<MemoryResponse[]>([]);
@@ -29,7 +29,7 @@ const MyMemoriesPage: React.FC = () => {
 
     setLoading(true);
     try {
-      let url = '/v1/memories/member?memoryType=PUBLIC&size=5';
+      let url = '/v1/memories/member?memoryType=RELATIONSHIP&size=5';
       if (lastMemoryId) {
         url += `&lastMemoryId=${lastMemoryId}`;
       }
@@ -126,4 +126,4 @@ const MyMemoriesPage: React.FC = () => {
   );
 };
 
-export default MyMemoriesPage;
+export default MemoriesWithRelationshipPage;

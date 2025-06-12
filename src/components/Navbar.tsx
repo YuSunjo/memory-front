@@ -55,16 +55,16 @@ const Navbar: React.FC = () => {
         <HStack spacing={4} mt={2}>
           <Text 
             fontSize="sm" 
-            fontWeight={location.pathname === '/memories-with-gf' ? "bold" : "normal"}
-            color={location.pathname === '/memories-with-gf' ? "blue.500" : "gray.600"} 
+            fontWeight={location.pathname === '/memories-with-relationship' ? "bold" : "normal"}
+            color={location.pathname === '/memories-with-relationship' ? "blue.500" : "gray.600"} 
             cursor="pointer" 
             _hover={{ color: "blue.500" }}
-            onClick={() => navigate('/memories-with-gf')}
-            borderBottom={location.pathname === '/memories-with-gf' ? "2px solid" : "none"}
+            onClick={() => navigate('/memories-with-relationship')}
+            borderBottom={location.pathname === '/memories-with-relationship' ? "2px solid" : "none"}
             borderColor="blue.500"
             pb={1}
           >
-            Memories with GF
+            Memories with relationship
           </Text>
           <Text 
             fontSize="sm" 

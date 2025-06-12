@@ -292,7 +292,7 @@ const CreateMemoryPage: React.FC = () => {
       } else if (formData.memoryType === 'PRIVATE') {
         navigate('/my-memories');
       } else if (formData.memoryType === 'RELATIONSHIP') {
-        navigate('/memories-with-gf');
+        navigate('/memories-with-relationship');
       }
 
       // Reset form

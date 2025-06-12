@@ -8,7 +8,7 @@ import ProfilePage from './pages/ProfilePage'
 import ProfileEditPage from './pages/ProfileEditPage'
 import AuthProvider from './components/AuthProvider'
 import RelationshipPage from "./pages/RelationshipPage.tsx";
-import MemoriesWithGFPage from './pages/MemoriesWithGFPage'
+import MemoriesWithRelationshipPage from './pages/MemoriesWithRelationshipPage'
 import MyMemoriesPage from './pages/MyMemoriesPage'
 import CreateMemoryPage from './pages/CreateMemoryPage'
 import SharingMemoriesPage from './pages/SharingMemoriesPage';
@@ -27,7 +27,7 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/profile/edit" element={<ProfileEditPage />} />
               <Route path="/relationship" element={<RelationshipPage />} />
-              <Route path="/memories-with-gf" element={<MemoriesWithGFPage />} />
+              <Route path="/memories-with-relationship" element={<MemoriesWithRelationshipPage />} />
               <Route path="/my-memories" element={<MyMemoriesPage />} />
               <Route path="/create-memory" element={<CreateMemoryPage />} />
               <Route path="/sharing-memories" element={<SharingMemoriesPage />} />
