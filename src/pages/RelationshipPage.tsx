@@ -152,7 +152,7 @@ const RelationshipPage: React.FC = () => {
                         <HStack>
                           <Avatar 
                             name={relationship.member.name || relationship.member.nickname} 
-                            src={relationship.member.profileImageUrl}
+                            src={relationship.member.profile?.fileUrl}
                             size="md"
                           />
                           <Box>
@@ -174,7 +174,7 @@ const RelationshipPage: React.FC = () => {
                         <HStack>
                           <Avatar 
                             name={relationship.relatedMember.name || relationship.relatedMember.nickname} 
-                            src={relationship.relatedMember.profileImageUrl}
+                            src={relationship.relatedMember.profile?.fileUrl}
                             size="md"
                           />
                           <Box>
@@ -210,7 +210,7 @@ const RelationshipPage: React.FC = () => {
                         <HStack>
                           <Avatar 
                             name={request.member.name || request.member.nickname} 
-                            src={request.member.profileImageUrl}
+                            src={request.member.profile?.fileUrl}
                             size="md"
                           />
                           <Box>
@@ -232,7 +232,7 @@ const RelationshipPage: React.FC = () => {
                         <HStack>
                           <Avatar 
                             name={request.relatedMember.name || request.relatedMember.nickname} 
-                            src={request.relatedMember.profileImageUrl}
+                            src={request.relatedMember.profile?.fileUrl}
                             size="md"
                           />
                           <Box>
@@ -303,7 +303,7 @@ const RelationshipPage: React.FC = () => {
                   <HStack spacing={4}>
                     <Avatar 
                       name={searchedMember.name || searchedMember.nickname} 
-                      src={searchedMember.profileImageUrl}
+                      src={searchedMember.profile?.fileUrl}
                       size="md"
                     />
                     <Box>

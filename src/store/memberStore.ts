@@ -2,12 +2,26 @@ import { create } from 'zustand';
 import { AxiosError } from 'axios';
 import { api } from '../hooks/useApi';
 
+interface Profile {
+  id: number;
+  originalFileName: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: number;
+  memoryId: number;
+  memberId: number;
+  createDate: string;
+}
+
 interface Member {
   id?: number;
   email?: string;
   name?: string;
   nickname?: string;
-  profileImageUrl?: string;
+  memberType?: string;
+  profile?: Profile;
+  fileId?: number;
 }
 
 interface AuthTokens {
@@ -24,7 +38,7 @@ interface MemberState {
   logout: () => void;
   fetchMemberInfo: () => Promise<void>;
   setMember: (member: Member) => void;
-  updateMemberProfile: (nickname: string, profileImageUrl?: string) => Promise<boolean>;
+  updateMemberProfile: (nickname: string, fileId?: number) => Promise<boolean>;
 }
 
 const useMemberStore = create<MemberState>((set, get) => ({
@@ -106,13 +120,13 @@ const useMemberStore = create<MemberState>((set, get) => ({
     set({ member, isAuthenticated: true });
   },
 
-  updateMemberProfile: async (nickname: string, profileImageUrl?: string) => {
+  updateMemberProfile: async (nickname: string, fileId?: number) => {
     set({ isLoading: true, error: null });
 
     try {
       const updateData: Partial<Member> = { nickname };
-      if (profileImageUrl) {
-        updateData.profileImageUrl = profileImageUrl;
+      if (fileId) {
+        updateData.fileId = fileId;
       }
 
       const response = await api.put('/v1/member/me', updateData);

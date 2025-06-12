@@ -1,9 +1,22 @@
+export interface Profile {
+  id: number;
+  originalFileName: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: number;
+  memoryId: number;
+  memberId: number;
+  createDate: string;
+}
+
 export interface Member {
   id: number;
   email: string;
   name: string;
   nickname: string;
-  profileImageUrl: string;
+  memberType: string;
+  profile?: Profile;
 }
 
 export interface Relationship {
@@ -39,6 +52,7 @@ export interface MemberResponse {
     email: string;
     name: string;
     nickname: string;
-    profileImageUrl: string;
+    memberType: string;
+    profile: Profile;
   };
 }

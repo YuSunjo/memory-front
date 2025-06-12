@@ -90,11 +90,11 @@ const MemberProfile: React.FC = () => {
           <Text>{member.nickname}</Text>
         </Box>
 
-        {member.profileImageUrl && (
+        {member.profile?.fileUrl && (
           <Box>
             <Text fontWeight="bold">Profile Image:</Text>
             <Image 
-              src={member.profileImageUrl} 
+              src={member.profile.fileUrl} 
               alt="Profile" 
               boxSize="150px" 
               objectFit="cover" 

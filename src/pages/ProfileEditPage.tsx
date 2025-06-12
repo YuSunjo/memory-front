@@ -27,6 +27,7 @@ const ProfileEditPage: React.FC = () => {
 
   const [nickname, setNickname] = useState('');
   const [profileImageUrl, setProfileImageUrl] = useState('');
+  const [fileId, setFileId] = useState<number | undefined>(undefined);
   const [previewUrl, setPreviewUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -35,8 +36,8 @@ const ProfileEditPage: React.FC = () => {
   useEffect(() => {
     if (member) {
       setNickname(member.nickname || '');
-      setProfileImageUrl(member.profileImageUrl || '');
-      setPreviewUrl(member.profileImageUrl || '');
+      setProfileImageUrl(member.profile?.fileUrl || '');
+      setPreviewUrl(member.profile?.fileUrl || '');
     }
   }, [member]);
 
@@ -55,7 +56,7 @@ const ProfileEditPage: React.FC = () => {
         formData.append('file', file);
 
         const response = await api.post(
-          '/v1/file',
+          '/v1/file?fileType=MEMBER',
           formData,
           {
             headers: {
@@ -65,8 +66,11 @@ const ProfileEditPage: React.FC = () => {
         );
 
         if (response.status === 200 || response.status === 201) {
-          const imageUrl = response.data.data;
-          setProfileImageUrl(imageUrl);
+          const fileData = response.data.data;
+          const newFileId = fileData.id;
+          const fileUrl = fileData.fileUrl;
+          setFileId(newFileId);
+          setProfileImageUrl(fileUrl);
           toast({
             title: 'Image Uploaded',
             description: 'Your image has been successfully uploaded.',
@@ -100,8 +104,6 @@ const ProfileEditPage: React.FC = () => {
     setUploadError('');
 
     try {
-      const imageUrl = profileImageUrl;
-
       // Check if we're currently uploading an image
       if (isUploading) {
         toast({
@@ -128,8 +130,8 @@ const ProfileEditPage: React.FC = () => {
         return;
       }
 
-      // Update profile with new nickname and image URL
-      const success = await updateMemberProfile(nickname, imageUrl);
+      // Update profile with new nickname and file ID
+      const success = await updateMemberProfile(nickname, fileId);
 
       if (success) {
         toast({
