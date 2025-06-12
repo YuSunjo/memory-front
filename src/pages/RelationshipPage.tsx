@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Box, Text, VStack, Spinner, Center, Input, Button, HStack, Alert, AlertIcon, Avatar } from '@chakra-ui/react';
 import useApi from '../hooks/useApi';
 import useMemberStore from '../store/memberStore';
-import type {MemberResponse, Relationship} from "../types";
+import type {Member, Relationship} from "../types";
 
 const RelationshipPage: React.FC = () => {
   const [relationships, setRelationships] = useState<Relationship[]>([]);
@@ -10,7 +10,7 @@ const RelationshipPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string>('');
-  const [searchedMember, setSearchedMember] = useState<MemberResponse['data'] | null>(null);
+  const [searchedMember, setSearchedMember] = useState<Member | null>(null);
   const [searching, setSearching] = useState<boolean>(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [requestLoading, setRequestLoading] = useState<boolean>(false);
@@ -66,13 +66,7 @@ const RelationshipPage: React.FC = () => {
 
     try {
       setSearching(true);
-      const response = await api.get<{
-        id: number;
-        email: string;
-        name: string;
-        nickname: string;
-        profileImageUrl: string;
-      }>(`/v1/member/email?email=${encodeURIComponent(email)}`);
+      const response = await api.get<Member>(`/v1/member/email?email=${encodeURIComponent(email)}`);
       setSearchedMember(response.data.data);
     } catch (err) {
       console.error('Error searching for member:', err);

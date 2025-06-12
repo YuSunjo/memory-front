@@ -28,7 +28,6 @@ const ProfileEditPage: React.FC = () => {
   const [nickname, setNickname] = useState('');
   const [profileImageUrl, setProfileImageUrl] = useState('');
   const [fileId, setFileId] = useState<number | undefined>(undefined);
-  const [previewUrl, setPreviewUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -37,7 +36,6 @@ const ProfileEditPage: React.FC = () => {
     if (member) {
       setNickname(member.nickname || '');
       setProfileImageUrl(member.profile?.fileUrl || '');
-      setPreviewUrl(member.profile?.fileUrl || '');
     }
   }, [member]);
 
@@ -45,7 +43,7 @@ const ProfileEditPage: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       const objectUrl = URL.createObjectURL(file);
-      setPreviewUrl(objectUrl);
+      setProfileImageUrl(objectUrl);
 
       // Upload the image immediately
       setIsUploading(true);
@@ -186,9 +184,9 @@ const ProfileEditPage: React.FC = () => {
               <FormControl>
                 <FormLabel>Profile Image</FormLabel>
                 <Flex direction="column" align="center">
-                  {previewUrl && (
+                  {profileImageUrl && (
                     <Image
-                      src={previewUrl}
+                      src={profileImageUrl}
                       alt="Profile Preview"
                       boxSize="150px"
                       objectFit="cover"
