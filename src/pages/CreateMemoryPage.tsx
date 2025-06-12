@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Container, 
@@ -18,12 +18,16 @@ import {
   Text,
   RadioGroup,
   Radio,
-  HStack
+  HStack,
+  Image,
+  Grid,
+  IconButton,
 } from '@chakra-ui/react';
+import { CloseIcon } from '@chakra-ui/icons';
 import GoogleMap from '../components/GoogleMap';
 import useApi from '../hooks/useApi';
 import useMemberStore from '../store/memberStore';
-import type {LocationData, MapData, MapFormData, MemoryFormData} from "../types";
+import type {LocationData, MapData, MapFormData, MemoryFormData, FileResponse} from "../types";
 
 const CreateMemoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -33,7 +37,8 @@ const CreateMemoryPage: React.FC = () => {
     content: '',
     locationName: '',
     mapId: null,
-    memoryType: 'PUBLIC'
+    memoryType: 'PUBLIC',
+    fileIdList: []
   });
   const [maps, setMaps] = useState<MapData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -41,6 +46,11 @@ const CreateMemoryPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedMap, setSelectedMap] = useState<MapData | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<FileResponse[]>([]);
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const api = useApi();
   const { isAuthenticated } = useMemberStore();
   const toast = useToast();
@@ -106,6 +116,73 @@ const CreateMemoryPage: React.FC = () => {
     }));
   };
 
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setSelectedFiles(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  // Handle file removal
+  const handleFileRemove = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Handle file upload
+  const handleFileUpload = async () => {
+    if (selectedFiles.length === 0) {
+      return;
+    }
+
+    setUploading(true);
+    setUploadError(null);
+
+    try {
+      const formData = new FormData();
+      selectedFiles.forEach(file => {
+        formData.append('files', file);
+      });
+
+      const response = await api.post<FileResponse[], unknown>('/v1/files?fileType=MEMORY', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      const uploadedFiles: FileResponse[] = response.data.data;
+      setUploadedFiles(uploadedFiles);
+
+      // Extract file IDs and update form data
+      const fileIds = uploadedFiles.map(file => file.id);
+      setFormData(prev => ({
+        ...prev,
+        fileIdList: fileIds
+      }));
+
+      toast({
+        title: 'Files uploaded successfully',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+
+      // Clear selected files after successful upload
+      setSelectedFiles([]);
+    } catch (err) {
+      console.error('Error uploading files:', err);
+      setUploadError('Failed to upload files. Please try again.');
+      toast({
+        title: 'Failed to upload files',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,6 +229,17 @@ const CreateMemoryPage: React.FC = () => {
       return;
     }
 
+    // Check if files are selected but not uploaded
+    if (selectedFiles.length > 0 && uploadedFiles.length === 0) {
+      toast({
+        title: 'Please upload your selected files first',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     try {
       setSubmitting(true);
       let mapId = formData.mapId;
@@ -185,10 +273,11 @@ const CreateMemoryPage: React.FC = () => {
         }
       }
 
-      // Send the form data to the API with the map ID
+      // Send the form data to the API with the map ID and file IDs
       await api.post('/v1/memories', {
         ...formData,
-        mapId
+        mapId,
+        fileIdList: formData.fileIdList
       });
 
       toast({
@@ -212,10 +301,12 @@ const CreateMemoryPage: React.FC = () => {
         content: '',
         locationName: '',
         mapId: null,
-        memoryType: 'PUBLIC'
+        memoryType: 'PUBLIC',
+        fileIdList: []
       });
       setSelectedMap(null);
       setSelectedLocation(null);
+      setUploadedFiles([]);
 
     } catch (err) {
       console.error('Error creating memory:', err);
@@ -284,6 +375,97 @@ const CreateMemoryPage: React.FC = () => {
                     <Radio value="RELATIONSHIP">Relationship</Radio>
                   </HStack>
                 </RadioGroup>
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Images</FormLabel>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleFileSelect}
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                />
+                <Flex direction="column" gap={4}>
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    colorScheme="teal"
+                    size="md"
+                    width="fit-content"
+                  >
+                    Select Images
+                  </Button>
+
+                  {selectedFiles.length > 0 && (
+                    <Box>
+                      <Flex justify="space-between" align="center" mb={2}>
+                        <Text>{selectedFiles.length} file(s) selected</Text>
+                        <Button
+                          colorScheme="green"
+                          size="sm"
+                          onClick={handleFileUpload}
+                          isLoading={uploading}
+                          loadingText="Uploading"
+                          isDisabled={selectedFiles.length === 0}
+                        >
+                          Upload Files
+                        </Button>
+                      </Flex>
+
+                      <Grid templateColumns="repeat(3, 1fr)" gap={2} mb={4}>
+                        {selectedFiles.map((file, index) => (
+                          <Box key={index} position="relative" borderWidth="1px" borderRadius="md" overflow="hidden">
+                            <Image
+                              src={URL.createObjectURL(file)}
+                              alt={`Preview ${index}`}
+                              objectFit="cover"
+                              height="100px"
+                              width="100%"
+                            />
+                            <IconButton
+                              aria-label="Remove image"
+                              icon={<CloseIcon />}
+                              size="xs"
+                              colorScheme="red"
+                              position="absolute"
+                              top={1}
+                              right={1}
+                              onClick={() => handleFileRemove(index)}
+                            />
+                          </Box>
+                        ))}
+                      </Grid>
+                    </Box>
+                  )}
+
+                  {uploadedFiles.length > 0 && (
+                    <Box>
+                      <Text fontWeight="bold" mb={2}>Uploaded Images:</Text>
+                      <Grid templateColumns="repeat(3, 1fr)" gap={2}>
+                        {uploadedFiles.map((file) => (
+                          <Box key={file.id} borderWidth="1px" borderRadius="md" overflow="hidden">
+                            <Image
+                              src={file.fileUrl}
+                              alt={file.originalFileName}
+                              objectFit="cover"
+                              height="100px"
+                              width="100%"
+                            />
+                            <Text fontSize="xs" p={1} noOfLines={1}>{file.originalFileName}</Text>
+                          </Box>
+                        ))}
+                      </Grid>
+                    </Box>
+                  )}
+
+                  {uploadError && (
+                    <Alert status="error" borderRadius="md">
+                      <AlertIcon />
+                      {uploadError}
+                    </Alert>
+                  )}
+                </Flex>
               </FormControl>
 
               {selectedMap && (
