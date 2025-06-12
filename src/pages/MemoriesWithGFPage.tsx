@@ -1,7 +1,10 @@
 import React from 'react';
 import { Container, Box, Heading, Text } from '@chakra-ui/react';
+import useAuth from '../hooks/useAuth';
 
 const MemoriesWithGFPage: React.FC = () => {
+  // Redirect to login if not authenticated
+  useAuth(true);
   return (
     <Container maxW="container.lg" centerContent flex="1" py={8}>
       <Box width="100%" maxW="800px">

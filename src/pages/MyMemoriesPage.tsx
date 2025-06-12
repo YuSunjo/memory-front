@@ -4,6 +4,7 @@ import { AddIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import MemoryCard from '../components/MemoryCard';
 import useApi from '../hooks/useApi';
+import useAuth from '../hooks/useAuth';
 import type { MemoryResponse } from '../types';
 
 const MyMemoriesPage: React.FC = () => {
@@ -15,6 +16,9 @@ const MyMemoriesPage: React.FC = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingRef = useRef<HTMLDivElement | null>(null);
   const memoriesRef = useRef<MemoryResponse[]>([]);
+
+  // Redirect to login if not authenticated
+  useAuth(true);
 
   const handleCreateMemory = () => {
     navigate('/create-memory');

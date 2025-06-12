@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Box, Text, VStack, Spinner, Center, Input, Button, HStack, Alert, AlertIcon, Avatar } from '@chakra-ui/react';
 import useApi from '../hooks/useApi';
 import useMemberStore from '../store/memberStore';
+import useAuth from '../hooks/useAuth';
 import type {Member, Relationship} from "../types";
 
 const RelationshipPage: React.FC = () => {
@@ -20,6 +21,9 @@ const RelationshipPage: React.FC = () => {
   const [acceptError, setAcceptError] = useState<string | null>(null);
   const api = useApi();
   const { member } = useMemberStore();
+
+  // Redirect to login if not authenticated
+  useAuth(true);
 
   useEffect(() => {
     const fetchRelationships = async () => {
