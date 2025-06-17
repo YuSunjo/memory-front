@@ -12,6 +12,7 @@ import MemoriesWithRelationshipPage from './pages/MemoriesWithRelationshipPage'
 import MyMemoriesPage from './pages/MyMemoriesPage'
 import CreateMemoryPage from './pages/CreateMemoryPage'
 import SharingMemoriesPage from './pages/SharingMemoriesPage';
+import CalendarPage from './pages/CalendarPage';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
               <Route path="/my-memories" element={<MyMemoriesPage />} />
               <Route path="/create-memory" element={<CreateMemoryPage />} />
               <Route path="/sharing-memories" element={<SharingMemoriesPage />} />
+              <Route path="/calendar" element={<CalendarPage />} />
             </Routes>
           </Box>
         </AuthProvider>

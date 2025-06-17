@@ -180,6 +180,9 @@ const Navbar: React.FC = () => {
                 <MenuItem onClick={() => navigate('/relationship')}>
                   <Text fontWeight="bold">Relationship</Text>
                 </MenuItem>
+                <MenuItem onClick={() => navigate('/calendar')}>
+                  <Text fontWeight="bold">Calendar</Text>
+                </MenuItem>
                 <MenuItem onClick={handleLogout}>
                   <Text color="red.500">Logout</Text>
                 </MenuItem>
