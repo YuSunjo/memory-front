@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Box, 
   Heading, 
@@ -23,9 +24,30 @@ import type {TodoResponse, DiaryResponse, EventResponse} from '../types/calendar
 
 const CalendarPage: React.FC = () => {
   const calendarService = useCalendarService();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Parse query parameters for year and month
+  const getInitialDate = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const yearParam = searchParams.get('year');
+    const monthParam = searchParams.get('month');
+
+    if (yearParam && monthParam) {
+      const year = parseInt(yearParam);
+      const month = parseInt(monthParam) - 1; // Convert from 1-12 to 0-11
+
+      // Validate the parameters
+      if (!isNaN(year) && !isNaN(month) && month >= 0 && month <= 11) {
+        return new Date(year, month, 1);
+      }
+    }
+
+    return new Date(); // Default to current date if no valid parameters
+  };
 
   // Date state
-  const [currentDate, setCurrentDate] = useState(new Date()); // Initialize to current date
+  const [currentDate, setCurrentDate] = useState(getInitialDate());
   const [calendarDays, setCalendarDays] = useState<Array<{ date: Date | null, isCurrentMonth: boolean }>>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
@@ -178,24 +200,40 @@ const CalendarPage: React.FC = () => {
   const monthName = monthNames[currentDate.getMonth()];
   const year = currentDate.getFullYear();
 
+  // Helper function to update URL and state
+  const updateDateAndURL = (newDate: Date) => {
+    const year = newDate.getFullYear();
+    const month = newDate.getMonth() + 1; // Convert from 0-11 to 1-12 for URL
+
+    // Update URL with query parameters
+    navigate(`/calendar?year=${year}&month=${month}`, { replace: true });
+
+    // Update state
+    setCurrentDate(newDate);
+  };
+
   // Navigate to previous month
   const goToPreviousMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+    const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+    updateDateAndURL(newDate);
   };
 
   // Navigate to next month
   const goToNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+    const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+    updateDateAndURL(newDate);
   };
 
   // Navigate to previous year
   const goToPreviousYear = () => {
-    setCurrentDate(new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), 1));
+    const newDate = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), 1);
+    updateDateAndURL(newDate);
   };
 
   // Navigate to next year
   const goToNextYear = () => {
-    setCurrentDate(new Date(currentDate.getFullYear() + 1, currentDate.getMonth(), 1));
+    const newDate = new Date(currentDate.getFullYear() + 1, currentDate.getMonth(), 1);
+    updateDateAndURL(newDate);
   };
 
   // Generate calendar days and fetch data for the visible month
