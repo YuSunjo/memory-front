@@ -9,6 +9,35 @@ export interface MemberResponse {
   };
 }
 
+export interface TodoRequest {
+  title: string;
+  content: string;
+  dueDate: string;
+  repeatType?: string;
+  repeatInterval?: number;
+  repeatEndDate?: string;
+}
+
+export interface DiaryRequest {
+  title: string;
+  content: string;
+  date: string;
+  mood: string;
+  weather: string;
+}
+
+export interface EventRequest {
+  title: string;
+  description: string;
+  startDateTime: string;
+  endDateTime: string;
+  location: string;
+  eventType: string;
+  repeatType?: string;
+  repeatInterval?: number;
+  repeatEndDate?: string;
+}
+
 export interface TodoResponse {
   id: number;
   title: string;

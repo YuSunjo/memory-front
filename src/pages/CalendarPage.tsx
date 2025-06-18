@@ -18,9 +18,29 @@ import {
   Checkbox,
   Spinner,
   Center,
+  Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  Select,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  useDisclosure,
+  FormErrorMessage,
 } from '@chakra-ui/react';
 import { useCalendarService } from '../services/calendarService';
-import type {TodoResponse, DiaryResponse, EventResponse} from '../types/calendar';
+import type {TodoResponse, DiaryResponse, EventResponse, TodoRequest, DiaryRequest, EventRequest} from '../types/calendar';
 
 const CalendarPage: React.FC = () => {
   const calendarService = useCalendarService();
@@ -48,7 +68,7 @@ const CalendarPage: React.FC = () => {
 
   // Date state
   const [currentDate, setCurrentDate] = useState(getInitialDate());
-  const [calendarDays, setCalendarDays] = useState<Array<{ date: Date | null, isCurrentMonth: boolean }>>([]);
+  const [calendarDays, setCalendarDays] = useState<Array<{ date: Date, isCurrentMonth: boolean }>>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // Data state
@@ -60,13 +80,491 @@ const CalendarPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState({
     todos: false,
     diaries: false,
-    events: false
+    events: false,
+    createTodo: false,
+    createDiary: false,
+    createEvent: false
+  });
+
+  // Modal state for Todo
+  const { isOpen: isTodoModalOpen, onOpen: onTodoModalOpen, onClose: onTodoModalClose } = useDisclosure();
+
+  // Modal state for Diary
+  const { isOpen: isDiaryModalOpen, onOpen: onDiaryModalOpen, onClose: onDiaryModalClose } = useDisclosure();
+
+  // Modal state for Event
+  const { isOpen: isEventModalOpen, onOpen: onEventModalOpen, onClose: onEventModalClose } = useDisclosure();
+
+  // Form state for Todo
+  const [todoForm, setTodoForm] = useState<TodoRequest>({
+    title: '',
+    content: '',
+    dueDate: '',
+    repeatType: 'NONE',
+    repeatInterval: 1,
+    repeatEndDate: ''
+  });
+
+  // Form state for Diary
+  const [diaryForm, setDiaryForm] = useState<DiaryRequest>({
+    title: '',
+    content: '',
+    date: '',
+    mood: '행복',
+    weather: '맑음'
+  });
+
+  // Form state for Event
+  const [eventForm, setEventForm] = useState<EventRequest>({
+    title: '',
+    description: '',
+    startDateTime: '',
+    endDateTime: '',
+    location: '',
+    eventType: 'PERSONAL',
+    repeatType: 'NONE',
+    repeatInterval: 1,
+    repeatEndDate: ''
+  });
+
+  // Form validation state for Todo
+  const [todoFormErrors, setTodoFormErrors] = useState({
+    title: '',
+    content: '',
+    dueDate: '',
+    repeatInterval: '',
+    repeatEndDate: ''
+  });
+
+  // Form validation state for Diary
+  const [diaryFormErrors, setDiaryFormErrors] = useState({
+    title: '',
+    content: '',
+    date: '',
+    mood: '',
+    weather: ''
+  });
+
+  // Form validation state for Event
+  const [eventFormErrors, setEventFormErrors] = useState({
+    title: '',
+    description: '',
+    startDateTime: '',
+    endDateTime: '',
+    location: '',
+    repeatInterval: '',
+    repeatEndDate: ''
   });
 
   const toggleTodoChecked = (id: number) => {
     setTodos(todos.map(todo => 
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     ));
+  };
+
+  // Handle Todo form input changes
+  const handleTodoInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setTodoForm(prev => ({ ...prev, [name]: value }));
+
+    // Clear validation error when user types
+    if (todoFormErrors[name as keyof typeof todoFormErrors]) {
+      setTodoFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Handle Diary form input changes
+  const handleDiaryInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setDiaryForm(prev => ({ ...prev, [name]: value }));
+
+    // Clear validation error when user types
+    if (diaryFormErrors[name as keyof typeof diaryFormErrors]) {
+      setDiaryFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Handle Event form input changes
+  const handleEventInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setEventForm(prev => ({ ...prev, [name]: value }));
+
+    // Clear validation error when user types
+    if (eventFormErrors[name as keyof typeof eventFormErrors]) {
+      setEventFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Handle Todo number input changes
+  const handleTodoNumberInputChange = (name: string, value: string) => {
+    const numberValue = parseInt(value);
+    setTodoForm(prev => ({ ...prev, [name]: numberValue }));
+
+    // Clear validation error when user types
+    if (todoFormErrors[name as keyof typeof todoFormErrors]) {
+      setTodoFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Handle Event number input changes
+  const handleEventNumberInputChange = (name: string, value: string) => {
+    const numberValue = parseInt(value);
+    setEventForm(prev => ({ ...prev, [name]: numberValue }));
+
+    // Clear validation error when user types
+    if (eventFormErrors[name as keyof typeof eventFormErrors]) {
+      setEventFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Validate Todo form
+  const validateTodoForm = (): boolean => {
+    let isValid = true;
+    const newErrors = { ...todoFormErrors };
+
+    if (!todoForm.title.trim()) {
+      newErrors.title = 'Title is required';
+      isValid = false;
+    }
+
+    if (!todoForm.content.trim()) {
+      newErrors.content = 'Content is required';
+      isValid = false;
+    }
+
+    if (!todoForm.dueDate) {
+      newErrors.dueDate = 'Due date is required';
+      isValid = false;
+    }
+
+    if (todoForm.repeatType !== 'NONE') {
+      if (!todoForm.repeatInterval || todoForm.repeatInterval < 1) {
+        newErrors.repeatInterval = 'Repeat interval must be at least 1';
+        isValid = false;
+      }
+
+      if (!todoForm.repeatEndDate) {
+        newErrors.repeatEndDate = 'Repeat end date is required';
+        isValid = false;
+      }
+    }
+
+    setTodoFormErrors(newErrors);
+    return isValid;
+  };
+
+  // Validate Diary form
+  const validateDiaryForm = (): boolean => {
+    let isValid = true;
+    const newErrors = { ...diaryFormErrors };
+
+    if (!diaryForm.title.trim()) {
+      newErrors.title = 'Title is required';
+      isValid = false;
+    }
+
+    if (!diaryForm.content.trim()) {
+      newErrors.content = 'Content is required';
+      isValid = false;
+    }
+
+    if (!diaryForm.date) {
+      newErrors.date = 'Date is required';
+      isValid = false;
+    }
+
+    if (!diaryForm.mood.trim()) {
+      newErrors.mood = 'Mood is required';
+      isValid = false;
+    }
+
+    if (!diaryForm.weather.trim()) {
+      newErrors.weather = 'Weather is required';
+      isValid = false;
+    }
+
+    setDiaryFormErrors(newErrors);
+    return isValid;
+  };
+
+  // Validate Event form
+  const validateEventForm = (): boolean => {
+    let isValid = true;
+    const newErrors = { ...eventFormErrors };
+
+    if (!eventForm.title.trim()) {
+      newErrors.title = 'Title is required';
+      isValid = false;
+    }
+
+    if (!eventForm.description.trim()) {
+      newErrors.description = 'Description is required';
+      isValid = false;
+    }
+
+    if (!eventForm.startDateTime) {
+      newErrors.startDateTime = 'Start date and time is required';
+      isValid = false;
+    }
+
+    if (!eventForm.endDateTime) {
+      newErrors.endDateTime = 'End date and time is required';
+      isValid = false;
+    }
+
+    if (!eventForm.location.trim()) {
+      newErrors.location = 'Location is required';
+      isValid = false;
+    }
+
+    if (eventForm.repeatType !== 'NONE') {
+      if (!eventForm.repeatInterval || eventForm.repeatInterval < 1) {
+        newErrors.repeatInterval = 'Repeat interval must be at least 1';
+        isValid = false;
+      }
+
+      if (!eventForm.repeatEndDate) {
+        newErrors.repeatEndDate = 'Repeat end date is required';
+        isValid = false;
+      }
+    }
+
+    setEventFormErrors(newErrors);
+    return isValid;
+  };
+
+  // Handle Todo form submission
+  const handleTodoSubmit = async () => {
+    if (!validateTodoForm()) return;
+
+    setIsLoading(prev => ({ ...prev, createTodo: true }));
+
+    try {
+      // Prepare the request data
+      const requestData: TodoRequest = {
+        title: todoForm.title,
+        content: todoForm.content,
+        dueDate: todoForm.dueDate
+      };
+
+      // Add repeat fields if not NONE
+      if (todoForm.repeatType !== 'NONE') {
+        requestData.repeatType = todoForm.repeatType;
+        requestData.repeatInterval = todoForm.repeatInterval;
+        requestData.repeatEndDate = todoForm.repeatEndDate;
+      }
+
+      // Call the API
+      const result = await calendarService.createTodo(requestData);
+
+      if (result) {
+        // Close the modal and reset form
+        onTodoModalClose();
+        resetTodoForm();
+
+        // Refresh the todos list
+        if (calendarDays.length > 0 && calendarDays[0].date && calendarDays[calendarDays.length - 1].date) {
+          fetchTodos(calendarDays[0].date, calendarDays[calendarDays.length - 1].date);
+        }
+      }
+    } catch (error) {
+      console.error('Error creating todo:', error);
+    } finally {
+      setIsLoading(prev => ({ ...prev, createTodo: false }));
+    }
+  };
+
+  // Handle Diary form submission
+  const handleDiarySubmit = async () => {
+    if (!validateDiaryForm()) return;
+
+    setIsLoading(prev => ({ ...prev, createDiary: true }));
+
+    try {
+      // Prepare the request data
+      const requestData: DiaryRequest = {
+        title: diaryForm.title,
+        content: diaryForm.content,
+        date: diaryForm.date,
+        mood: diaryForm.mood,
+        weather: diaryForm.weather
+      };
+
+      // Call the API
+      const result = await calendarService.createDiary(requestData);
+
+      if (result) {
+        // Close the modal and reset form
+        onDiaryModalClose();
+        resetDiaryForm();
+
+        // Refresh the diaries list
+        if (calendarDays.length > 0 && calendarDays[0].date && calendarDays[calendarDays.length - 1].date) {
+          fetchDiaries(calendarDays[0].date, calendarDays[calendarDays.length - 1].date);
+        }
+      }
+    } catch (error) {
+      console.error('Error creating diary:', error);
+    } finally {
+      setIsLoading(prev => ({ ...prev, createDiary: false }));
+    }
+  };
+
+  // Handle Event form submission
+  const handleEventSubmit = async () => {
+    if (!validateEventForm()) return;
+
+    setIsLoading(prev => ({ ...prev, createEvent: true }));
+
+    try {
+      // Prepare the request data
+      const requestData: EventRequest = {
+        title: eventForm.title,
+        description: eventForm.description,
+        startDateTime: eventForm.startDateTime,
+        endDateTime: eventForm.endDateTime,
+        location: eventForm.location,
+        eventType: eventForm.eventType
+      };
+
+      // Add repeat fields if not NONE
+      if (eventForm.repeatType !== 'NONE') {
+        requestData.repeatType = eventForm.repeatType;
+        requestData.repeatInterval = eventForm.repeatInterval;
+        requestData.repeatEndDate = eventForm.repeatEndDate;
+      }
+
+      // Call the API
+      const result = await calendarService.createEvent(requestData);
+
+      if (result) {
+        // Close the modal and reset form
+        onEventModalClose();
+        resetEventForm();
+
+        // Refresh the events list
+        if (calendarDays.length > 0 && calendarDays[0].date && calendarDays[calendarDays.length - 1].date) {
+          fetchEvents(calendarDays[0].date, calendarDays[calendarDays.length - 1].date);
+        }
+      }
+    } catch (error) {
+      console.error('Error creating event:', error);
+    } finally {
+      setIsLoading(prev => ({ ...prev, createEvent: false }));
+    }
+  };
+
+  // Reset Todo form
+  const resetTodoForm = () => {
+    setTodoForm({
+      title: '',
+      content: '',
+      dueDate: '',
+      repeatType: 'NONE',
+      repeatInterval: 1,
+      repeatEndDate: ''
+    });
+
+    setTodoFormErrors({
+      title: '',
+      content: '',
+      dueDate: '',
+      repeatInterval: '',
+      repeatEndDate: ''
+    });
+  };
+
+  // Reset Diary form
+  const resetDiaryForm = () => {
+    setDiaryForm({
+      title: '',
+      content: '',
+      date: '',
+      mood: '행복',
+      weather: '맑음'
+    });
+
+    setDiaryFormErrors({
+      title: '',
+      content: '',
+      date: '',
+      mood: '',
+      weather: ''
+    });
+  };
+
+  // Reset Event form
+  const resetEventForm = () => {
+    setEventForm({
+      title: '',
+      description: '',
+      startDateTime: '',
+      endDateTime: '',
+      location: '',
+      eventType: 'PERSONAL',
+      repeatType: 'NONE',
+      repeatInterval: 1,
+      repeatEndDate: ''
+    });
+
+    setEventFormErrors({
+      title: '',
+      description: '',
+      startDateTime: '',
+      endDateTime: '',
+      location: '',
+      repeatInterval: '',
+      repeatEndDate: ''
+    });
+  };
+
+  // Open Todo modal with current date
+  const handleOpenTodoModal = () => {
+    if (selectedDate) {
+      // Set the due date to the selected date at 5:00 PM
+      const dueDate = new Date(selectedDate);
+      dueDate.setHours(17, 0, 0, 0);
+
+      setTodoForm(prev => ({
+        ...prev,
+        dueDate: dueDate.toISOString().slice(0, 16) // Format: YYYY-MM-DDTHH:MM
+      }));
+    }
+
+    onTodoModalOpen();
+  };
+
+  // Open Diary modal with current date
+  const handleOpenDiaryModal = () => {
+    if (selectedDate) {
+      // Set the date to the selected date
+      setDiaryForm(prev => ({
+        ...prev,
+        date: formatDate(selectedDate) // Format: YYYY-MM-DD
+      }));
+    }
+
+    onDiaryModalOpen();
+  };
+
+  // Open Event modal with current date
+  const handleOpenEventModal = () => {
+    if (selectedDate) {
+      // Set the start and end date to the selected date
+      const startDateTime = new Date(selectedDate);
+      startDateTime.setHours(9, 0, 0, 0);
+
+      const endDateTime = new Date(selectedDate);
+      endDateTime.setHours(10, 0, 0, 0);
+
+      setEventForm(prev => ({
+        ...prev,
+        startDateTime: startDateTime.toISOString().slice(0, 16), // Format: YYYY-MM-DDTHH:MM
+        endDateTime: endDateTime.toISOString().slice(0, 16) // Format: YYYY-MM-DDTHH:MM
+      }));
+    }
+
+    onEventModalOpen();
   };
 
   // Format date to YYYY-MM-DD for API requests
@@ -299,8 +797,351 @@ const CalendarPage: React.FC = () => {
   // Day of week headers
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+  // Todo creation modal
+  const renderTodoModal = () => {
+    return (
+      <Modal isOpen={isTodoModalOpen} onClose={onTodoModalClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Create New Todo</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl isInvalid={!!todoFormErrors.title} mb={4}>
+              <FormLabel>Title</FormLabel>
+              <Input 
+                name="title"
+                value={todoForm.title}
+                onChange={handleTodoInputChange}
+                placeholder="Enter todo title"
+              />
+              {todoFormErrors.title && <FormErrorMessage>{todoFormErrors.title}</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl isInvalid={!!todoFormErrors.content} mb={4}>
+              <FormLabel>Content</FormLabel>
+              <Textarea 
+                name="content"
+                value={todoForm.content}
+                onChange={handleTodoInputChange}
+                placeholder="Enter todo description"
+              />
+              {todoFormErrors.content && <FormErrorMessage>{todoFormErrors.content}</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl isInvalid={!!todoFormErrors.dueDate} mb={4}>
+              <FormLabel>Due Date & Time</FormLabel>
+              <Input 
+                name="dueDate"
+                type="datetime-local"
+                value={todoForm.dueDate}
+                onChange={handleTodoInputChange}
+              />
+              {todoFormErrors.dueDate && <FormErrorMessage>{todoFormErrors.dueDate}</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl mb={4}>
+              <FormLabel>Repeat</FormLabel>
+              <Select 
+                name="repeatType"
+                value={todoForm.repeatType}
+                onChange={handleTodoInputChange}
+              >
+                <option value="NONE">No Repeat</option>
+                <option value="DAILY">Daily</option>
+                <option value="WEEKLY">Weekly</option>
+                <option value="MONTHLY">Monthly</option>
+                <option value="YEARLY">Yearly</option>
+              </Select>
+            </FormControl>
+
+            {todoForm.repeatType !== 'NONE' && (
+              <>
+                <FormControl isInvalid={!!todoFormErrors.repeatInterval} mb={4}>
+                  <FormLabel>Repeat Every</FormLabel>
+                  <NumberInput 
+                    min={1} 
+                    value={todoForm.repeatInterval}
+                    onChange={(value) => handleTodoNumberInputChange('repeatInterval', value)}
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                  {todoFormErrors.repeatInterval && <FormErrorMessage>{todoFormErrors.repeatInterval}</FormErrorMessage>}
+                </FormControl>
+
+                <FormControl isInvalid={!!todoFormErrors.repeatEndDate} mb={4}>
+                  <FormLabel>Repeat Until</FormLabel>
+                  <Input 
+                    name="repeatEndDate"
+                    type="date"
+                    value={todoForm.repeatEndDate}
+                    onChange={handleTodoInputChange}
+                  />
+                  {todoFormErrors.repeatEndDate && <FormErrorMessage>{todoFormErrors.repeatEndDate}</FormErrorMessage>}
+                </FormControl>
+              </>
+            )}
+          </ModalBody>
+
+          <ModalFooter>
+            <Button 
+              colorScheme="blue" 
+              mr={3} 
+              onClick={handleTodoSubmit}
+              isLoading={isLoading.createTodo}
+            >
+              Create
+            </Button>
+            <Button onClick={onTodoModalClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    );
+  };
+
+  // Diary creation modal
+  const renderDiaryModal = () => {
+    return (
+      <Modal isOpen={isDiaryModalOpen} onClose={onDiaryModalClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Create New Diary Entry</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl isInvalid={!!diaryFormErrors.title} mb={4}>
+              <FormLabel>Title</FormLabel>
+              <Input 
+                name="title"
+                value={diaryForm.title}
+                onChange={handleDiaryInputChange}
+                placeholder="Enter diary title"
+              />
+              {diaryFormErrors.title && <FormErrorMessage>{diaryFormErrors.title}</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl isInvalid={!!diaryFormErrors.content} mb={4}>
+              <FormLabel>Content</FormLabel>
+              <Textarea 
+                name="content"
+                value={diaryForm.content}
+                onChange={handleDiaryInputChange}
+                placeholder="Enter diary content"
+                minH="150px"
+              />
+              {diaryFormErrors.content && <FormErrorMessage>{diaryFormErrors.content}</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl isInvalid={!!diaryFormErrors.date} mb={4}>
+              <FormLabel>Date</FormLabel>
+              <Input 
+                name="date"
+                type="date"
+                value={diaryForm.date}
+                onChange={handleDiaryInputChange}
+              />
+              {diaryFormErrors.date && <FormErrorMessage>{diaryFormErrors.date}</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl isInvalid={!!diaryFormErrors.mood} mb={4}>
+              <FormLabel>Mood</FormLabel>
+              <Select 
+                name="mood"
+                value={diaryForm.mood}
+                onChange={handleDiaryInputChange}
+              >
+                <option value="행복">행복</option>
+                <option value="기쁨">기쁨</option>
+                <option value="슬픔">슬픔</option>
+                <option value="화남">화남</option>
+                <option value="평온">평온</option>
+              </Select>
+              {diaryFormErrors.mood && <FormErrorMessage>{diaryFormErrors.mood}</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl isInvalid={!!diaryFormErrors.weather} mb={4}>
+              <FormLabel>Weather</FormLabel>
+              <Select 
+                name="weather"
+                value={diaryForm.weather}
+                onChange={handleDiaryInputChange}
+              >
+                <option value="맑음">맑음</option>
+                <option value="흐림">흐림</option>
+                <option value="비">비</option>
+                <option value="눈">눈</option>
+                <option value="안개">안개</option>
+              </Select>
+              {diaryFormErrors.weather && <FormErrorMessage>{diaryFormErrors.weather}</FormErrorMessage>}
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button 
+              colorScheme="blue" 
+              mr={3} 
+              onClick={handleDiarySubmit}
+              isLoading={isLoading.createDiary}
+            >
+              Create
+            </Button>
+            <Button onClick={onDiaryModalClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    );
+  };
+
+  // Event creation modal
+  const renderEventModal = () => {
+    return (
+      <Modal isOpen={isEventModalOpen} onClose={onEventModalClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Create New Event</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl isInvalid={!!eventFormErrors.title} mb={4}>
+              <FormLabel>Title</FormLabel>
+              <Input 
+                name="title"
+                value={eventForm.title}
+                onChange={handleEventInputChange}
+                placeholder="Enter event title"
+              />
+              {eventFormErrors.title && <FormErrorMessage>{eventFormErrors.title}</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl isInvalid={!!eventFormErrors.description} mb={4}>
+              <FormLabel>Description</FormLabel>
+              <Textarea 
+                name="description"
+                value={eventForm.description}
+                onChange={handleEventInputChange}
+                placeholder="Enter event description"
+              />
+              {eventFormErrors.description && <FormErrorMessage>{eventFormErrors.description}</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl isInvalid={!!eventFormErrors.startDateTime} mb={4}>
+              <FormLabel>Start Date & Time</FormLabel>
+              <Input 
+                name="startDateTime"
+                type="datetime-local"
+                value={eventForm.startDateTime}
+                onChange={handleEventInputChange}
+              />
+              {eventFormErrors.startDateTime && <FormErrorMessage>{eventFormErrors.startDateTime}</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl isInvalid={!!eventFormErrors.endDateTime} mb={4}>
+              <FormLabel>End Date & Time</FormLabel>
+              <Input 
+                name="endDateTime"
+                type="datetime-local"
+                value={eventForm.endDateTime}
+                onChange={handleEventInputChange}
+              />
+              {eventFormErrors.endDateTime && <FormErrorMessage>{eventFormErrors.endDateTime}</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl isInvalid={!!eventFormErrors.location} mb={4}>
+              <FormLabel>Location</FormLabel>
+              <Input 
+                name="location"
+                value={eventForm.location}
+                onChange={handleEventInputChange}
+                placeholder="Enter event location"
+              />
+              {eventFormErrors.location && <FormErrorMessage>{eventFormErrors.location}</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl mb={4}>
+              <FormLabel>Event Type</FormLabel>
+              <Select 
+                name="eventType"
+                value={eventForm.eventType}
+                onChange={handleEventInputChange}
+              >
+                <option value="PERSONAL">Personal</option>
+                <option value="WORK">Work</option>
+                <option value="FAMILY">Family</option>
+                <option value="OTHER">Other</option>
+              </Select>
+            </FormControl>
+
+            <FormControl mb={4}>
+              <FormLabel>Repeat</FormLabel>
+              <Select 
+                name="repeatType"
+                value={eventForm.repeatType}
+                onChange={handleEventInputChange}
+              >
+                <option value="NONE">No Repeat</option>
+                <option value="DAILY">Daily</option>
+                <option value="WEEKLY">Weekly</option>
+                <option value="MONTHLY">Monthly</option>
+                <option value="YEARLY">Yearly</option>
+              </Select>
+            </FormControl>
+
+            {eventForm.repeatType !== 'NONE' && (
+              <>
+                <FormControl isInvalid={!!eventFormErrors.repeatInterval} mb={4}>
+                  <FormLabel>Repeat Every</FormLabel>
+                  <NumberInput 
+                    min={1} 
+                    value={eventForm.repeatInterval}
+                    onChange={(value) => handleEventNumberInputChange('repeatInterval', value)}
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                  {eventFormErrors.repeatInterval && <FormErrorMessage>{eventFormErrors.repeatInterval}</FormErrorMessage>}
+                </FormControl>
+
+                <FormControl isInvalid={!!eventFormErrors.repeatEndDate} mb={4}>
+                  <FormLabel>Repeat Until</FormLabel>
+                  <Input 
+                    name="repeatEndDate"
+                    type="date"
+                    value={eventForm.repeatEndDate}
+                    onChange={handleEventInputChange}
+                  />
+                  {eventFormErrors.repeatEndDate && <FormErrorMessage>{eventFormErrors.repeatEndDate}</FormErrorMessage>}
+                </FormControl>
+              </>
+            )}
+          </ModalBody>
+
+          <ModalFooter>
+            <Button 
+              colorScheme="blue" 
+              mr={3} 
+              onClick={handleEventSubmit}
+              isLoading={isLoading.createEvent}
+            >
+              Create
+            </Button>
+            <Button onClick={onEventModalClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    );
+  };
+
   return (
     <Container maxW="container.xl" py={8}>
+      {/* Render the creation modals */}
+      {renderTodoModal()}
+      {renderDiaryModal()}
+      {renderEventModal()}
+
       <VStack spacing={6} align="stretch">
         <Heading as="h1" size="xl">Calendar</Heading>
 
@@ -434,7 +1275,17 @@ const CalendarPage: React.FC = () => {
               <TabPanels>
                 <TabPanel>
                   <Box p={4}>
-                    <Heading as="h4" size="md" mb={4}>Todo List</Heading>
+                    <Flex justify="space-between" align="center" mb={4}>
+                      <Heading as="h4" size="md">Todo List</Heading>
+                      <Button 
+                        colorScheme="blue" 
+                        size="sm" 
+                        onClick={handleOpenTodoModal}
+                        isDisabled={!selectedDate}
+                      >
+                        Create
+                      </Button>
+                    </Flex>
                     {isLoading.todos ? (
                       <Center p={4}>
                         <Spinner />
@@ -465,7 +1316,17 @@ const CalendarPage: React.FC = () => {
                 </TabPanel>
                 <TabPanel>
                   <Box p={4}>
-                    <Heading as="h4" size="md" mb={4}>Diary Entries</Heading>
+                    <Flex justify="space-between" align="center" mb={4}>
+                      <Heading as="h4" size="md">Diary Entries</Heading>
+                      <Button 
+                        colorScheme="blue" 
+                        size="sm" 
+                        onClick={handleOpenDiaryModal}
+                        isDisabled={!selectedDate}
+                      >
+                        Create
+                      </Button>
+                    </Flex>
                     {isLoading.diaries ? (
                       <Center p={4}>
                         <Spinner />
@@ -493,7 +1354,17 @@ const CalendarPage: React.FC = () => {
                 </TabPanel>
                 <TabPanel>
                   <Box p={4}>
-                    <Heading as="h4" size="md" mb={4}>Events</Heading>
+                    <Flex justify="space-between" align="center" mb={4}>
+                      <Heading as="h4" size="md">Events</Heading>
+                      <Button 
+                        colorScheme="blue" 
+                        size="sm" 
+                        onClick={handleOpenEventModal}
+                        isDisabled={!selectedDate}
+                      >
+                        Create
+                      </Button>
+                    </Flex>
                     {isLoading.events ? (
                       <Center p={4}>
                         <Spinner />
