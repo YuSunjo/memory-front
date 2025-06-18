@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Box, 
   Heading, 
@@ -15,53 +15,158 @@ import {
   Tab,
   TabPanel,
   Checkbox,
+  Spinner,
+  Center,
 } from '@chakra-ui/react';
+import { useCalendarService } from '../services/calendarService';
+import type {TodoResponse, DiaryResponse, EventResponse} from '../types/calendar';
 
 const CalendarPage: React.FC = () => {
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 1)); // Initialize to June 2025
-  const [calendarDays, setCalendarDays] = useState<Array<{ date: Date | null, isCurrentMonth: boolean }>>([]);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date(2025, 5, 17)); // Initialize to June 17, 2025
+  const calendarService = useCalendarService();
 
-  const [todoItems, setTodoItems] = useState([
-    { id: 1, text: "Prepare presentation for meeting", isChecked: true },
-    { id: 2, text: "Call Sarah about project", isChecked: true },
-    { id: 3, text: "Submit quarterly report", isChecked: false },
-    { id: 4, text: "This is a very long todo item title that should be truncated with ellipsis to prevent line wrapping in the UI", isChecked: false },
-  ]);
+  // Date state
+  const [currentDate, setCurrentDate] = useState(new Date()); // Initialize to current date
+  const [calendarDays, setCalendarDays] = useState<Array<{ date: Date | null, isCurrentMonth: boolean }>>([]);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  // Data state
+  const [todos, setTodos] = useState<TodoResponse[]>([]);
+  const [diaries, setDiaries] = useState<DiaryResponse[]>([]);
+  const [events, setEvents] = useState<EventResponse[]>([]);
+
+  // Loading state
+  const [isLoading, setIsLoading] = useState({
+    todos: false,
+    diaries: false,
+    events: false
+  });
 
   const toggleTodoChecked = (id: number) => {
-    setTodoItems(todoItems.map(item => 
-      item.id === id ? { ...item, isChecked: !item.isChecked } : item
+    setTodos(todos.map(todo => 
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
     ));
   };
 
-  const hasTodoItems = (date: Date | null): boolean => {
-    if (!date) return false;
-    return date.getFullYear() === 2025 && 
-           date.getMonth() === 5 && // June is month 5 (0-indexed)
-           date.getDate() === 17;
+  // Format date to YYYY-MM-DD for API requests
+  const formatDate = (date: Date): string => {
+    return date.toISOString().split('T')[0];
   };
 
-  const getTodoItems = (date: Date | null): Array<{ id: number, text: string, isChecked: boolean }> => {
-    if (!hasTodoItems(date)) return [];
-    return todoItems;
+  // Fetch todos for a date range
+  const fetchTodos = useCallback(async (startDate: Date, endDate: Date) => {
+    setIsLoading(prev => ({ ...prev, todos: true }));
+    try {
+      const formattedStartDate = formatDate(startDate);
+      const formattedEndDate = formatDate(endDate);
+      const data = await calendarService.fetchTodos(formattedStartDate, formattedEndDate);
+      setTodos(data);
+    } catch (error) {
+      console.error('Error fetching todos:', error);
+    } finally {
+      setIsLoading(prev => ({ ...prev, todos: false }));
+    }
+  }, [calendarService, formatDate]);
+
+  // Fetch diaries for a date range
+  const fetchDiaries = useCallback(async (startDate: Date, endDate: Date) => {
+    setIsLoading(prev => ({ ...prev, diaries: true }));
+    try {
+      const formattedStartDate = formatDate(startDate);
+      const formattedEndDate = formatDate(endDate);
+      const data = await calendarService.fetchDiaries(formattedStartDate, formattedEndDate);
+      setDiaries(data);
+    } catch (error) {
+      console.error('Error fetching diaries:', error);
+    } finally {
+      setIsLoading(prev => ({ ...prev, diaries: false }));
+    }
+  }, [calendarService, formatDate]);
+
+  // Fetch events for a date range
+  const fetchEvents = useCallback(async (startDate: Date, endDate: Date) => {
+    setIsLoading(prev => ({ ...prev, events: true }));
+    try {
+      const formattedStartDate = formatDate(startDate);
+      const formattedEndDate = formatDate(endDate);
+      const data = await calendarService.fetchEvents(formattedStartDate, formattedEndDate);
+      setEvents(data);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    } finally {
+      setIsLoading(prev => ({ ...prev, events: false }));
+    }
+  }, [calendarService, formatDate]);
+
+  // Check if a date has todo items
+  const hasTodoItems = (date: Date | null): boolean => {
+    if (!date) return false;
+    return todos.some(todo => {
+      const todoDate = new Date(todo.dueDate);
+      return todoDate.getDate() === date.getDate() && 
+             todoDate.getMonth() === date.getMonth() && 
+             todoDate.getFullYear() === date.getFullYear();
+    });
+  };
+
+  // Get todo items for a specific date
+  const getTodoItems = (date: Date | null): TodoResponse[] => {
+    if (!date) return [];
+    return todos.filter(todo => {
+      const todoDate = new Date(todo.dueDate);
+      return todoDate.getDate() === date.getDate() && 
+             todoDate.getMonth() === date.getMonth() && 
+             todoDate.getFullYear() === date.getFullYear();
+    });
+  };
+
+  // Get remaining (uncompleted) todo count for a specific date
+  const getRemainingTodoCount = (date: Date | null): number => {
+    const items = getTodoItems(date);
+    return items.filter(item => !item.completed).length;
+  };
+
+  // Check if a date has diary entries
+  const hasDiaryEntries = (date: Date | null): boolean => {
+    if (!date) return false;
+    return diaries.some(diary => {
+      const diaryDate = new Date(diary.date);
+      return diaryDate.getDate() === date.getDate() && 
+             diaryDate.getMonth() === date.getMonth() && 
+             diaryDate.getFullYear() === date.getFullYear();
+    });
+  };
+
+  // Get diary entries for a specific date
+  const getDiaryEntries = (date: Date | null): DiaryResponse[] => {
+    if (!date) return [];
+    return diaries.filter(diary => {
+      const diaryDate = new Date(diary.date);
+      return diaryDate.getDate() === date.getDate() && 
+             diaryDate.getMonth() === date.getMonth() && 
+             diaryDate.getFullYear() === date.getFullYear();
+    });
   };
 
   // Check if a date has events
   const hasEvents = (date: Date | null): boolean => {
     if (!date) return false;
-    return date.getFullYear() === 2025 && 
-           date.getMonth() === 5 && // June is month 5 (0-indexed)
-           date.getDate() === 17;
+    return events.some(event => {
+      const eventDate = new Date(event.startDateTime);
+      return eventDate.getDate() === date.getDate() && 
+             eventDate.getMonth() === date.getMonth() && 
+             eventDate.getFullYear() === date.getFullYear();
+    });
   };
 
   // Get events for a specific date
-  const getEvents = (date: Date | null): Array<{ title: string, time?: string, location?: string }> => {
-    if (!hasEvents(date)) return [];
-    return [
-      { title: "Team Meeting", time: "10:00 AM - 11:30 AM", location: "Conference Room A" },
-      { title: "Project Deadline", time: "5:00 PM" }
-    ];
+  const getEvents = (date: Date | null): EventResponse[] => {
+    if (!date) return [];
+    return events.filter(event => {
+      const eventDate = new Date(event.startDateTime);
+      return eventDate.getDate() === date.getDate() && 
+             eventDate.getMonth() === date.getMonth() && 
+             eventDate.getFullYear() === date.getFullYear();
+    });
   };
 
   // Get month name and year
@@ -93,9 +198,9 @@ const CalendarPage: React.FC = () => {
     setCurrentDate(new Date(currentDate.getFullYear() + 1, currentDate.getMonth(), 1));
   };
 
-  // Generate calendar days
+  // Generate calendar days and fetch data for the visible month
   useEffect(() => {
-    const days: Array<{ date: Date | null, isCurrentMonth: boolean }> = [];
+    const days: Array<{ date: Date, isCurrentMonth: boolean }> = [];
 
     // Get first day of the month
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
@@ -140,6 +245,17 @@ const CalendarPage: React.FC = () => {
     }
 
     setCalendarDays(days);
+
+    // Fetch data for the visible month
+    // We need to fetch data for the entire range of days shown in the calendar
+    if (days.length > 0 && days[0].date && days[days.length - 1].date) {
+      const startDate = days[0].date;
+      const endDate: Date = days[days.length - 1].date;
+
+      fetchTodos(startDate, endDate);
+      fetchDiaries(startDate, endDate);
+      fetchEvents(startDate, endDate);
+    }
   }, [currentDate]);
 
   // Day of week headers
@@ -248,12 +364,17 @@ const CalendarPage: React.FC = () => {
                       <VStack spacing={1} align="stretch" mt={1}>
                         {hasTodoItems(day.date) && (
                           <Text fontSize="xs" color="red.500">
-                            Todo: {getTodoItems(day.date).length}
+                            Todo: {getRemainingTodoCount(day.date)}({getTodoItems(day.date).length})
                           </Text>
                         )}
                         {hasEvents(day.date) && (
                           <Text fontSize="xs" color="blue.500">
                             Event: {getEvents(day.date).length}
+                          </Text>
+                        )}
+                        {hasDiaryEntries(day.date) && (
+                          <Text fontSize="xs" color="green.500">
+                            Diary: {getDiaryEntries(day.date).length}
                           </Text>
                         )}
                       </VStack>
@@ -276,22 +397,24 @@ const CalendarPage: React.FC = () => {
                 <TabPanel>
                   <Box p={4}>
                     <Heading as="h4" size="md" mb={4}>Todo List</Heading>
-                    {!selectedDate ? (
+                    {isLoading.todos ? (
+                      <Center p={4}>
+                        <Spinner />
+                      </Center>
+                    ) : !selectedDate ? (
                       <Text>Select a date to view todo items.</Text>
-                    ) : selectedDate.getFullYear() === 2025 && 
-                       selectedDate.getMonth() === 5 && // June is month 5 (0-indexed)
-                       selectedDate.getDate() === 17 ? (
+                    ) : hasTodoItems(selectedDate) ? (
                       <>
-                        <Text fontWeight="bold" mb={2}>June 17, 2025 Todo Items:</Text>
-                        {todoItems.map(item => (
-                          <Box key={item.id} p={2} bg="gray.50" borderRadius="md" mb={2}>
+                        <Text fontWeight="bold" mb={2}>{selectedDate.toLocaleDateString()} Todo Items:</Text>
+                        {getTodoItems(selectedDate).map(todo => (
+                          <Box key={todo.id} p={2} bg="gray.50" borderRadius="md" mb={2}>
                             <Checkbox 
-                              isChecked={item.isChecked} 
-                              onChange={() => toggleTodoChecked(item.id)}
+                              isChecked={todo.completed} 
+                              onChange={() => toggleTodoChecked(todo.id)}
                               colorScheme="blue"
                             >
                               <Text noOfLines={1} overflow="hidden" textOverflow="ellipsis">
-                                {item.text}
+                                {todo.title}
                               </Text>
                             </Checkbox>
                           </Box>
@@ -305,16 +428,25 @@ const CalendarPage: React.FC = () => {
                 <TabPanel>
                   <Box p={4}>
                     <Heading as="h4" size="md" mb={4}>Diary Entries</Heading>
-                    {!selectedDate ? (
+                    {isLoading.diaries ? (
+                      <Center p={4}>
+                        <Spinner />
+                      </Center>
+                    ) : !selectedDate ? (
                       <Text>Select a date to view diary entries.</Text>
-                    ) : selectedDate.getFullYear() === 2025 && 
-                       selectedDate.getMonth() === 5 && // June is month 5 (0-indexed)
-                       selectedDate.getDate() === 17 ? (
+                    ) : hasDiaryEntries(selectedDate) ? (
                       <>
-                        <Text fontWeight="bold" mb={2}>June 17, 2025 Diary Entry:</Text>
-                        <Box p={3} bg="gray.50" borderRadius="md">
-                          <Text>Today was a productive day. I finished the main part of my project and received positive feedback from the team. Looking forward to the next phase!</Text>
-                        </Box>
+                        <Text fontWeight="bold" mb={2}>{selectedDate.toLocaleDateString()} Diary Entries:</Text>
+                        {getDiaryEntries(selectedDate).map(diary => (
+                          <Box key={diary.id} p={3} bg="gray.50" borderRadius="md" mb={2}>
+                            <Text fontWeight="bold">{diary.title}</Text>
+                            <Text>{diary.content}</Text>
+                            <Flex mt={2} fontSize="sm" color="gray.500">
+                              <Text mr={2}>Mood: {diary.mood}</Text>
+                              <Text>Weather: {diary.weather}</Text>
+                            </Flex>
+                          </Box>
+                        ))}
                       </>
                     ) : (
                       <Text>No diary entries for {selectedDate.toLocaleDateString()}.</Text>
@@ -324,22 +456,23 @@ const CalendarPage: React.FC = () => {
                 <TabPanel>
                   <Box p={4}>
                     <Heading as="h4" size="md" mb={4}>Events</Heading>
-                    {!selectedDate ? (
+                    {isLoading.events ? (
+                      <Center p={4}>
+                        <Spinner />
+                      </Center>
+                    ) : !selectedDate ? (
                       <Text>Select a date to view events.</Text>
-                    ) : selectedDate.getFullYear() === 2025 && 
-                       selectedDate.getMonth() === 5 && // June is month 5 (0-indexed)
-                       selectedDate.getDate() === 17 ? (
+                    ) : hasEvents(selectedDate) ? (
                       <>
-                        <Text fontWeight="bold" mb={2}>June 17, 2025 Events:</Text>
-                        <Box p={2} bg="gray.50" borderRadius="md" mb={2}>
-                          <Text fontWeight="bold">Team Meeting</Text>
-                          <Text>10:00 AM - 11:30 AM</Text>
-                          <Text fontSize="sm">Conference Room A</Text>
-                        </Box>
-                        <Box p={2} bg="gray.50" borderRadius="md">
-                          <Text fontWeight="bold">Project Deadline</Text>
-                          <Text>5:00 PM</Text>
-                        </Box>
+                        <Text fontWeight="bold" mb={2}>{selectedDate.toLocaleDateString()} Events:</Text>
+                        {getEvents(selectedDate).map(event => (
+                          <Box key={event.id} p={2} bg="gray.50" borderRadius="md" mb={2}>
+                            <Text fontWeight="bold">{event.title}</Text>
+                            <Text>{new Date(event.startDateTime).toLocaleTimeString()} - {new Date(event.endDateTime).toLocaleTimeString()}</Text>
+                            {event.location && <Text fontSize="sm">{event.location}</Text>}
+                            {event.description && <Text mt={1}>{event.description}</Text>}
+                          </Box>
+                        ))}
                       </>
                     ) : (
                       <Text>No events for {selectedDate.toLocaleDateString()}.</Text>
