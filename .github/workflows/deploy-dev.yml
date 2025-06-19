@@ -2,7 +2,7 @@ name: Deploy to Development Server
 
 on:
   push:
-    branches: [ "main" ]  # main 브랜치에 push될 때 실행
+    branches: [ "develop" ]  # main 브랜치에 push될 때 실행
 
 jobs:
   deploy:
@@ -14,7 +14,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22''
+          node-version: '22'
 
       - name: Install Dependencies
         run: npm ci
