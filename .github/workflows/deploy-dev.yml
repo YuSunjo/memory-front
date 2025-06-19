@@ -33,7 +33,7 @@ jobs:
           host: 144.24.78.166
           username: ubuntu
           key: ${{ secrets.DEV_SERVER_PRIVATE_KEY }}
-          script: mkdir -p /home/ubuntu/memory-front
+          script: mkdir -p /home/ubuntu/memory/memory-front
 
       - name: Deploy to Server
         uses: appleboy/scp-action@v0.1.7
@@ -42,5 +42,5 @@ jobs:
           username: ubuntu
           key: ${{ secrets.DEV_SERVER_PRIVATE_KEY }}
           source: "dist/*"
-          target: "/home/ubuntu/memory-front"
+          target: "/home/ubuntu/memory/memory-front"
           strip_components: 1
