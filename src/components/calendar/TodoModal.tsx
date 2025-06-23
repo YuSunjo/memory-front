@@ -28,6 +28,7 @@ interface TodoModalProps {
   initialData: TodoRequest;
   isLoading: boolean;
   onSubmit: (data: TodoRequest) => void;
+  apiError?: string;
 }
 
 const TodoModal: React.FC<TodoModalProps> = ({
@@ -35,7 +36,8 @@ const TodoModal: React.FC<TodoModalProps> = ({
   onClose,
   initialData,
   isLoading,
-  onSubmit
+  onSubmit,
+  apiError
 }) => {
   // Form state
   const [todoForm, setTodoForm] = useState<TodoRequest>(initialData);
@@ -197,6 +199,11 @@ const TodoModal: React.FC<TodoModalProps> = ({
                 {formErrors.repeatEndDate && <FormErrorMessage>{formErrors.repeatEndDate}</FormErrorMessage>}
               </FormControl>
             </>
+          )}
+          {apiError && (
+            <FormControl isInvalid={!!apiError} mb={4}>
+              <FormErrorMessage color="red.500">{apiError}</FormErrorMessage>
+            </FormControl>
           )}
         </ModalBody>
 

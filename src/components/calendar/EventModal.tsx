@@ -12,11 +12,6 @@ import {
   Input,
   Textarea,
   Select,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
   Button,
   FormErrorMessage
 } from '@chakra-ui/react';
@@ -28,6 +23,7 @@ interface EventModalProps {
   initialData: EventRequest;
   isLoading: boolean;
   onSubmit: (data: EventRequest) => void;
+  apiError?: string;
 }
 
 const EventModal: React.FC<EventModalProps> = ({
@@ -35,10 +31,16 @@ const EventModal: React.FC<EventModalProps> = ({
   onClose,
   initialData,
   isLoading,
-  onSubmit
+  onSubmit,
+  apiError
 }) => {
   // Form state
-  const [eventForm, setEventForm] = useState<EventRequest>(initialData);
+  const [eventForm, setEventForm] = useState<EventRequest>({
+    ...initialData,
+    repeatType: 'NONE',
+    repeatInterval: 1,
+    repeatEndDate: ''
+  });
 
   // Form validation state
   const [formErrors, setFormErrors] = useState({
@@ -46,26 +48,13 @@ const EventModal: React.FC<EventModalProps> = ({
     description: '',
     startDateTime: '',
     endDateTime: '',
-    location: '',
-    repeatInterval: '',
-    repeatEndDate: ''
+    location: ''
   });
 
   // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setEventForm(prev => ({ ...prev, [name]: value }));
-
-    // Clear validation error when user types
-    if (formErrors[name as keyof typeof formErrors]) {
-      setFormErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  // Handle number input changes
-  const handleNumberInputChange = (name: string, value: string) => {
-    const numberValue = parseInt(value);
-    setEventForm(prev => ({ ...prev, [name]: numberValue }));
 
     // Clear validation error when user types
     if (formErrors[name as keyof typeof formErrors]) {
@@ -93,26 +82,9 @@ const EventModal: React.FC<EventModalProps> = ({
       isValid = false;
     }
 
-    if (!eventForm.endDateTime) {
-      newErrors.endDateTime = 'End date and time is required';
-      isValid = false;
-    }
-
     if (!eventForm.location.trim()) {
       newErrors.location = 'Location is required';
       isValid = false;
-    }
-
-    if (eventForm.repeatType !== 'NONE') {
-      if (!eventForm.repeatInterval || eventForm.repeatInterval < 1) {
-        newErrors.repeatInterval = 'Repeat interval must be at least 1';
-        isValid = false;
-      }
-
-      if (!eventForm.repeatEndDate) {
-        newErrors.repeatEndDate = 'Repeat end date is required';
-        isValid = false;
-      }
     }
 
     setFormErrors(newErrors);
@@ -166,7 +138,7 @@ const EventModal: React.FC<EventModalProps> = ({
           </FormControl>
 
           <FormControl isInvalid={!!formErrors.endDateTime} mb={4}>
-            <FormLabel>End Date & Time</FormLabel>
+            <FormLabel>End Date & Time (Optional)</FormLabel>
             <Input 
               name="endDateTime"
               type="datetime-local"
@@ -195,56 +167,15 @@ const EventModal: React.FC<EventModalProps> = ({
               onChange={handleInputChange}
             >
               <option value="PERSONAL">Personal</option>
-              <option value="WORK">Work</option>
-              <option value="FAMILY">Family</option>
-              <option value="OTHER">Other</option>
+              <option value="ANNIVERSARY_EVENT">ANNIVERSARY</option>
+              <option value="RELATIONSHIP_EVENT">RELATIONSHIP</option>
             </Select>
           </FormControl>
 
-          <FormControl mb={4}>
-            <FormLabel>Repeat</FormLabel>
-            <Select 
-              name="repeatType"
-              value={eventForm.repeatType}
-              onChange={handleInputChange}
-            >
-              <option value="NONE">No Repeat</option>
-              <option value="DAILY">Daily</option>
-              <option value="WEEKLY">Weekly</option>
-              <option value="MONTHLY">Monthly</option>
-              <option value="YEARLY">Yearly</option>
-            </Select>
-          </FormControl>
-
-          {eventForm.repeatType !== 'NONE' && (
-            <>
-              <FormControl isInvalid={!!formErrors.repeatInterval} mb={4}>
-                <FormLabel>Repeat Every</FormLabel>
-                <NumberInput 
-                  min={1} 
-                  value={eventForm.repeatInterval}
-                  onChange={(value) => handleNumberInputChange('repeatInterval', value)}
-                >
-                  <NumberInputField />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-                {formErrors.repeatInterval && <FormErrorMessage>{formErrors.repeatInterval}</FormErrorMessage>}
-              </FormControl>
-
-              <FormControl isInvalid={!!formErrors.repeatEndDate} mb={4}>
-                <FormLabel>Repeat Until</FormLabel>
-                <Input 
-                  name="repeatEndDate"
-                  type="date"
-                  value={eventForm.repeatEndDate}
-                  onChange={handleInputChange}
-                />
-                {formErrors.repeatEndDate && <FormErrorMessage>{formErrors.repeatEndDate}</FormErrorMessage>}
-              </FormControl>
-            </>
+          {apiError && (
+            <FormControl isInvalid={!!apiError} mb={4}>
+              <FormErrorMessage color="red.500">{apiError}</FormErrorMessage>
+            </FormControl>
           )}
         </ModalBody>
 

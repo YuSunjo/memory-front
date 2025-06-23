@@ -23,6 +23,7 @@ interface DiaryModalProps {
   initialData: DiaryRequest;
   isLoading: boolean;
   onSubmit: (data: DiaryRequest) => void;
+  apiError?: string;
 }
 
 const DiaryModal: React.FC<DiaryModalProps> = ({
@@ -30,7 +31,8 @@ const DiaryModal: React.FC<DiaryModalProps> = ({
   onClose,
   initialData,
   isLoading,
-  onSubmit
+  onSubmit,
+  apiError
 }) => {
   // Form state
   const [diaryForm, setDiaryForm] = useState<DiaryRequest>(initialData);
@@ -167,6 +169,11 @@ const DiaryModal: React.FC<DiaryModalProps> = ({
             </Select>
             {formErrors.weather && <FormErrorMessage>{formErrors.weather}</FormErrorMessage>}
           </FormControl>
+          {apiError && (
+            <FormControl isInvalid={!!apiError} mb={4}>
+              <FormErrorMessage color="red.500">{apiError}</FormErrorMessage>
+            </FormControl>
+          )}
         </ModalBody>
 
         <ModalFooter>

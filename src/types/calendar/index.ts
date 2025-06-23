@@ -30,7 +30,7 @@ export interface EventRequest {
   title: string;
   description: string;
   startDateTime: string;
-  endDateTime: string;
+  endDateTime?: string;
   location: string;
   eventType: string;
   repeatType?: string;

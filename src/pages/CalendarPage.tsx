@@ -66,6 +66,18 @@ const CalendarPage: React.FC = () => {
     createEvent: false
   });
 
+  // Error state
+  const [apiErrors, setApiErrors] = useState<{
+    todo: string | undefined;
+    diary: string | undefined;
+    event: string | undefined;
+  }>({
+    todo: '',
+    diary: '',
+    event: ''
+  });
+
+
   // Modal state for Todo
   const { isOpen: isTodoModalOpen, onOpen: onTodoModalOpen, onClose: onTodoModalClose } = useDisclosure();
 
@@ -142,68 +154,69 @@ const CalendarPage: React.FC = () => {
     ));
   };
 
-  // Validate Todo form
-  const validateTodoForm = (): boolean => {
+  // Validate form data directly
+  const validateFormData = (data: TodoRequest): boolean => {
+    console.log('validateFormData');
     let isValid = true;
     const newErrors = { ...todoFormErrors };
 
-    if (!todoForm.title.trim()) {
+    if (!data.title.trim()) {
       newErrors.title = 'Title is required';
       isValid = false;
     }
 
-    if (!todoForm.content.trim()) {
+    if (!data.content.trim()) {
       newErrors.content = 'Content is required';
       isValid = false;
     }
 
-    if (!todoForm.dueDate) {
+    if (!data.dueDate) {
       newErrors.dueDate = 'Due date is required';
       isValid = false;
     }
 
-    if (todoForm.repeatType !== 'NONE') {
-      if (!todoForm.repeatInterval || todoForm.repeatInterval < 1) {
+    if (data.repeatType !== 'NONE') {
+      if (!data.repeatInterval || data.repeatInterval < 1) {
         newErrors.repeatInterval = 'Repeat interval must be at least 1';
         isValid = false;
       }
 
-      if (!todoForm.repeatEndDate) {
+      if (!data.repeatEndDate) {
         newErrors.repeatEndDate = 'Repeat end date is required';
         isValid = false;
       }
     }
-
+    console.log('newErrors:', newErrors);
     setTodoFormErrors(newErrors);
     return isValid;
   };
 
-  // Validate Diary form
-  const validateDiaryForm = (): boolean => {
+  // Validate diary form data directly
+  const validateDiaryFormData = (data: DiaryRequest): boolean => {
     let isValid = true;
     const newErrors = { ...diaryFormErrors };
 
-    if (!diaryForm.title.trim()) {
+    if (!data.title.trim()) {
       newErrors.title = 'Title is required';
       isValid = false;
     }
 
-    if (!diaryForm.content.trim()) {
+    if (!data.content.trim()) {
       newErrors.content = 'Content is required';
       isValid = false;
     }
 
-    if (!diaryForm.date) {
+    if (!data.date) {
       newErrors.date = 'Date is required';
       isValid = false;
     }
 
-    if (!diaryForm.mood.trim()) {
+    if (!data.mood.trim()) {
       newErrors.mood = 'Mood is required';
       isValid = false;
     }
 
-    if (!diaryForm.weather.trim()) {
+    if (!data.weather.trim()) {
       newErrors.weather = 'Weather is required';
       isValid = false;
     }
@@ -212,43 +225,38 @@ const CalendarPage: React.FC = () => {
     return isValid;
   };
 
-  // Validate Event form
-  const validateEventForm = (): boolean => {
+  // Validate event form data directly
+  const validateEventFormData = (data: EventRequest): boolean => {
     let isValid = true;
     const newErrors = { ...eventFormErrors };
 
-    if (!eventForm.title.trim()) {
+    if (!data.title.trim()) {
       newErrors.title = 'Title is required';
       isValid = false;
     }
 
-    if (!eventForm.description.trim()) {
+    if (!data.description.trim()) {
       newErrors.description = 'Description is required';
       isValid = false;
     }
 
-    if (!eventForm.startDateTime) {
+    if (!data.startDateTime) {
       newErrors.startDateTime = 'Start date and time is required';
       isValid = false;
     }
 
-    if (!eventForm.endDateTime) {
-      newErrors.endDateTime = 'End date and time is required';
-      isValid = false;
-    }
-
-    if (!eventForm.location.trim()) {
+    if (!data.location.trim()) {
       newErrors.location = 'Location is required';
       isValid = false;
     }
 
-    if (eventForm.repeatType !== 'NONE') {
-      if (!eventForm.repeatInterval || eventForm.repeatInterval < 1) {
+    if (data.repeatType !== 'NONE') {
+      if (!data.repeatInterval || data.repeatInterval < 1) {
         newErrors.repeatInterval = 'Repeat interval must be at least 1';
         isValid = false;
       }
 
-      if (!eventForm.repeatEndDate) {
+      if (!data.repeatEndDate) {
         newErrors.repeatEndDate = 'Repeat end date is required';
         isValid = false;
       }
@@ -259,30 +267,41 @@ const CalendarPage: React.FC = () => {
   };
 
   // Handle Todo form submission
-  const handleTodoSubmit = async () => {
-    if (!validateTodoForm()) return;
+  const handleTodoSubmit = async (formData: TodoRequest) => {
+    console.log('handleTodoSubmit with formData:', formData);
+    // Update the todoForm state with the data from the modal
+    setTodoForm(formData);
 
+    // Clear any previous error
+    setApiErrors(prev => ({ ...prev, todo: '' }));
+
+    console.log('validateFormData:', validateFormData(formData));
+    if (!validateFormData(formData)) return;
     setIsLoading(prev => ({ ...prev, createTodo: true }));
 
     try {
       // Prepare the request data
       const requestData: TodoRequest = {
-        title: todoForm.title,
-        content: todoForm.content,
-        dueDate: todoForm.dueDate
+        title: formData.title,
+        content: formData.content,
+        dueDate: formData.dueDate
       };
 
       // Add repeat fields if not NONE
-      if (todoForm.repeatType !== 'NONE') {
-        requestData.repeatType = todoForm.repeatType;
-        requestData.repeatInterval = todoForm.repeatInterval;
-        requestData.repeatEndDate = todoForm.repeatEndDate;
+      if (formData.repeatType !== 'NONE') {
+        requestData.repeatType = formData.repeatType;
+        requestData.repeatInterval = formData.repeatInterval;
+        requestData.repeatEndDate = formData.repeatEndDate;
       }
 
       // Call the API
+      console.log('requestData:', requestData);
       const result = await calendarService.createTodo(requestData);
 
-      if (result) {
+      if (result.error) {
+        // Set the error message
+        setApiErrors(prev => ({ ...prev, todo: result.error }));
+      } else if (result.data) {
         // Close the modal and reset form
         onTodoModalClose();
         resetTodoForm();
@@ -294,31 +313,41 @@ const CalendarPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error creating todo:', error);
+      setApiErrors(prev => ({ ...prev, todo: 'An unexpected error occurred' }));
     } finally {
       setIsLoading(prev => ({ ...prev, createTodo: false }));
     }
   };
 
   // Handle Diary form submission
-  const handleDiarySubmit = async () => {
-    if (!validateDiaryForm()) return;
+  const handleDiarySubmit = async (formData: DiaryRequest) => {
+    // Update the diaryForm state with the data from the modal
+    setDiaryForm(formData);
+
+    // Clear any previous error
+    setApiErrors(prev => ({ ...prev, diary: '' }));
+
+    if (!validateDiaryFormData(formData)) return;
 
     setIsLoading(prev => ({ ...prev, createDiary: true }));
 
     try {
       // Prepare the request data
       const requestData: DiaryRequest = {
-        title: diaryForm.title,
-        content: diaryForm.content,
-        date: diaryForm.date,
-        mood: diaryForm.mood,
-        weather: diaryForm.weather
+        title: formData.title,
+        content: formData.content,
+        date: formData.date,
+        mood: formData.mood,
+        weather: formData.weather
       };
 
       // Call the API
       const result = await calendarService.createDiary(requestData);
 
-      if (result) {
+      if (result.error) {
+        // Set the error message
+        setApiErrors(prev => ({ ...prev, diary: result.error }));
+      } else if (result.data) {
         // Close the modal and reset form
         onDiaryModalClose();
         resetDiaryForm();
@@ -330,39 +359,50 @@ const CalendarPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error creating diary:', error);
+      setApiErrors(prev => ({ ...prev, diary: 'An unexpected error occurred' }));
     } finally {
       setIsLoading(prev => ({ ...prev, createDiary: false }));
     }
   };
 
   // Handle Event form submission
-  const handleEventSubmit = async () => {
-    if (!validateEventForm()) return;
+  const handleEventSubmit = async (formData: EventRequest) => {
+    // Update the eventForm state with the data from the modal
+    setEventForm(formData);
+
+    // Clear any previous error
+    setApiErrors(prev => ({ ...prev, event: '' }));
+
+    if (!validateEventFormData(formData)) return;
 
     setIsLoading(prev => ({ ...prev, createEvent: true }));
 
     try {
       // Prepare the request data
       const requestData: EventRequest = {
-        title: eventForm.title,
-        description: eventForm.description,
-        startDateTime: eventForm.startDateTime,
-        endDateTime: eventForm.endDateTime,
-        location: eventForm.location,
-        eventType: eventForm.eventType
+        title: formData.title,
+        description: formData.description,
+        startDateTime: formData.startDateTime,
+        endDateTime: formData.endDateTime,
+        location: formData.location,
+        eventType: formData.eventType
       };
 
       // Add repeat fields if not NONE
-      if (eventForm.repeatType !== 'NONE') {
-        requestData.repeatType = eventForm.repeatType;
-        requestData.repeatInterval = eventForm.repeatInterval;
-        requestData.repeatEndDate = eventForm.repeatEndDate;
+      if (formData.repeatType !== 'NONE') {
+        requestData.repeatType = formData.repeatType;
+        requestData.repeatInterval = formData.repeatInterval;
+        requestData.repeatEndDate = formData.repeatEndDate;
       }
 
       // Call the API
+      console.log('requestData:', requestData);
       const result = await calendarService.createEvent(requestData);
 
-      if (result) {
+      if (result.error) {
+        // Set the error message
+        setApiErrors(prev => ({ ...prev, event: result.error }));
+      } else if (result.data) {
         // Close the modal and reset form
         onEventModalClose();
         resetEventForm();
@@ -374,6 +414,7 @@ const CalendarPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error creating event:', error);
+      setApiErrors(prev => ({ ...prev, event: 'An unexpected error occurred' }));
     } finally {
       setIsLoading(prev => ({ ...prev, createEvent: false }));
     }
@@ -647,6 +688,7 @@ const CalendarPage: React.FC = () => {
         initialData={todoForm}
         isLoading={isLoading.createTodo}
         onSubmit={handleTodoSubmit}
+        apiError={apiErrors.todo}
       />
     );
   };
@@ -660,6 +702,7 @@ const CalendarPage: React.FC = () => {
         initialData={diaryForm}
         isLoading={isLoading.createDiary}
         onSubmit={handleDiarySubmit}
+        apiError={apiErrors.diary}
       />
     );
   };
@@ -673,6 +716,7 @@ const CalendarPage: React.FC = () => {
         initialData={eventForm}
         isLoading={isLoading.createEvent}
         onSubmit={handleEventSubmit}
+        apiError={apiErrors.event}
       />
     );
   };

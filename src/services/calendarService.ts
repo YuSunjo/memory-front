@@ -34,33 +34,37 @@ export const useCalendarService = () => {
     }
   };
 
-  const createTodo = async (todoData: TodoRequest): Promise<TodoResponse | null> => {
+  const createTodo = async (todoData: TodoRequest): Promise<{ data: TodoResponse | null; error?: string }> => {
+    console.log('Creating todo with data:', todoData);
     try {
-      const response = await api.post<TodoResponse, TodoRequest>('/api/v1/todos', todoData);
-      return response.data.data;
-    } catch (error) {
+      const response = await api.post<TodoResponse, TodoRequest>('/v1/todos', todoData);
+      return { data: response.data.data };
+    } catch (error: any) {
       console.error('Error creating todo:', error);
-      return null;
+      const errorMessage = error.response?.data?.message || 'Failed to create todo';
+      return { data: null, error: errorMessage };
     }
   };
 
-  const createDiary = async (diaryData: DiaryRequest): Promise<DiaryResponse | null> => {
+  const createDiary = async (diaryData: DiaryRequest): Promise<{ data: DiaryResponse | null; error?: string }> => {
     try {
-      const response = await api.post<DiaryResponse, DiaryRequest>('/api/v1/diaries', diaryData);
-      return response.data.data;
-    } catch (error) {
+      const response = await api.post<DiaryResponse, DiaryRequest>('/v1/diaries', diaryData);
+      return { data: response.data.data };
+    } catch (error: any) {
       console.error('Error creating diary:', error);
-      return null;
+      const errorMessage = error.response?.data?.message || 'Failed to create diary';
+      return { data: null, error: errorMessage };
     }
   };
 
-  const createEvent = async (eventData: EventRequest): Promise<EventResponse | null> => {
+  const createEvent = async (eventData: EventRequest): Promise<{ data: EventResponse | null; error?: string }> => {
     try {
-      const response = await api.post<EventResponse, EventRequest>('/api/v1/calendar/events', eventData);
-      return response.data.data;
-    } catch (error) {
+      const response = await api.post<EventResponse, EventRequest>('/v1/calendar/events', eventData);
+      return { data: response.data.data };
+    } catch (error: any) {
       console.error('Error creating event:', error);
-      return null;
+      const errorMessage = error.response?.data?.message || 'Failed to create event';
+      return { data: null, error: errorMessage };
     }
   };
 
