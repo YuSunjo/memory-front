@@ -35,7 +35,6 @@ export const useCalendarService = () => {
   };
 
   const createTodo = async (todoData: TodoRequest): Promise<{ data: TodoResponse | null; error?: string }> => {
-    console.log('Creating todo with data:', todoData);
     try {
       const response = await api.post<TodoResponse, TodoRequest>('/v1/todos', todoData);
       return { data: response.data.data };

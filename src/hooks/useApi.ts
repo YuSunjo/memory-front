@@ -13,8 +13,6 @@ api.interceptors.request.use(
     const accessToken = localStorage.getItem('accessToken');
     const url = config.url || '';
 
-    console.log('Request URL:', url);
-
     const requiresAuth = !noAuthEndpoints.some(endpoint => url.includes(endpoint));
 
     if (accessToken && requiresAuth) {

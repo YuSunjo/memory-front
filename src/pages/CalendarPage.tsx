@@ -156,7 +156,6 @@ const CalendarPage: React.FC = () => {
 
   // Validate form data directly
   const validateFormData = (data: TodoRequest): boolean => {
-    console.log('validateFormData');
     let isValid = true;
     const newErrors = { ...todoFormErrors };
 
@@ -268,14 +267,12 @@ const CalendarPage: React.FC = () => {
 
   // Handle Todo form submission
   const handleTodoSubmit = async (formData: TodoRequest) => {
-    console.log('handleTodoSubmit with formData:', formData);
     // Update the todoForm state with the data from the modal
     setTodoForm(formData);
 
     // Clear any previous error
     setApiErrors(prev => ({ ...prev, todo: '' }));
 
-    console.log('validateFormData:', validateFormData(formData));
     if (!validateFormData(formData)) return;
     setIsLoading(prev => ({ ...prev, createTodo: true }));
 
@@ -295,7 +292,6 @@ const CalendarPage: React.FC = () => {
       }
 
       // Call the API
-      console.log('requestData:', requestData);
       const result = await calendarService.createTodo(requestData);
 
       if (result.error) {

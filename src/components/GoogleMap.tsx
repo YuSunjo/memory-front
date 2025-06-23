@@ -29,7 +29,6 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, onMapSe
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  console.log(map);
   const [selectedPosition, setSelectedPosition] = useState<google.maps.LatLngLiteral | null>(null);
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
   const [selectedMapMarker, setSelectedMapMarker] = useState<MapData | null>(null);
@@ -60,7 +59,6 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, onMapSe
         { timeout: 10000, enableHighAccuracy: true }
       );
     } else {
-      // Geolocation not supported: keep using default center
       console.log('Geolocation is not supported by this browser.');
     }
   }, []);
