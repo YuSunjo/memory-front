@@ -8,6 +8,7 @@
     "dev:development": "vite --mode development",
     "build": "tsc -b && vite build",
     "build:dev": "vite build --mode development",
+    "build:prod": "vite build --mode production",
     "lint": "eslint .",
     "preview": "vite preview",
     "preview:dev": "vite preview --mode development"
