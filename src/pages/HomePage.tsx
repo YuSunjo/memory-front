@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Flex, Box, Spinner, Alert, AlertIcon } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 import GoogleMap from '../components/GoogleMap';
 import type {LocationData, MapData} from '../types';
 import UpcomingEvents from '../components/UpcomingEvents';
@@ -15,6 +16,13 @@ const HomePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const api = useApi();
   const { isAuthenticated } = useMemberStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/sharing-memories');
+    }
+  }, [isAuthenticated, navigate]);
 
   const fetchMaps = async () => {
     try {
