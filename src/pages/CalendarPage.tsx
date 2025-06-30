@@ -114,6 +114,7 @@ const CalendarPage: React.FC = () => {
     endDateTime: '',
     location: '',
     eventType: 'PERSONAL',
+    isDday: false,
     repeatType: 'NONE',
     repeatInterval: 1,
     repeatEndDate: ''
@@ -384,6 +385,11 @@ const CalendarPage: React.FC = () => {
         eventType: formData.eventType
       };
 
+      // Add isDday field if event type is ANNIVERSARY_EVENT
+      if (formData.eventType === 'ANNIVERSARY_EVENT') {
+        requestData.isDday = formData.isDday;
+      }
+
       // Add repeat fields if not NONE
       if (formData.repeatType !== 'NONE') {
         requestData.repeatType = formData.repeatType;
@@ -464,6 +470,7 @@ const CalendarPage: React.FC = () => {
       endDateTime: '',
       location: '',
       eventType: 'PERSONAL',
+      isDday: false,
       repeatType: 'NONE',
       repeatInterval: 1,
       repeatEndDate: ''

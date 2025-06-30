@@ -33,6 +33,7 @@ export interface EventRequest {
   endDateTime?: string;
   location: string;
   eventType: string;
+  isDday?: boolean;
   repeatType?: string;
   repeatInterval?: number;
   repeatEndDate?: string;

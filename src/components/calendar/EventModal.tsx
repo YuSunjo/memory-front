@@ -13,7 +13,8 @@ import {
   Textarea,
   Select,
   Button,
-  FormErrorMessage
+  FormErrorMessage,
+  Checkbox
 } from '@chakra-ui/react';
 import type {EventRequest} from '../../types/calendar';
 
@@ -37,6 +38,7 @@ const EventModal: React.FC<EventModalProps> = ({
   // Form state
   const [eventForm, setEventForm] = useState<EventRequest>({
     ...initialData,
+    isDday: false,
     repeatType: 'NONE',
     repeatInterval: 1,
     repeatEndDate: ''
@@ -60,6 +62,12 @@ const EventModal: React.FC<EventModalProps> = ({
     if (formErrors[name as keyof typeof formErrors]) {
       setFormErrors(prev => ({ ...prev, [name]: '' }));
     }
+  };
+
+  // Handle checkbox changes
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setEventForm(prev => ({ ...prev, [name]: checked }));
   };
 
   // Validate form
@@ -171,6 +179,18 @@ const EventModal: React.FC<EventModalProps> = ({
               <option value="RELATIONSHIP_EVENT">RELATIONSHIP</option>
             </Select>
           </FormControl>
+
+          {eventForm.eventType === "ANNIVERSARY_EVENT" && (
+            <FormControl mb={4}>
+              <Checkbox 
+                name="isDday"
+                isChecked={eventForm.isDday}
+                onChange={handleCheckboxChange}
+              >
+                Mark as D-Day
+              </Checkbox>
+            </FormControl>
+          )}
 
           {apiError && (
             <FormControl isInvalid={!!apiError} mb={4}>
