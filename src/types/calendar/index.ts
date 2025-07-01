@@ -78,3 +78,15 @@ export interface EventResponse {
   repeatInterval: number | null;
   repeatEndDate: string | null;
 }
+
+export interface DdayEventResponse {
+  id: number;
+  title: string;
+  description: string;
+  startDateTime: string;
+  endDateTime: string;
+  location: string;
+  member: MemberResponse;
+  createDate: string;
+  dday: number; // D-day까지 남은 일수
+}
