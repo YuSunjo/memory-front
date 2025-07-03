@@ -39,6 +39,10 @@ const useApi = () => {
     return api.put<ServerResponse<T>>(url, data, config);
   };
 
+    const patch = <T, D>(url: string, data?: D, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
+        return api.patch<ServerResponse<T>>(url, data, config);
+    };
+
   const del = <T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
     return api.delete<ServerResponse<T>>(url, config);
   };
@@ -47,6 +51,7 @@ const useApi = () => {
     get,
     post,
     put,
+    patch,
     delete: del,
   };
 };
