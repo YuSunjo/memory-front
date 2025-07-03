@@ -41,6 +41,22 @@ import {
   DragOverlay
 } from '@dnd-kit/core';
 import type { UniqueIdentifier } from '@dnd-kit/core';
+
+// 드래그 이벤트 타입 정의
+interface DragStartEvent {
+  active: {
+    id: UniqueIdentifier;
+  };
+}
+
+interface DragEndEvent {
+  active: {
+    id: UniqueIdentifier;
+  };
+  over: {
+    id: UniqueIdentifier;
+  } | null;
+}
 import {
   arrayMove,
   SortableContext,
@@ -231,13 +247,13 @@ const LinkTreeManager: React.FC = () => {
   };
 
   // 드래그 시작
-  const handleDragStart = (event: any) => {
+  const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id);
     console.log('🎯 Drag started:', event.active.id);
   };
 
   // 드래그 종료 - 순서 변경
-  const handleDragEnd = async (event: any) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
 
