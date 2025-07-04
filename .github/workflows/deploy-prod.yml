@@ -39,4 +39,4 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync dist/ s3://mymemory.co.kr --delete
+          aws s3 sync dist/ s3://www.mymemory.co.kr --delete
