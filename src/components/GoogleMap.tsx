@@ -357,8 +357,12 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, onMapSe
                   }
                 }}
                 icon={{
-                  url: 'https://maps.google.com/mapfiles/place_api/icons/v1/png_71/restaurant-71.png',
-                  scaledSize: new google.maps.Size(25, 25)
+                  path: google.maps.SymbolPath.CIRCLE,
+                  fillColor: '#34A853', // Green color
+                  fillOpacity: 1,
+                  strokeColor: '#FFFFFF',
+                  strokeWeight: 2,
+                  scale: 10
                 }}
                 title={mapData.name}
               />
