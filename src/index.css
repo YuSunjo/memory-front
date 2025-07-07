@@ -34,3 +34,17 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+
+/* 배너 애니메이션 */
+@keyframes scroll {
+  0% {
+    transform: translateX(100vw);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.banner-scroll {
+  animation: scroll 20s linear infinite;
+}

@@ -1,6 +1,7 @@
 import { ChakraProvider, Box } from '@chakra-ui/react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
+import IntroBanner from './components/IntroBanner'
 import HomePage from './pages/HomePage'
 import SignupPage from './pages/SignupPage'
 import LoginPage from './pages/LoginPage'
@@ -14,6 +15,7 @@ import CreateMemoryPage from './pages/CreateMemoryPage'
 import SharingMemoriesPage from './pages/SharingMemoriesPage';
 import CalendarPage from './pages/CalendarPage';
 import MemoryQuestPage from './pages/MemoryQuestPage';
+import AboutPage from './pages/AboutPage';
 
 function App() {
   return (
@@ -21,6 +23,7 @@ function App() {
       <Router>
         <AuthProvider>
           <Box display="flex" flexDirection="column" minHeight="100vh" bg="gray.50">
+            <IntroBanner />
             <Navbar />
             <Routes>
               <Route path="/" element={<HomePage />} />
@@ -35,6 +38,7 @@ function App() {
               <Route path="/sharing-memories" element={<SharingMemoriesPage />} />
               <Route path="/memory-quest" element={<MemoryQuestPage />} />
               <Route path="/calendar" element={<CalendarPage />} />
+              <Route path="/about" element={<AboutPage />} />
             </Routes>
           </Box>
         </AuthProvider>
