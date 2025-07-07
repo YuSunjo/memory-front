@@ -92,6 +92,19 @@ const Navbar: React.FC = () => {
           >
             Sharing Memories
           </Text>
+          <Text 
+            fontSize="sm" 
+            fontWeight={location.pathname === '/memory-quest' ? "bold" : "normal"}
+            color={location.pathname === '/memory-quest' ? "blue.500" : "gray.600"} 
+            cursor="pointer" 
+            _hover={{ color: "blue.500" }}
+            onClick={() => navigate('/memory-quest')}
+            borderBottom={location.pathname === '/memory-quest' ? "2px solid" : "none"}
+            borderColor="blue.500"
+            pb={1}
+          >
+            🎮 Memory Quest
+          </Text>
         </HStack>
       </Box>
       <HStack spacing={4}>
