@@ -24,6 +24,8 @@ jobs:
 
       - name: Create .env.production file
         run: |
+          echo "API_BASE_URL_PROD exists: ${{ secrets.API_BASE_URL_PROD != '' }}"
+          echo "GOOGLE_MAPS_API_KEY_PROD exists: ${{ secrets.GOOGLE_MAPS_API_KEY_PROD != '' }}"
           echo "VITE_API_BASE_URL=${{ secrets.API_BASE_URL_PROD }}" > .env.production
           echo "VITE_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY_PROD }}" >> .env.production
 
