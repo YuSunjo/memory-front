@@ -1,32 +1,14 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Memory - 추억 저장소</title>
-    <meta name="description" content="소중한 추억을 아름답게 기록하고 영원히 간직하는 디지털 추억 저장소" />
-    <!-- Google Maps API -->
-    <script>
-      window.initGoogleMaps = function() {
-        console.log('✅ Google Maps API loaded successfully');
-        window.googleMapsReady = true;
-        window.dispatchEvent(new Event('google-maps-ready'));
-      };
-      
-      // API 로드 에러 핸들링
-      window.gm_authFailure = function() {
-        console.error('❌ Google Maps API authentication failed');
-        console.error('API 키를 확인해주세요: AIzaSyCAth7vnLTAC46ep-HXrqnqAJeMWX3u0o0');
-      };
-    </script>
-    <script async defer 
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAth7vnLTAC46ep-HXrqnqAJeMWX3u0o0&libraries=geometry,places&callback=initGoogleMaps"
-      onerror="console.error('❌ Google Maps API script failed to load')">
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory - 추억 저장소</title>
+  <meta name="description" content="소중한 추억을 아름답게 기록하고 영원히 간직하는 디지털 추억 저장소" />
+</head>
+<body>
+<div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
+</body>
 </html>
