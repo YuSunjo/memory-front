@@ -19,10 +19,13 @@ import {
   Image,
   SimpleGrid
 } from '@chakra-ui/react';
-import type { GameSession, GameSetting, GameQuestion } from '../types/game';
-import { useGameApi } from '../hooks/useGameApi';
+
+import { useJsApiLoader } from '@react-google-maps/api';
+
 import StreetView from './StreetView';
 import GameMap from './GameMap';
+import type { GameSession, GameSetting, GameQuestion } from '../types/game';
+import { useGameApi } from '../hooks/useGameApi';
 
 interface GameModalProps {
   isOpen: boolean;
@@ -47,9 +50,17 @@ const GameModal: React.FC<GameModalProps> = ({
   const [questionStartTime, setQuestionStartTime] = useState<Date | null>(null);
   const [isGameCompleted, setIsGameCompleted] = useState(false);
   const toast = useToast();
+  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
+
   const { getNextQuestion, submitAnswer, giveUpGame, decryptCoordinate } = useGameApi();
-  
-  const maxQuestions = gameSetting?.maxQuestions || 10; // 기본값 10
+  const maxQuestions = gameSetting?.maxQuestions || 10;
+
+  // ✅ Google Maps API 로더
+  const { isLoaded } = useJsApiLoader({
+    id: 'game-map-script',
+    googleMapsApiKey: googleMapsApiKey,
+    libraries: ['places'],
+  });
 
   // 게임 시작 시 첫 번째 문제 가져오기
   useEffect(() => {
@@ -121,11 +132,9 @@ const GameModal: React.FC<GameModalProps> = ({
   const handleAnswerSubmit = async (selectedLocation: { lat: number; lng: number }) => {
     if (!gameSession || !currentGameQuestion || !questionStartTime) {
       toast({
-        title: '오류 발생',
-        description: '게임 세션 또는 문제 정보가 없습니다.',
+        title: '오류',
+        description: '문제 정보가 없습니다.',
         status: 'error',
-        duration: 3000,
-        isClosable: true,
       });
       return;
     }
@@ -313,10 +322,10 @@ const GameModal: React.FC<GameModalProps> = ({
                     {gameMode === 'RANDOM' ? (
                       // 랜덤 모드: 거리뷰만 표시
                       <Box h="100%">
-                        <StreetView 
+                        <StreetView
                           lat={decryptCoordinate(currentGameQuestion.encryptCorrectLatitude)}
                           lng={decryptCoordinate(currentGameQuestion.encryptCorrectLongitude)}
-                          height="100%"
+                          isLoaded={isLoaded}
                         />
                       </Box>
                     ) : (
@@ -357,6 +366,7 @@ const GameModal: React.FC<GameModalProps> = ({
                             lat={decryptCoordinate(currentGameQuestion.encryptCorrectLatitude)}
                             lng={decryptCoordinate(currentGameQuestion.encryptCorrectLongitude)}
                             height="calc(100% - 30px)"
+                            isLoaded={isLoaded}
                           />
                         </Box>
                       </VStack>
@@ -389,6 +399,7 @@ const GameModal: React.FC<GameModalProps> = ({
                     <GameMap
                       onLocationSelect={handleAnswerSubmit}
                       height="100%"
+                      isLoaded={isLoaded}
                     />
                   </Box>
                 </VStack>
