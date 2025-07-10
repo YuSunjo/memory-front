@@ -51,7 +51,16 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, onMapSe
       setGeocoder(new google.maps.Geocoder());
     }
     if (isLoaded && map && !placesService) {
-      setPlacesService(new google.maps.places.PlacesService(map));
+      // Places Service 안전 체크
+      try {
+        if (google.maps.places && google.maps.places.PlacesService) {
+          setPlacesService(new google.maps.places.PlacesService(map));
+        } else {
+          console.warn('Places API is not loaded. Search functionality will be disabled.');
+        }
+      } catch (error) {
+        console.error('Error initializing Places Service:', error);
+      }
     }
   }, [isLoaded, geocoder, map, placesService]);
 
@@ -86,9 +95,20 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, onMapSe
 
   // Search for places
   const handleSearch = useCallback(() => {
-    if (!searchQuery.trim() || !map || !placesService) {
+    if (!searchQuery.trim()) {
       toast({
         title: '검색어를 입력해주세요',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    
+    if (!map || !placesService) {
+      toast({
+        title: '지도 검색 기능이 준비되지 않았습니다',
+        description: 'Google Maps API를 로딩하는 중입니다. 잠시 후 다시 시도해주세요.',
         status: 'warning',
         duration: 3000,
         isClosable: true,
