@@ -19,13 +19,13 @@ import {
   Image,
   SimpleGrid
 } from '@chakra-ui/react';
-
 import { useJsApiLoader } from '@react-google-maps/api';
-
-import StreetView from './StreetView';
-import GameMap from './GameMap';
 import type { GameSession, GameSetting, GameQuestion } from '../types/game';
 import { useGameApi } from '../hooks/useGameApi';
+import StreetView from './StreetView';
+import GameMap from './GameMap';
+
+const libraries: ("geometry" | "places")[] = ['geometry', 'places'];
 
 interface GameModalProps {
   isOpen: boolean;
@@ -50,29 +50,26 @@ const GameModal: React.FC<GameModalProps> = ({
   const [questionStartTime, setQuestionStartTime] = useState<Date | null>(null);
   const [isGameCompleted, setIsGameCompleted] = useState(false);
   const toast = useToast();
-  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
-
   const { getNextQuestion, submitAnswer, giveUpGame, decryptCoordinate } = useGameApi();
+  
   const maxQuestions = gameSetting?.maxQuestions || 10;
 
-  // ✅ Google Maps API 로더
-  const { isLoaded } = useJsApiLoader({
-    id: 'game-map-script',
-    googleMapsApiKey: googleMapsApiKey,
-    libraries: ['places'],
+  // Google Maps API 로드
+  const { isLoaded: isGoogleMapsLoaded, loadError } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+    libraries: libraries,
   });
 
   // 게임 시작 시 첫 번째 문제 가져오기
   useEffect(() => {
     if (isOpen && gameSession) {
-      // 모달이 열릴 때마다 상태 초기화
       setCurrentQuestion(1);
       setScore(0);
       setCurrentGameQuestion(null);
       setQuestionStartTime(null);
       setIsGameCompleted(false);
       
-      // 첫 번째 문제 로드
       loadNextQuestion();
     }
   }, [isOpen, gameSession]);
@@ -86,7 +83,7 @@ const GameModal: React.FC<GameModalProps> = ({
       
       if (question) {
         setCurrentGameQuestion(question);
-        setQuestionStartTime(new Date()); // 문제 시작 시간 기록
+        setQuestionStartTime(new Date());
       } else {
         toast({
           title: '문제 로드 실패',
@@ -132,9 +129,11 @@ const GameModal: React.FC<GameModalProps> = ({
   const handleAnswerSubmit = async (selectedLocation: { lat: number; lng: number }) => {
     if (!gameSession || !currentGameQuestion || !questionStartTime) {
       toast({
-        title: '오류',
-        description: '문제 정보가 없습니다.',
+        title: '오류 발생',
+        description: '게임 세션 또는 문제 정보가 없습니다.',
         status: 'error',
+        duration: 3000,
+        isClosable: true,
       });
       return;
     }
@@ -142,10 +141,8 @@ const GameModal: React.FC<GameModalProps> = ({
     try {
       setIsLoading(true);
       
-      // 소요 시간 계산 (초 단위)
       const timeTaken = Math.round((new Date().getTime() - questionStartTime.getTime()) / 1000);
       
-      // 답안 제출 API 호출
       const answerResult = await submitAnswer(
         gameSession.id,
         currentGameQuestion.id,
@@ -157,7 +154,6 @@ const GameModal: React.FC<GameModalProps> = ({
       );
       
       if (answerResult) {
-        // 점수 업데이트
         setScore(prev => prev + answerResult.score);
         
         toast({
@@ -168,21 +164,17 @@ const GameModal: React.FC<GameModalProps> = ({
           isClosable: true,
         });
 
-        // 게임 완료 체크
         if (answerResult.isGameSessionCompleted) {
           setIsGameCompleted(true);
           return;
         }
 
-        // 다음 문제로 이동
         const nextQuestionNumber = currentQuestion + 1;
         setCurrentQuestion(nextQuestionNumber);
         
         if (nextQuestionNumber <= maxQuestions) {
-          // 다음 문제 로드
           await loadNextQuestion();
         } else {
-          // 모든 문제 완료
           setIsGameCompleted(true);
         }
       } else {
@@ -225,7 +217,6 @@ const GameModal: React.FC<GameModalProps> = ({
       return;
     }
 
-    // 게임 완료 상태일 때는 그냥 닫기
     if (isGameCompleted) {
       onClose();
       return;
@@ -270,6 +261,27 @@ const GameModal: React.FC<GameModalProps> = ({
     }
   };
 
+  if (loadError) {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose} size="full">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Google Maps 로드 오류</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Center h="50vh">
+              <VStack>
+                <Text fontSize="xl" color="red.500">Google Maps API를 로드할 수 없습니다</Text>
+                <Text color="gray.600">인터넷 연결과 API 키를 확인해주세요</Text>
+                <Button onClick={onClose}>닫기</Button>
+              </VStack>
+            </Center>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    );
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={handleGameGiveUp} size="full" closeOnOverlayClick={false}>
       <ModalOverlay />
@@ -301,7 +313,14 @@ const GameModal: React.FC<GameModalProps> = ({
         <ModalCloseButton />
         
         <ModalBody p={0} bg="gray.50" overflow="hidden">
-          {isLoading || questionLoading || !currentGameQuestion ? (
+          {!isGoogleMapsLoaded ? (
+            <Center h="calc(100vh - 200px)" bg="white">
+              <VStack spacing={4}>
+                <Spinner size="xl" />
+                <Text>Google Maps를 로딩하는 중...</Text>
+              </VStack>
+            </Center>
+          ) : isLoading || questionLoading || !currentGameQuestion ? (
             <Center h="calc(100vh - 200px)" bg="white">
               <VStack spacing={4}>
                 <Spinner size="xl" />
@@ -317,21 +336,18 @@ const GameModal: React.FC<GameModalProps> = ({
               {/* 왼쪽: 문제 영역 */}
               <Box w="50%" p={6} bg="white" borderRight="1px" borderColor="gray.200">
                 <VStack spacing={4} h="100%">
-                  {/* 문제 이미지 또는 거리뷰 */}
                   <Box w="100%" flex="1" borderRadius="lg" overflow="hidden">
                     {gameMode === 'RANDOM' ? (
-                      // 랜덤 모드: 거리뷰만 표시
                       <Box h="100%">
-                        <StreetView
+                        <StreetView 
+                          isLoaded={isGoogleMapsLoaded}
                           lat={decryptCoordinate(currentGameQuestion.encryptCorrectLatitude)}
                           lng={decryptCoordinate(currentGameQuestion.encryptCorrectLongitude)}
-                          isLoaded={isLoaded}
+                          height="100%"
                         />
                       </Box>
                     ) : (
-                      // 추억 모드: 추억 이미지 + 거리뷰
                       <VStack spacing={4} h="100%">
-                        {/* 추억 이미지들 */}
                         {currentGameQuestion.memoryImageUrls && currentGameQuestion.memoryImageUrls.length > 0 ? (
                           <Box flex="1" w="100%">
                             <Text fontSize="sm" fontWeight="bold" mb={2} color="blue.600">
@@ -357,16 +373,15 @@ const GameModal: React.FC<GameModalProps> = ({
                           </Box>
                         ) : null}
                         
-                        {/* 거리뷰 */}
                         <Box flex="1" w="100%">
                           <Text fontSize="sm" fontWeight="bold" mb={2} color="green.600">
                             🌍 거리뷰
                           </Text>
                           <StreetView 
+                            isLoaded={isGoogleMapsLoaded}
                             lat={decryptCoordinate(currentGameQuestion.encryptCorrectLatitude)}
                             lng={decryptCoordinate(currentGameQuestion.encryptCorrectLongitude)}
                             height="calc(100% - 30px)"
-                            isLoaded={isLoaded}
                           />
                         </Box>
                       </VStack>
@@ -397,9 +412,9 @@ const GameModal: React.FC<GameModalProps> = ({
                 <VStack spacing={4} h="100%">
                   <Box w="100%" flex="1" borderRadius="lg" overflow="hidden">
                     <GameMap
+                      isLoaded={isGoogleMapsLoaded}
                       onLocationSelect={handleAnswerSubmit}
                       height="100%"
-                      isLoaded={isLoaded}
                     />
                   </Box>
                 </VStack>
