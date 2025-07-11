@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Box, Input, Button, Flex, useToast } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
-import { GoogleMap as GoogleMapComponent, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap as GoogleMapComponent, Marker, InfoWindow } from '@react-google-maps/api';
+import { useGoogleMaps } from '../contexts/GoogleMapsContext';
 import type {LocationData, MapData} from '../types';
 
 interface GoogleMapProps {
@@ -22,16 +23,12 @@ const defaultCenter = {
   lng: 126.9780 // Default to Seoul, Korea
 };
 
-const GoogleMap: React.FC<GoogleMapProps> = ({ apiKey, onLocationSelect, onMapSelect, maps = [] }) => {
+const GoogleMap: React.FC<GoogleMapProps> = ({ onLocationSelect, onMapSelect, maps = [] }) => {
   console.log('🗺 GoogleMap component rendered');
   console.log('🗺 Received maps prop:', maps);
   console.log('🗺 Number of maps to display:', maps.length);
   
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: apiKey,
-    libraries: ['places']
-  });
+  const { isLoaded, loadError } = useGoogleMaps();
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<google.maps.LatLngLiteral | null>(null);

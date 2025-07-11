@@ -18,9 +18,13 @@ import {
 import { FaGamepad, FaMapMarkerAlt, FaDice, FaStreetView } from 'react-icons/fa';
 import GameModal from '../components/GameModal';
 import { useGameApi } from '../hooks/useGameApi';
+import useAuth from '../hooks/useAuth';
 import type { GameSession, GameSetting } from '../types/game';
 
 const MemoryQuestPage: React.FC = () => {
+  // 인증 확인 - 로그인이 필요한 페이지
+  const { isAuthenticated, isLoading } = useAuth(true, '/login');
+  
   const bgGradient = useColorModeValue('linear(to-r, blue.400, purple.500)', 'linear(to-r, blue.600, purple.700)');
   const cardBg = useColorModeValue('white', 'gray.800');
   const toast = useToast();
@@ -80,6 +84,47 @@ const MemoryQuestPage: React.FC = () => {
     setCurrentGameSession(null);
     setCurrentGameSetting(null);
   };
+
+  // 인증 로딩 중이거나 인증되지 않은 경우 로딩 화면 표시
+  if (isLoading) {
+    return (
+      <Container maxW="container.xl" py={8}>
+        <VStack spacing={8} align="center" justify="center" minH="50vh">
+          <div style={{
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #3182ce',
+            borderRadius: '50%',
+            width: '50px',
+            height: '50px',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <Text fontSize="lg" color="gray.600">
+            로그인 상태를 확인하는 중...
+          </Text>
+        </VStack>
+      </Container>
+    );
+  }
+
+  // 인증되지 않은 경우 (useAuth에서 자동 리다이렉트 처리되지만 대기 중인 경우)
+  if (!isAuthenticated) {
+    return (
+      <Container maxW="container.xl" py={8}>
+        <VStack spacing={8} align="center" justify="center" minH="50vh">
+          <Icon as={FaGamepad} w={16} h={16} color="gray.400" />
+          <Text fontSize="xl" fontWeight="bold" color="gray.600">
+            로그인이 필요한 서비스입니다
+          </Text>
+          <Text color="gray.500" textAlign="center">
+            Memory Quest를 이용하려면 로그인해주세요.
+          </Text>
+          <Button colorScheme="blue" size="lg" onClick={() => window.location.href = '/login'}>
+            로그인 하러 가기
+          </Button>
+        </VStack>
+      </Container>
+    );
+  }
 
   return (
     <Container maxW="container.xl" py={8}>
@@ -274,6 +319,16 @@ const MemoryQuestPage: React.FC = () => {
         gameSetting={currentGameSetting}
         gameMode={selectedGameMode}
       />
+      
+      {/* CSS 애니메이션 */}
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </Container>
   );
 };

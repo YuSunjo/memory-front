@@ -16,33 +16,36 @@ import SharingMemoriesPage from './pages/SharingMemoriesPage';
 import CalendarPage from './pages/CalendarPage';
 import MemoryQuestPage from './pages/MemoryQuestPage';
 import AboutPage from './pages/AboutPage';
+import { GoogleMapsProvider } from './contexts/GoogleMapsContext';
 
 function App() {
   return (
     <ChakraProvider>
-      <Router>
-        <AuthProvider>
-          <Box display="flex" flexDirection="column" minHeight="100vh" bg="gray.50">
-            <IntroBanner />
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/profile/edit" element={<ProfileEditPage />} />
-              <Route path="/relationship" element={<RelationshipPage />} />
-              <Route path="/memories-with-relationship" element={<MemoriesWithRelationshipPage />} />
-              <Route path="/my-memories" element={<MyMemoriesPage />} />
-              <Route path="/create-memory" element={<CreateMemoryPage />} />
-              <Route path="/sharing-memories" element={<SharingMemoriesPage />} />
-              <Route path="/memory-quest" element={<MemoryQuestPage />} />
-              <Route path="/calendar" element={<CalendarPage />} />
-              <Route path="/about" element={<AboutPage />} />
-            </Routes>
-          </Box>
-        </AuthProvider>
-      </Router>
+      <GoogleMapsProvider>
+        <Router>
+          <AuthProvider>
+            <Box display="flex" flexDirection="column" minHeight="100vh" bg="gray.50">
+              <IntroBanner />
+              <Navbar />
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/signup" element={<SignupPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/profile/edit" element={<ProfileEditPage />} />
+                <Route path="/relationship" element={<RelationshipPage />} />
+                <Route path="/memories-with-relationship" element={<MemoriesWithRelationshipPage />} />
+                <Route path="/my-memories" element={<MyMemoriesPage />} />
+                <Route path="/create-memory" element={<CreateMemoryPage />} />
+                <Route path="/sharing-memories" element={<SharingMemoriesPage />} />
+                <Route path="/memory-quest" element={<MemoryQuestPage />} />
+                <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/about" element={<AboutPage />} />
+              </Routes>
+            </Box>
+          </AuthProvider>
+        </Router>
+      </GoogleMapsProvider>
     </ChakraProvider>
   )
 }

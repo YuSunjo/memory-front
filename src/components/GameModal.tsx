@@ -19,13 +19,11 @@ import {
   Image,
   SimpleGrid
 } from '@chakra-ui/react';
-import { useJsApiLoader } from '@react-google-maps/api';
 import type { GameSession, GameSetting, GameQuestion } from '../types/game';
 import { useGameApi } from '../hooks/useGameApi';
+import { useGoogleMaps } from '../contexts/GoogleMapsContext';
 import StreetView from './StreetView';
 import GameMap from './GameMap';
-
-const libraries: ("geometry" | "places")[] = ['geometry', 'places'];
 
 interface GameModalProps {
   isOpen: boolean;
@@ -49,17 +47,14 @@ const GameModal: React.FC<GameModalProps> = ({
   const [questionLoading, setQuestionLoading] = useState(false);
   const [questionStartTime, setQuestionStartTime] = useState<Date | null>(null);
   const [isGameCompleted, setIsGameCompleted] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const [lastAnswerResult, setLastAnswerResult] = useState<GameQuestion | null>(null);
+  const [playerAnswer, setPlayerAnswer] = useState<{ lat: number; lng: number } | null>(null);
   const toast = useToast();
   const { getNextQuestion, submitAnswer, giveUpGame, decryptCoordinate } = useGameApi();
+  const { isLoaded: isGoogleMapsLoaded, loadError } = useGoogleMaps();
   
   const maxQuestions = gameSetting?.maxQuestions || 10;
-
-  // Google Maps API 로드
-  const { isLoaded: isGoogleMapsLoaded, loadError } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
-    libraries: libraries,
-  });
 
   // 게임 시작 시 첫 번째 문제 가져오기
   useEffect(() => {
@@ -69,6 +64,9 @@ const GameModal: React.FC<GameModalProps> = ({
       setCurrentGameQuestion(null);
       setQuestionStartTime(null);
       setIsGameCompleted(false);
+      setShowResult(false);
+      setLastAnswerResult(null);
+      setPlayerAnswer(null);
       
       loadNextQuestion();
     }
@@ -79,6 +77,11 @@ const GameModal: React.FC<GameModalProps> = ({
     
     try {
       setQuestionLoading(true);
+      // 이전 답안 정보 초기화
+      setPlayerAnswer(null);
+      setShowResult(false);
+      setLastAnswerResult(null);
+      
       const question = await getNextQuestion(gameSession.id);
       
       if (question) {
@@ -154,29 +157,21 @@ const GameModal: React.FC<GameModalProps> = ({
       );
       
       if (answerResult) {
+        // 답안 결과 저장
+        setLastAnswerResult(answerResult);
+        setPlayerAnswer(selectedLocation);
+        setShowResult(true);
+        
+        // 점수 업데이트
         setScore(prev => prev + answerResult.score);
         
         toast({
           title: '답안 제출 완료!',
           description: `${answerResult.score}점을 획득했습니다! (거리: ${answerResult.distanceKm?.toFixed(2)}km)`,
           status: 'success',
-          duration: 3000,
+          duration: 5000,
           isClosable: true,
         });
-
-        if (answerResult.isGameSessionCompleted) {
-          setIsGameCompleted(true);
-          return;
-        }
-
-        const nextQuestionNumber = currentQuestion + 1;
-        setCurrentQuestion(nextQuestionNumber);
-        
-        if (nextQuestionNumber <= maxQuestions) {
-          await loadNextQuestion();
-        } else {
-          setIsGameCompleted(true);
-        }
       } else {
         toast({
           title: '답안 제출 실패',
@@ -209,6 +204,31 @@ const GameModal: React.FC<GameModalProps> = ({
       isClosable: true,
     });
     onClose();
+  };
+
+  const handleNextQuestion = async () => {
+    if (!lastAnswerResult) return;
+    
+    // 결과 화면 닫기
+    setShowResult(false);
+    setLastAnswerResult(null);
+    setPlayerAnswer(null);
+    
+    // 게임 완료 체크
+    if (lastAnswerResult.isGameSessionCompleted) {
+      setIsGameCompleted(true);
+      return;
+    }
+
+    // 다음 문제로 이동
+    const nextQuestionNumber = currentQuestion + 1;
+    setCurrentQuestion(nextQuestionNumber);
+    
+    if (nextQuestionNumber <= maxQuestions) {
+      await loadNextQuestion();
+    } else {
+      setIsGameCompleted(true);
+    }
   };
 
   const handleGameGiveUp = async () => {
@@ -415,8 +435,76 @@ const GameModal: React.FC<GameModalProps> = ({
                       isLoaded={isGoogleMapsLoaded}
                       onLocationSelect={handleAnswerSubmit}
                       height="100%"
+                      showResult={showResult}
+                      correctLocation={currentGameQuestion && showResult ? {
+                        lat: decryptCoordinate(currentGameQuestion.encryptCorrectLatitude),
+                        lng: decryptCoordinate(currentGameQuestion.encryptCorrectLongitude)
+                      } : undefined}
+                      playerLocation={playerAnswer}
+                      isSubmitted={isLoading}
+                      resultData={lastAnswerResult ? {
+                        distance: lastAnswerResult.distanceKm || 0,
+                        score: lastAnswerResult.score
+                      } : undefined}
                     />
                   </Box>
+                  
+                  {/* 결과 표시 시 다음 문제 버튼 */}
+                  {showResult && (
+                    <VStack spacing={3} w="100%">
+                      <Box bg="white" p={4} borderRadius="xl" boxShadow="lg" w="100%">
+                        <VStack spacing={2}>
+                          <Text fontSize="lg" fontWeight="bold" color="gray.700">
+                            🎯 결과 확인
+                          </Text>
+                          <HStack spacing={4} justify="center">
+                            <VStack spacing={1}>
+                              <Text fontSize="sm" color="blue.600" fontWeight="bold">
+                                📍 정답 위치
+                              </Text>
+                              <Box w={4} h={4} bg="#0066FF" borderRadius="full" border="2px solid white" />
+                            </VStack>
+                            <VStack spacing={1}>
+                              <Text fontSize="sm" color="green.600" fontWeight="bold">
+                                📋 내 답안
+                              </Text>
+                              <Box w={4} h={4} bg="#00AA00" borderRadius="full" border="2px solid white" />
+                            </VStack>
+                            <VStack spacing={1}>
+                              <Text fontSize="sm" color="red.500" fontWeight="bold">
+                                📏 거리
+                              </Text>
+                              <Box w={6} h={1} bg="#FF6B6B" borderRadius="sm" />
+                            </VStack>
+                          </HStack>
+                          {lastAnswerResult && (
+                            <VStack spacing={1} mt={2}>
+                              <Text fontSize="md" fontWeight="bold" color="red.500">
+                                📏 거리: {lastAnswerResult.distanceKm?.toFixed(2)}km
+                              </Text>
+                              <Text fontSize="lg" fontWeight="bold" color="blue.600">
+                                🎯 획득 점수: {lastAnswerResult.score}점
+                              </Text>
+                            </VStack>
+                          )}
+                        </VStack>
+                      </Box>
+                      
+                      <Button
+                        colorScheme="blue"
+                        size="lg"
+                        w="100%"
+                        onClick={handleNextQuestion}
+                        isLoading={questionLoading}
+                        loadingText="다음 문제 로드 중..."
+                        fontWeight="bold"
+                        py={6}
+                        leftIcon={<span>➡️</span>}
+                      >
+                        다음 문제
+                      </Button>
+                    </VStack>
+                  )}
                 </VStack>
               </Box>
             </Box>
