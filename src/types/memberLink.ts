@@ -11,6 +11,22 @@ export interface MemberLink {
   createdAt: string;
 }
 
+export interface MemberInfo {
+  id: number;
+  email: string;
+  name: string;
+  nickname: string;
+  memberType: string;
+  profile?: {
+    fileUrl: string;
+  } | null;
+}
+
+export interface PublicMemberLinksResponse {
+  memberLinks: MemberLink[];
+  member: MemberInfo;
+}
+
 export interface CreateMemberLinkRequest {
   title: string;
   url: string;

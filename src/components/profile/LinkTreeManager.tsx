@@ -30,7 +30,7 @@ import {
   Switch,
   Textarea
 } from '@chakra-ui/react';
-import { AddIcon, ExternalLinkIcon, EditIcon, DeleteIcon, DragHandleIcon } from '@chakra-ui/icons';
+import { AddIcon, ExternalLinkIcon, EditIcon, DeleteIcon, DragHandleIcon, LinkIcon } from '@chakra-ui/icons';
 import {
   DndContext,
   closestCenter,
@@ -65,8 +65,10 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useNavigate } from 'react-router-dom';
 import { useMemberLinkService } from '../../services/memberLinkService';
 import type { MemberLink, CreateMemberLinkRequest, UpdateMemberLinkRequest } from '../../types/memberLink';
+import useMemberStore from '../../store/memberStore';
 
 // 개별 드래그 가능한 링크 아이템 컴포넌트
 interface SortableLinkItemProps {
@@ -188,6 +190,8 @@ const SortableLinkItem: React.FC<SortableLinkItemProps> = ({
 };
 
 const LinkTreeManager: React.FC = () => {
+  const navigate = useNavigate();
+  const { member } = useMemberStore();
   const [links, setLinks] = useState<MemberLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -577,14 +581,25 @@ const LinkTreeManager: React.FC = () => {
           <Heading size="lg" mb={2}>Link Tree</Heading>
           <Text color="gray.600">나만의 링크 모음을 만들어보세요</Text>
         </Box>
-        <Button 
-          leftIcon={<AddIcon />} 
-          colorScheme="blue" 
-          onClick={handleAddLink}
-          size="sm"
-        >
-          링크 추가
-        </Button>
+        <HStack spacing={3}>
+          <Button 
+            leftIcon={<LinkIcon />} 
+            variant="outline"
+            colorScheme="blue" 
+            onClick={() => navigate(`/link-page/${member?.id}`)}
+            size="sm"
+          >
+            링크페이지
+          </Button>
+          <Button 
+            leftIcon={<AddIcon />} 
+            colorScheme="blue" 
+            onClick={handleAddLink}
+            size="sm"
+          >
+            링크 추가
+          </Button>
+        </HStack>
       </Flex>
 
       {/* 프리뷰 영역 - 활성화된 링크만 표시 */}

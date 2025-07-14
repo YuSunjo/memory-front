@@ -16,6 +16,7 @@ import SharingMemoriesPage from './pages/SharingMemoriesPage';
 import CalendarPage from './pages/CalendarPage';
 import MemoryQuestPage from './pages/MemoryQuestPage';
 import AboutPage from './pages/AboutPage';
+import LinkPage from './pages/LinkPage';
 import { GoogleMapsProvider } from './contexts/GoogleMapsContext';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/memory-quest" element={<MemoryQuestPage />} />
                 <Route path="/calendar" element={<CalendarPage />} />
                 <Route path="/about" element={<AboutPage />} />
+                <Route path="/link-page/:memberId" element={<LinkPage />} />
               </Routes>
             </Box>
           </AuthProvider>

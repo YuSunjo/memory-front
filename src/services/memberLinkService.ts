@@ -1,6 +1,8 @@
 import useApi from '../hooks/useApi';
 import type { 
   MemberLink, 
+  MemberInfo,
+  PublicMemberLinksResponse,
   CreateMemberLinkRequest, 
   UpdateMemberLinkRequest, 
   UpdateLinkOrderRequest 
@@ -78,8 +80,36 @@ export const useMemberLinkService = () => {
     }
   };
 
+  // 공개 링크 목록 조회 (특정 멤버의 공개된 링크만)
+  const fetchPublicMemberLinks = async (memberId: number): Promise<{ links: MemberLink[], member: MemberInfo | null }> => {
+    try {
+      const response = await api.get<PublicMemberLinksResponse>(`/v1/members/${memberId}/links`);
+      console.log('🔗 Fetched public member links:', response.data);
+      
+      const data = response.data.data;
+      const memberLinks = data.memberLinks || [];
+      const member = data.member;
+      
+      // 배열이 아닌 경우 빈 배열 반환
+      if (!Array.isArray(memberLinks)) {
+        return { links: [], member };
+      }
+      
+      // 활성화되고 공개된 링크만 필터링하고 displayOrder로 정렬
+      const filteredLinks = memberLinks
+        .filter(link => link.isActive && link.isVisible)
+        .sort((a, b) => a.displayOrder - b.displayOrder);
+        
+      return { links: filteredLinks, member };
+    } catch (error) {
+      console.error('Error fetching public member links:', error);
+      return { links: [], member: null };
+    }
+  };
+
   return {
     fetchMemberLinks,
+    fetchPublicMemberLinks,
     createMemberLink,
     updateMemberLink,
     updateLinkOrder,
