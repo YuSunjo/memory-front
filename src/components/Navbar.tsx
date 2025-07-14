@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Flex, Box, Heading, Button, HStack, Avatar, Menu, MenuButton, MenuList, MenuItem, Text, Badge, Center} from '@chakra-ui/react';
+import { Flex, Box, Button, HStack, Avatar, Menu, MenuButton, MenuList, MenuItem, Text, Badge, Center, Image} from '@chakra-ui/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useMemberStore from '../store/memberStore';
 
@@ -42,15 +42,17 @@ const Navbar: React.FC = () => {
       width="100%"
     >
       <Box>
-        <Box 
-          cursor="pointer" 
-          onClick={() => {
-            navigate('/');
-          }}
-        >
-          <Heading as="h1" size="md" fontWeight="bold" color="gray.700">
-            Memory
-          </Heading>
+        <Box>
+          <Image 
+            src="/my-memory-logo.png" 
+            alt="Memory Logo" 
+            height="64px" 
+            objectFit="contain"
+            cursor="pointer" 
+            onClick={() => {
+              navigate('/');
+            }}
+          />
         </Box>
         <HStack spacing={4} mt={2}>
           <Text 
