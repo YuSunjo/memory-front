@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Image, Text, Flex, IconButton, Link, HStack, Avatar, Icon, Button } from '@chakra-ui/react';
+import { Box, Image, Text, Flex, IconButton, Link, HStack, Avatar } from '@chakra-ui/react';
 
 interface Author {
   id: number;
@@ -15,11 +15,11 @@ interface MemoryCardProps {
   comments: number;
 }
 
-const MemoryCard: React.FC<MemoryCardProps> = ({ images, description, author, likes, comments }) => {
+const MemoryCard: React.FC<MemoryCardProps> = ({ images, description, author }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTextExpanded, setIsTextExpanded] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(likes);
+  // const [isLiked, setIsLiked] = useState(false);
+  // const [likeCount, setLikeCount] = useState(likes);
 
   const handleNextImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
@@ -33,14 +33,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ images, description, author, li
     setIsTextExpanded(!isTextExpanded);
   };
 
-  const handleLikeToggle = () => {
-    if (isLiked) {
-      setLikeCount(prev => prev - 1);
-    } else {
-      setLikeCount(prev => prev + 1);
-    }
-    setIsLiked(!isLiked);
-  };
+  // const handleLikeToggle = () => {
+  //   if (isLiked) {
+  //     setLikeCount(prev => prev - 1);
+  //   } else {
+  //     setLikeCount(prev => prev + 1);
+  //   }
+  //   setIsLiked(!isLiked);
+  // };
 
   return (
     <Box borderWidth="1px" borderRadius="lg" overflow="hidden" boxShadow="md" bg="white" mb={6}>
@@ -138,36 +138,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ images, description, author, li
         )}
       </Box>
 
-      {/* Like and comment section */}
-      <Box px={4} pb={3}>
-        <HStack spacing={4} mb={2}>
-          <Button 
-            variant="ghost" 
-            p={0} 
-            height="auto" 
-            onClick={handleLikeToggle}
-            color={isLiked ? "red.500" : "gray.700"}
-            _hover={{ background: "transparent" }}
-          >
-            <Icon boxSize={6} viewBox="0 0 24 24" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </Icon>
-          </Button>
-          <Button 
-            variant="ghost" 
-            p={0} 
-            height="auto"
-            _hover={{ background: "transparent" }}
-          >
-            <Icon boxSize={6} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-            </Icon>
-          </Button>
-        </HStack>
-
-        <Text fontWeight="bold" mb={1}>{likeCount}명이 좋아합니다</Text>
-        <Text fontSize="sm" color="gray.500">댓글 {comments}개</Text>
-      </Box>
     </Box>
   );
 };
