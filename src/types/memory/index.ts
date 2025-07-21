@@ -33,3 +33,27 @@ export interface MemoryResponse {
   files: FileResponse[];
   createDate: string;
 }
+
+// 메모리 상세 정보 인터페이스
+export interface Memory {
+  id: number;
+  content: string;
+  memoryType: string;
+  createdAt: string;
+  updatedAt: string;
+  locationName?: string;
+  map?: MapData;
+  files: Array<{
+    id: number;
+    fileUrl: string;
+    fileType: string;
+  }>;
+  member: {
+    id: number;
+    name: string;
+    nickname: string;
+    profile?: {
+      fileUrl: string;
+    };
+  };
+}

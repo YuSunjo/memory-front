@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Image, Text, Flex, IconButton, Link, HStack, Avatar } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import { ViewIcon } from '@chakra-ui/icons';
 
 interface Author {
   id: number;
@@ -8,18 +10,24 @@ interface Author {
 }
 
 interface MemoryCardProps {
+  memoryId: number;
   images: string[];
   description: string;
   author: Author;
-  likes: number;
   comments: number;
+  source?: string; // sharing memories에서 온 경우 'sharing'
 }
 
-const MemoryCard: React.FC<MemoryCardProps> = ({ images, description, author }) => {
+const MemoryCard: React.FC<MemoryCardProps> = ({ memoryId, images, description, author, comments, source }) => {
+  const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTextExpanded, setIsTextExpanded] = useState(false);
-  // const [isLiked, setIsLiked] = useState(false);
-  // const [likeCount, setLikeCount] = useState(likes);
+
+  const handleViewDetail = () => {
+    // source가 있으면 query parameter로 전달
+    const url = source ? `/memory/${memoryId}?source=${source}` : `/memory/${memoryId}`;
+    navigate(url);
+  };
 
   const handleNextImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
@@ -33,26 +41,30 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ images, description, author }) 
     setIsTextExpanded(!isTextExpanded);
   };
 
-  // const handleLikeToggle = () => {
-  //   if (isLiked) {
-  //     setLikeCount(prev => prev - 1);
-  //   } else {
-  //     setLikeCount(prev => prev + 1);
-  //   }
-  //   setIsLiked(!isLiked);
-  // };
-
   return (
     <Box borderWidth="1px" borderRadius="lg" overflow="hidden" boxShadow="md" bg="white" mb={6}>
       {/* Author header */}
-      <HStack p={3} spacing={3} align="center">
-        <Avatar 
-          size="sm" 
-          name={author.name} 
-          src={author.profileImage} 
+      <Flex p={3} align="center" justify="space-between">
+        <HStack spacing={3} align="center">
+          <Avatar 
+            size="sm" 
+            name={author.name} 
+            src={author.profileImage} 
+          />
+          <Text fontWeight="bold">{author.name}</Text>
+        </HStack>
+        
+        {/* 상세보기 버튼 */}
+        <IconButton
+          aria-label="View details"
+          icon={<ViewIcon />}
+          size="sm"
+          variant="ghost"
+          colorScheme="blue"
+          onClick={handleViewDetail}
+          _hover={{ bg: 'blue.50' }}
         />
-        <Text fontWeight="bold">{author.name}</Text>
-      </HStack>
+      </Flex>
 
       {/* Image carousel */}
       <Box position="relative">

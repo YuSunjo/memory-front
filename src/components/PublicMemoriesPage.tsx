@@ -74,6 +74,7 @@ const PublicMemoriesPage: React.FC<PublicMemoriesPageProps> = ({ title, requireA
           {memories.map(memory => (
             <MemoryCard 
               key={memory.id}
+              memoryId={memory.id}
               images={memory.files.map(file => file.fileUrl)}
               description={memory.content}
               author={{
@@ -81,8 +82,8 @@ const PublicMemoriesPage: React.FC<PublicMemoriesPageProps> = ({ title, requireA
                 name: memory.member.nickname || memory.member.name,
                 profileImage: memory.member.profile?.fileUrl || ''
               }}
-              likes={0} // API doesn't provide likes count yet
               comments={0} // API doesn't provide comments count yet
+              source="sharing" // sharing memories에서 온 경우
             />
           ))}
         </VStack>

@@ -76,6 +76,7 @@ const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireA
           {memories.map(memory => (
             <MemoryCard 
               key={memory.id}
+              memoryId={memory.id}
               images={memory.files.map(file => file.fileUrl)}
               description={memory.content}
               author={{
@@ -83,7 +84,6 @@ const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireA
                 name: memory.member.nickname || memory.member.name,
                 profileImage: memory.member.profile?.fileUrl || ''
               }}
-              likes={0} // API doesn't provide likes count yet
               comments={0} // API doesn't provide comments count yet
             />
           ))}
