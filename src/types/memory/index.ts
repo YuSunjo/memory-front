@@ -1,6 +1,8 @@
 import type {Member} from "../member";
 import type {MapData} from "../map";
 
+export * from './comment';
+
 export interface MemoryFormData {
   title: string;
   content: string;
@@ -32,28 +34,6 @@ export interface MemoryResponse {
   memoryType: 'PUBLIC';
   files: FileResponse[];
   createDate: string;
-}
-
-// 메모리 상세 정보 인터페이스
-export interface Memory {
-  id: number;
-  content: string;
-  memoryType: string;
-  createdAt: string;
-  updatedAt: string;
-  locationName?: string;
-  map?: MapData;
-  files: Array<{
-    id: number;
-    fileUrl: string;
-    fileType: string;
-  }>;
-  member: {
-    id: number;
-    name: string;
-    nickname: string;
-    profile?: {
-      fileUrl: string;
-    };
-  };
+  updateDate: string;
+  commentsCount?: number; // 댓글 수 추가
 }

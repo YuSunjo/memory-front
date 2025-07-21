@@ -37,24 +37,24 @@ const useMemoryService = () => {
   };
 
   // 메모리 수정
-  const updateMemory = async (memoryId: number, content: string, memoryType: string): Promise<MemoryResponse> => {
-    try {
-      const response = await api.put<MemoryResponse>(`/v1/memories/${memoryId}`, {
-        content,
-        memoryType
-      });
-      return response.data.data;
-    } catch (error) {
-      console.error('Error updating memory:', error);
-      throw error;
-    }
-  };
+  // const updateMemory = async (memoryId: number, content: string, memoryType: string): Promise<MemoryResponse> => {
+  //   try {
+  //     const response = await api.put<MemoryResponse>(`/v1/memories/${memoryId}`, {
+  //       content,
+  //       memoryType
+  //     });
+  //     return response.data.data;
+  //   } catch (error) {
+  //     console.error('Error updating memory:', error);
+  //     throw error;
+  //   }
+  // };
 
   return {
     getMemoryById,
     getPublicMemoryById,
     deleteMemory,
-    updateMemory
+    // updateMemory
   };
 };
 

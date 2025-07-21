@@ -21,8 +21,9 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowBackIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import useMemoryService from '../hooks/useMemoryService';
 import useMemberStore from '../store/memberStore';
-import type { Memory } from '../types';
 import ReadOnlyMap from '../components/ReadOnlyMap';
+import { CommentList } from '../components/comments';
+import type {MemoryResponse} from "../types";
 
 const MemoryDetailPage: React.FC = () => {
   const { memoryId } = useParams<{ memoryId: string }>();
@@ -31,7 +32,7 @@ const MemoryDetailPage: React.FC = () => {
   const toast = useToast();
   const { member: currentUser } = useMemberStore();
   
-  const [memory, setMemory] = useState<Memory | null>(null);
+  const [memory, setMemory] = useState<MemoryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -262,7 +263,7 @@ const MemoryDetailPage: React.FC = () => {
               <VStack align="start" spacing={0}>
                 <Text fontWeight="bold">{memory.member.nickname || memory.member.name}</Text>
                 <Text fontSize="sm" color="gray.500">
-                  {formatDate(memory.createdAt)}
+                  {formatDate(memory.createDate)}
                 </Text>
               </VStack>
             </HStack>
@@ -419,15 +420,21 @@ const MemoryDetailPage: React.FC = () => {
               {memory.content}
             </Text>
             
-            {memory.updatedAt !== memory.createdAt && (
+            {memory.updateDate !== memory.createDate && (
               <>
                 <Divider my={4} />
                 <Text fontSize="sm" color="gray.500" textAlign="right">
-                  수정됨: {formatDate(memory.updatedAt)}
+                  수정됨: {formatDate(memory.updateDate)}
                 </Text>
               </>
             )}
           </Box>
+
+          {/* 댓글 섹션 */}
+          <CommentList 
+            memoryId={parseInt(memoryId!)}
+            initialCollapsed={false}
+          />
         </Box>
       </VStack>
     </Container>

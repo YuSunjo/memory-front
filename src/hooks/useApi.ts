@@ -6,7 +6,12 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-const noAuthEndpoints = ['/v1/member/login', '/v1/member/signup', '/v1/member/email'];
+const noAuthEndpoints = [
+  '/v1/member/login', 
+  '/v1/member/signup', 
+  '/v1/member/email',
+  '/v1/comments/memory/public' // public 댓글 API는 인증 불필요
+];
 
 api.interceptors.request.use(
   (config) => {
