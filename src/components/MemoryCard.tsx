@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Box, Image, Text, Flex, IconButton, Link, HStack, Avatar, Button } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { ViewIcon, ChatIcon } from '@chakra-ui/icons';
-import useMemoryCommentsCount from '../hooks/useMemoryCommentsCount';
 
 interface Author {
   id: number;
@@ -17,7 +16,6 @@ interface MemoryCardProps {
   author: Author;
   comments: number;
   source?: string; // sharing memories에서 온 경우 'sharing'
-  enableCommentsCount?: boolean; // 댓글 수 조회 활성화 여부
 }
 
 const MemoryCard: React.FC<MemoryCardProps> = ({ 
@@ -26,21 +24,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
   description, 
   author, 
   comments, 
-  source,
-  enableCommentsCount = false 
+  source
 }) => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTextExpanded, setIsTextExpanded] = useState(false);
-  
-  // 댓글 수 조회 (활성화된 경우만)
-  const { commentsCount: fetchedCommentsCount } = useMemoryCommentsCount({
-    memoryId,
-    enabled: enableCommentsCount
-  });
-  
-  // enableCommentsCount가 true면 조회된 댓글 수 사용, 아니면 props로 받은 댓글 수 사용
-  const displayCommentsCount = enableCommentsCount ? fetchedCommentsCount : comments;
 
   const handleViewDetail = () => {
     // source가 있으면 query parameter로 전달
@@ -180,7 +168,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
             onClick={handleViewDetail}
             _hover={{ bg: 'gray.50' }}
           >
-            댓글 {displayCommentsCount}개
+            댓글 {comments}개
           </Button>
         </HStack>
       </Box>

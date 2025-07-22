@@ -82,31 +82,9 @@ const useCommentService = () => {
     }
   };
 
-  // 댓글 수만 조회 (가벼운 API) - 로그인 상태에 따라 다른 API 사용
-  const getCommentsCount = async (memoryId: number): Promise<number> => {
-    try {
-      // 로그인 상태에 따라 API 엔드포인트 결정
-      const endpoint = currentUser
-        ? `/v1/comments/memory/${memoryId}/top-level?page=0&size=1`
-        : `/v1/comments/memory/public/${memoryId}/top-level?page=0&size=1`;
-        
-      const response = await get<CommentsResponse>(endpoint);
-      
-      if (response.data.statusCode === 200) {
-        return response.data.data.totalCount;
-      }
-      
-      return 0;
-    } catch (error: any) {
-      console.error('댓글 수 조회 실패:', error);
-      return 0;
-    }
-  };
-
   return {
     getComments,
     createComment,
-    getCommentsCount,
     loading,
   };
 };

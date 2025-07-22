@@ -82,8 +82,7 @@ const PublicMemoriesPage: React.FC<PublicMemoriesPageProps> = ({ title, requireA
                 name: memory.member.nickname || memory.member.name,
                 profileImage: memory.member.profile?.fileUrl || ''
               }}
-              comments={memory.commentsCount || 0} // API에서 댓글 수 사용
-              enableCommentsCount={!memory.commentsCount} // API에 commentsCount가 없으면 실시간 조회
+              comments={memory.commentsCount || 0} // API에서 댓글 수 직접 제공
               source="sharing" // sharing memories에서 온 경우
             />
           ))}
