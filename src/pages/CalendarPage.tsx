@@ -13,7 +13,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { useCalendarService } from '../services/calendarService';
-import type {TodoResponse, DiaryResponse, EventResponse, TodoRequest, DiaryRequest, EventRequest, RoutineRequest, RoutineResponse} from '../types/calendar';
+import type {TodoResponse, DiaryResponse, EventResponse, TodoRequest, DiaryRequest, EventRequest, RoutineRequest, RoutineResponse, RoutinePreview} from '../types/calendar';
 import CalendarGrid from '../components/calendar/CalendarGrid';
 import TodoList from '../components/calendar/TodoList';
 import TodoModal from '../components/calendar/TodoModal';
@@ -56,6 +56,7 @@ const CalendarPage: React.FC = () => {
 
   // Data state
   const [todos, setTodos] = useState<TodoResponse[]>([]);
+  const [routinePreviews, setRoutinePreviews] = useState<RoutinePreview[]>([]);
   const [diaries, setDiaries] = useState<DiaryResponse[]>([]);
   const [events, setEvents] = useState<EventResponse[]>([]);
 
@@ -164,10 +165,38 @@ const CalendarPage: React.FC = () => {
     repeatEndDate: ''
   });
 
-  const toggleTodoChecked = (id: number) => {
-    setTodos(todos.map(todo => 
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+  const toggleTodoChecked = async (id: number) => {
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+
+    const newCompletedStatus = !todo.completed;
+    
+    // Optimistically update UI
+    setTodos(todos.map(t => 
+      t.id === id ? { ...t, completed: newCompletedStatus } : t
     ));
+
+    try {
+      const result = await calendarService.updateTodoStatus(id, newCompletedStatus);
+      if (result.error) {
+        // Revert on error
+        setTodos(todos.map(t => 
+          t.id === id ? { ...t, completed: !newCompletedStatus } : t
+        ));
+        console.error('Failed to update todo status:', result.error);
+      } else if (result.data) {
+        // Update with server response
+        setTodos(todos.map(t => 
+          t.id === id ? result.data! : t
+        ));
+      }
+    } catch (error) {
+      // Revert on error
+      setTodos(todos.map(t => 
+        t.id === id ? { ...t, completed: !newCompletedStatus } : t
+      ));
+      console.error('Error updating todo status:', error);
+    }
   };
 
   // Validate form data directly
@@ -301,7 +330,7 @@ const CalendarPage: React.FC = () => {
 
         // Refresh the todos list
         if (calendarDays.length > 0 && calendarDays[0].date && calendarDays[calendarDays.length - 1].date) {
-          fetchTodos(calendarDays[0].date, calendarDays[calendarDays.length - 1].date);
+          fetchCombinedTodos(calendarDays[0].date, calendarDays[calendarDays.length - 1].date);
         }
       }
     } catch (error) {
@@ -485,6 +514,27 @@ const CalendarPage: React.FC = () => {
     onRoutineModalClose();
   };
 
+  // Handle routine to todo conversion
+  const handleConvertRoutineToTodo = async (routineId: number, targetDate: string) => {
+    try {
+      const result = await calendarService.convertRoutineToTodo(routineId, targetDate);
+      if (result.error) {
+        console.error('Failed to convert routine to todo:', result.error);
+      } else if (result.data) {
+        // Add the new todo to the list
+        setTodos(prev => [...prev, result.data!]);
+        // Remove the routine preview from the list
+        setRoutinePreviews(prev => 
+          prev.filter(preview => 
+            !(preview.routineId === routineId && preview.targetDate === targetDate)
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error converting routine to todo:', error);
+    }
+  };
+
   // Reset Event form
   const resetEventForm = () => {
     setEventForm({
@@ -565,16 +615,17 @@ const CalendarPage: React.FC = () => {
     return date.toISOString().split('T')[0];
   };
 
-  // Fetch todos for a date range
-  const fetchTodos = useCallback(async (startDate: Date, endDate: Date) => {
+  // Fetch combined todos and routine previews for a date range
+  const fetchCombinedTodos = useCallback(async (startDate: Date, endDate: Date) => {
     setIsLoading(prev => ({ ...prev, todos: true }));
     try {
       const formattedStartDate = formatDate(startDate);
       const formattedEndDate = formatDate(endDate);
-      const data = await calendarService.fetchTodos(formattedStartDate, formattedEndDate);
-      setTodos(data);
+      const data = await calendarService.fetchCombinedTodos(formattedStartDate, formattedEndDate);
+      setTodos(data.actualTodos);
+      setRoutinePreviews(data.routinePreviews);
     } catch (error) {
-      console.error('Error fetching todos:', error);
+      console.error('Error fetching combined todos:', error);
     } finally {
       setIsLoading(prev => ({ ...prev, todos: false }));
     }
@@ -700,7 +751,7 @@ const CalendarPage: React.FC = () => {
       const startDate = days[0].date;
       const endDate: Date = days[days.length - 1].date;
 
-      fetchTodos(startDate, endDate);
+      fetchCombinedTodos(startDate, endDate);
       fetchDiaries(startDate, endDate);
       fetchEvents(startDate, endDate);
     }
@@ -782,6 +833,7 @@ const CalendarPage: React.FC = () => {
             calendarDays={calendarDays}
             selectedDate={selectedDate}
             todos={todos}
+            routinePreviews={routinePreviews}
             diaries={diaries}
             events={events}
             onDateSelect={setSelectedDate}
@@ -805,8 +857,10 @@ const CalendarPage: React.FC = () => {
                   <TodoList 
                     selectedDate={selectedDate}
                     todos={todos}
+                    routinePreviews={routinePreviews}
                     isLoading={isLoading.todos}
                     onToggleTodo={toggleTodoChecked}
+                    onConvertRoutineToTodo={handleConvertRoutineToTodo}
                     onOpenCreateModal={handleOpenTodoModal}
                     onOpenRoutineModal={onRoutineModalOpen}
                   />

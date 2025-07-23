@@ -1,5 +1,5 @@
 import useApi from '../hooks/useApi';
-import type {TodoResponse, DiaryResponse, EventResponse, DdayEventResponse, TodoRequest, DiaryRequest, EventRequest} from '../types/calendar';
+import type {TodoResponse, DiaryResponse, EventResponse, DdayEventResponse, TodoRequest, DiaryRequest, EventRequest, CombinedTodoResponse} from '../types/calendar';
 
 export const useCalendarService = () => {
   const api = useApi();
@@ -11,6 +11,19 @@ export const useCalendarService = () => {
     } catch (error) {
       console.error('Error fetching todos:', error);
       return [];
+    }
+  };
+
+  const fetchCombinedTodos = async (startDate: string, endDate: string): Promise<CombinedTodoResponse> => {
+    try {
+      const response = await api.get<CombinedTodoResponse>(`/v1/todos/combined?startDate=${startDate}&endDate=${endDate}`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Error fetching combined todos:', error);
+      return {
+        actualTodos: [],
+        routinePreviews: []
+      };
     }
   };
 
@@ -67,6 +80,33 @@ export const useCalendarService = () => {
     }
   };
 
+  const convertRoutineToTodo = async (routineId: number, targetDate: string): Promise<{ data: TodoResponse | null; error?: string }> => {
+    try {
+      const response = await api.post<TodoResponse, { routineId: number; targetDate: string }>('/v1/todos/convert-routine', {
+        routineId,
+        targetDate
+      });
+      return { data: response.data.data };
+    } catch (error: any) {
+      console.error('Error converting routine to todo:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to convert routine to todo';
+      return { data: null, error: errorMessage };
+    }
+  };
+
+  const updateTodoStatus = async (todoId: number, completed: boolean): Promise<{ data: TodoResponse | null; error?: string }> => {
+    try {
+      const response = await api.patch<TodoResponse, { completed: boolean }>(`/v1/todos/${todoId}/status`, {
+        completed
+      });
+      return { data: response.data.data };
+    } catch (error: any) {
+      console.error('Error updating todo status:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to update todo status';
+      return { data: null, error: errorMessage };
+    }
+  };
+
   const fetchDdayEvents = async (): Promise<DdayEventResponse[]> => {
     try {
       const response = await api.get<DdayEventResponse[]>('/v1/calendar/events/dday');
@@ -90,11 +130,14 @@ export const useCalendarService = () => {
 
   return {
     fetchTodos,
+    fetchCombinedTodos,
     fetchDiaries,
     fetchEvents,
     fetchDdayEvents,
     createTodo,
     createDiary,
-    createEvent
+    createEvent,
+    convertRoutineToTodo,
+    updateTodoStatus
   };
 };

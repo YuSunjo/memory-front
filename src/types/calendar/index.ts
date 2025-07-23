@@ -45,6 +45,21 @@ export interface TodoResponse {
   member: MemberResponse;
   createDate: string;
   updateDate: string;
+  routineId?: number;
+  routine?: boolean;
+}
+
+export interface RoutinePreview {
+  routineId: number;
+  title: string;
+  content: string;
+  targetDate: string;
+  preview: boolean;
+}
+
+export interface CombinedTodoResponse {
+  actualTodos: TodoResponse[];
+  routinePreviews: RoutinePreview[];
 }
 
 export interface DiaryResponse {

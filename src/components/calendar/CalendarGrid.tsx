@@ -9,13 +9,14 @@ import {
   Text, 
   VStack 
 } from '@chakra-ui/react';
-import type {TodoResponse, DiaryResponse, EventResponse} from '../../types/calendar';
+import type {TodoResponse, DiaryResponse, EventResponse, RoutinePreview} from '../../types/calendar';
 
 interface CalendarGridProps {
   currentDate: Date;
   calendarDays: Array<{ date: Date, isCurrentMonth: boolean }>;
   selectedDate: Date | null;
   todos: TodoResponse[];
+  routinePreviews: RoutinePreview[];
   diaries: DiaryResponse[];
   events: EventResponse[];
   onDateSelect: (date: Date) => void;
@@ -30,6 +31,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
   calendarDays,
   selectedDate,
   todos,
+  routinePreviews,
   diaries,
   events,
   onDateSelect,
@@ -122,6 +124,20 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
     });
   };
 
+  // Check if a date has routine previews
+  const hasRoutinePreviews = (date: Date | null): boolean => {
+    if (!date) return false;
+    const targetDateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; // YYYY-MM-DD format (local)
+    return routinePreviews.some(preview => preview.targetDate === targetDateStr);
+  };
+
+  // Get routine previews for a specific date
+  const getRoutinePreviews = (date: Date | null): RoutinePreview[] => {
+    if (!date) return [];
+    const targetDateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; // YYYY-MM-DD format (local)
+    return routinePreviews.filter(preview => preview.targetDate === targetDateStr);
+  };
+
   return (
     <Box p={6} bg="white" boxShadow="md" borderRadius="md">
       {/* Calendar header with month/year and navigation */}
@@ -201,7 +217,13 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                 bg: day.isCurrentMonth ? "blue.50" : "gray.100",
                 cursor: "pointer"
               }}
-              onClick={() => day.date && onDateSelect(day.date)}
+              onClick={() => {
+                if (day.date) {
+                  const localDateString = `${day.date.getFullYear()}-${String(day.date.getMonth() + 1).padStart(2, '0')}-${String(day.date.getDate()).padStart(2, '0')}`;
+                  console.log('Calendar date clicked:', localDateString);
+                  onDateSelect(day.date);
+                }
+              }}
             >
               <VStack spacing={1} align="stretch">
                 <Text 
@@ -222,6 +244,11 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                     {hasTodoItems(day.date) && (
                       <Text fontSize="xs" color="red.500">
                         Todo: {getRemainingTodoCount(day.date)}({getTodoItems(day.date).length})
+                      </Text>
+                    )}
+                    {hasRoutinePreviews(day.date) && (
+                      <Text fontSize="xs" color="orange.400" opacity={0.7}>
+                        Routine: {getRoutinePreviews(day.date).length}
                       </Text>
                     )}
                     {hasEvents(day.date) && (
