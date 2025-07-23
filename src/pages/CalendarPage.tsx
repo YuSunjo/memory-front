@@ -13,7 +13,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { useCalendarService } from '../services/calendarService';
-import type {TodoResponse, DiaryResponse, EventResponse, TodoRequest, DiaryRequest, EventRequest} from '../types/calendar';
+import type {TodoResponse, DiaryResponse, EventResponse, TodoRequest, DiaryRequest, EventRequest, RoutineRequest, RoutineResponse} from '../types/calendar';
 import CalendarGrid from '../components/calendar/CalendarGrid';
 import TodoList from '../components/calendar/TodoList';
 import TodoModal from '../components/calendar/TodoModal';
@@ -21,6 +21,9 @@ import DiaryList from '../components/calendar/DiaryList';
 import DiaryModal from '../components/calendar/DiaryModal';
 import EventList from '../components/calendar/EventList';
 import EventModal from '../components/calendar/EventModal';
+import RoutineModal from '../components/calendar/RoutineModal';
+import RoutineList from '../components/calendar/RoutineList';
+import { useRoutine } from '../hooks/useRoutine';
 
 const CalendarPage: React.FC = () => {
   const calendarService = useCalendarService();
@@ -87,14 +90,28 @@ const CalendarPage: React.FC = () => {
   // Modal state for Event
   const { isOpen: isEventModalOpen, onOpen: onEventModalOpen, onClose: onEventModalClose } = useDisclosure();
 
+  // Modal state for Routine
+  const { isOpen: isRoutineModalOpen, onOpen: onRoutineModalOpen, onClose: onRoutineModalClose } = useDisclosure();
+
+  // Routine hook
+  const { 
+    routines, 
+    createRoutine, 
+    fetchRoutines, 
+    deleteRoutine, 
+    toggleRoutineActive,
+    isLoading: isRoutineLoading, 
+    error: routineError 
+  } = useRoutine();
+
+  // Editing routine state
+  const [editingRoutine, setEditingRoutine] = useState<RoutineResponse | null>(null);
+
   // Form state for Todo
   const [todoForm, setTodoForm] = useState<TodoRequest>({
     title: '',
     content: '',
-    dueDate: '',
-    repeatType: 'NONE',
-    repeatInterval: 1,
-    repeatEndDate: ''
+    dueDate: ''
   });
 
   // Form state for Diary
@@ -124,9 +141,7 @@ const CalendarPage: React.FC = () => {
   const [todoFormErrors, setTodoFormErrors] = useState({
     title: '',
     content: '',
-    dueDate: '',
-    repeatInterval: '',
-    repeatEndDate: ''
+    dueDate: ''
   });
 
   // Form validation state for Diary
@@ -173,18 +188,6 @@ const CalendarPage: React.FC = () => {
     if (!data.dueDate) {
       newErrors.dueDate = 'Due date is required';
       isValid = false;
-    }
-
-    if (data.repeatType !== 'NONE') {
-      if (!data.repeatInterval || data.repeatInterval < 1) {
-        newErrors.repeatInterval = 'Repeat interval must be at least 1';
-        isValid = false;
-      }
-
-      if (!data.repeatEndDate) {
-        newErrors.repeatEndDate = 'Repeat end date is required';
-        isValid = false;
-      }
     }
     console.log('newErrors:', newErrors);
     setTodoFormErrors(newErrors);
@@ -284,13 +287,6 @@ const CalendarPage: React.FC = () => {
         content: formData.content,
         dueDate: formData.dueDate
       };
-
-      // Add repeat fields if not NONE
-      if (formData.repeatType !== 'NONE') {
-        requestData.repeatType = formData.repeatType;
-        requestData.repeatInterval = formData.repeatInterval;
-        requestData.repeatEndDate = formData.repeatEndDate;
-      }
 
       // Call the API
       const result = await calendarService.createTodo(requestData);
@@ -427,18 +423,13 @@ const CalendarPage: React.FC = () => {
     setTodoForm({
       title: '',
       content: '',
-      dueDate: '',
-      repeatType: 'NONE',
-      repeatInterval: 1,
-      repeatEndDate: ''
+      dueDate: ''
     });
 
     setTodoFormErrors({
       title: '',
       content: '',
-      dueDate: '',
-      repeatInterval: '',
-      repeatEndDate: ''
+      dueDate: ''
     });
   };
 
@@ -459,6 +450,39 @@ const CalendarPage: React.FC = () => {
       mood: '',
       weather: ''
     });
+  };
+
+  // Handle Routine form submission
+  const handleRoutineSubmit = async (routineData: RoutineRequest, routineId?: number) => {
+    const success = await createRoutine(routineData, routineId);
+    if (success) {
+      onRoutineModalClose();
+      setEditingRoutine(null);
+    }
+  };
+
+  // Handle edit routine
+  const handleEditRoutine = (routine: RoutineResponse) => {
+    setEditingRoutine(routine);
+    onRoutineModalOpen();
+  };
+
+  // Handle delete routine
+  const handleDeleteRoutine = async (id: number) => {
+    if (window.confirm('Are you sure you want to delete this routine?')) {
+      await deleteRoutine(id);
+    }
+  };
+
+  // Handle toggle routine active
+  const handleToggleRoutineActive = async (id: number) => {
+    await toggleRoutineActive(id);
+  };
+
+  // Handle routine modal close
+  const handleRoutineModalClose = () => {
+    setEditingRoutine(null);
+    onRoutineModalClose();
   };
 
   // Reset Event form
@@ -680,6 +704,9 @@ const CalendarPage: React.FC = () => {
       fetchDiaries(startDate, endDate);
       fetchEvents(startDate, endDate);
     }
+
+    // Fetch routines when component mounts or currentDate changes
+    fetchRoutines();
   }, [currentDate]);
 
   // Todo creation modal
@@ -724,12 +751,27 @@ const CalendarPage: React.FC = () => {
     );
   };
 
+  // Routine creation modal
+  const renderRoutineModal = () => {
+    return (
+      <RoutineModal 
+        isOpen={isRoutineModalOpen}
+        onClose={handleRoutineModalClose}
+        onSubmit={handleRoutineSubmit}
+        isLoading={isRoutineLoading}
+        apiError={routineError}
+        editingRoutine={editingRoutine}
+      />
+    );
+  };
+
   return (
     <Container maxW="container.xl" py={8}>
       {/* Render the creation modals */}
       {renderTodoModal()}
       {renderDiaryModal()}
       {renderEventModal()}
+      {renderRoutineModal()}
 
       <VStack spacing={6} align="stretch">
         <Heading as="h1" size="xl">Calendar</Heading>
@@ -754,6 +796,7 @@ const CalendarPage: React.FC = () => {
             <Tabs variant="enclosed" colorScheme="blue">
               <TabList>
                 <Tab>Todo</Tab>
+                <Tab>Routine</Tab>
                 <Tab>Diary</Tab>
                 <Tab>Event</Tab>
               </TabList>
@@ -765,6 +808,17 @@ const CalendarPage: React.FC = () => {
                     isLoading={isLoading.todos}
                     onToggleTodo={toggleTodoChecked}
                     onOpenCreateModal={handleOpenTodoModal}
+                    onOpenRoutineModal={onRoutineModalOpen}
+                  />
+                </TabPanel>
+                <TabPanel>
+                  <RoutineList 
+                    routines={routines}
+                    isLoading={isRoutineLoading}
+                    onOpenCreateModal={onRoutineModalOpen}
+                    onEditRoutine={handleEditRoutine}
+                    onDeleteRoutine={handleDeleteRoutine}
+                    onToggleActive={handleToggleRoutineActive}
                   />
                 </TabPanel>
                 <TabPanel>

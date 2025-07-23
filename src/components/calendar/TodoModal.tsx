@@ -11,12 +11,6 @@ import {
   FormLabel,
   Input,
   Textarea,
-  Select,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
   Button,
   FormErrorMessage
 } from '@chakra-ui/react';
@@ -46,26 +40,13 @@ const TodoModal: React.FC<TodoModalProps> = ({
   const [formErrors, setFormErrors] = useState({
     title: '',
     content: '',
-    dueDate: '',
-    repeatInterval: '',
-    repeatEndDate: ''
+    dueDate: ''
   });
 
   // Handle form input changes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setTodoForm(prev => ({ ...prev, [name]: value }));
-
-    // Clear validation error when user types
-    if (formErrors[name as keyof typeof formErrors]) {
-      setFormErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  // Handle number input changes
-  const handleNumberInputChange = (name: string, value: string) => {
-    const numberValue = parseInt(value);
-    setTodoForm(prev => ({ ...prev, [name]: numberValue }));
 
     // Clear validation error when user types
     if (formErrors[name as keyof typeof formErrors]) {
@@ -91,18 +72,6 @@ const TodoModal: React.FC<TodoModalProps> = ({
     if (!todoForm.dueDate) {
       newErrors.dueDate = 'Due date is required';
       isValid = false;
-    }
-
-    if (todoForm.repeatType !== 'NONE') {
-      if (!todoForm.repeatInterval || todoForm.repeatInterval < 1) {
-        newErrors.repeatInterval = 'Repeat interval must be at least 1';
-        isValid = false;
-      }
-
-      if (!todoForm.repeatEndDate) {
-        newErrors.repeatEndDate = 'Repeat end date is required';
-        isValid = false;
-      }
     }
 
     setFormErrors(newErrors);
@@ -154,52 +123,6 @@ const TodoModal: React.FC<TodoModalProps> = ({
             />
             {formErrors.dueDate && <FormErrorMessage>{formErrors.dueDate}</FormErrorMessage>}
           </FormControl>
-
-          <FormControl mb={4}>
-            <FormLabel>Repeat</FormLabel>
-            <Select 
-              name="repeatType"
-              value={todoForm.repeatType}
-              onChange={handleInputChange}
-            >
-              <option value="NONE">No Repeat</option>
-              <option value="DAILY">Daily</option>
-              <option value="WEEKLY">Weekly</option>
-              <option value="MONTHLY">Monthly</option>
-              <option value="YEARLY">Yearly</option>
-            </Select>
-          </FormControl>
-
-          {todoForm.repeatType !== 'NONE' && (
-            <>
-              <FormControl isInvalid={!!formErrors.repeatInterval} mb={4}>
-                <FormLabel>Repeat Every</FormLabel>
-                <NumberInput 
-                  min={1} 
-                  value={todoForm.repeatInterval}
-                  onChange={(value) => handleNumberInputChange('repeatInterval', value)}
-                >
-                  <NumberInputField />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-                {formErrors.repeatInterval && <FormErrorMessage>{formErrors.repeatInterval}</FormErrorMessage>}
-              </FormControl>
-
-              <FormControl isInvalid={!!formErrors.repeatEndDate} mb={4}>
-                <FormLabel>Repeat Until</FormLabel>
-                <Input 
-                  name="repeatEndDate"
-                  type="date"
-                  value={todoForm.repeatEndDate}
-                  onChange={handleInputChange}
-                />
-                {formErrors.repeatEndDate && <FormErrorMessage>{formErrors.repeatEndDate}</FormErrorMessage>}
-              </FormControl>
-            </>
-          )}
           {apiError && (
             <FormControl isInvalid={!!apiError} mb={4}>
               <FormErrorMessage color="red.500">{apiError}</FormErrorMessage>

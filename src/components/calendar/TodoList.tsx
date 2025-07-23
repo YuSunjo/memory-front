@@ -17,6 +17,7 @@ interface TodoListProps {
   isLoading: boolean;
   onToggleTodo: (id: number) => void;
   onOpenCreateModal: () => void;
+  onOpenRoutineModal: () => void;
 }
 
 const TodoList: React.FC<TodoListProps> = ({
@@ -24,7 +25,8 @@ const TodoList: React.FC<TodoListProps> = ({
   todos,
   isLoading,
   onToggleTodo,
-  onOpenCreateModal
+  onOpenCreateModal,
+  onOpenRoutineModal
 }) => {
   // Get todo items for a specific date
   const getTodoItems = (date: Date | null): TodoResponse[] => {
@@ -46,14 +48,23 @@ const TodoList: React.FC<TodoListProps> = ({
     <Box p={4}>
       <Flex justify="space-between" align="center" mb={4}>
         <Heading as="h4" size="md">Todo List</Heading>
-        <Button 
-          colorScheme="blue" 
-          size="sm" 
-          onClick={onOpenCreateModal}
-          isDisabled={!selectedDate}
-        >
-          Create
-        </Button>
+        <Flex gap={2}>
+          <Button 
+            colorScheme="green" 
+            size="sm" 
+            onClick={onOpenRoutineModal}
+          >
+            Create Routine
+          </Button>
+          <Button 
+            colorScheme="blue" 
+            size="sm" 
+            onClick={onOpenCreateModal}
+            isDisabled={!selectedDate}
+          >
+            Create Todo
+          </Button>
+        </Flex>
       </Flex>
       {isLoading ? (
         <Center p={4}>

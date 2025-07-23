@@ -13,9 +13,6 @@ export interface TodoRequest {
   title: string;
   content: string;
   dueDate: string;
-  repeatType?: string;
-  repeatInterval?: number;
-  repeatEndDate?: string;
 }
 
 export interface DiaryRequest {
@@ -48,9 +45,6 @@ export interface TodoResponse {
   member: MemberResponse;
   createDate: string;
   updateDate: string;
-  repeatType: string;
-  repeatInterval: number | null;
-  repeatEndDate: string | null;
 }
 
 export interface DiaryResponse {
@@ -89,4 +83,25 @@ export interface DdayEventResponse {
   member: MemberResponse;
   createDate: string;
   dday: number; // D-day까지 남은 일수
+}
+
+// Routine interfaces
+export interface RoutineRequest {
+  title: string;
+  content: string;
+  repeatType: 'DAILY' | 'WEEKLY' | 'MONTHLY';
+  interval: number;
+  startDate: string;
+  endDate: string | null;
+}
+
+export interface RoutineResponse {
+  id: number;
+  title: string;
+  content: string;
+  active: boolean;
+  repeatType: 'DAILY' | 'WEEKLY' | 'MONTHLY';
+  interval: number;
+  startDate: string;
+  endDate: string | null;
 }
