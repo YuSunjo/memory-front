@@ -416,6 +416,22 @@ const MemoryDetailPage: React.FC = () => {
 
           {/* 메모리 내용 */}
           <Box bg="white" borderRadius="lg" shadow="sm" p={6}>
+            {/* 제목 */}
+            <Text fontSize="xl" fontWeight="bold" mb={2}>
+              {memory.title}
+            </Text>
+            
+            {/* 기억할만한 날짜 */}
+            {memory.memorableDate && (
+              <Text fontSize="sm" color="blue.600" fontWeight="medium" mb={4}>
+                📅 {new Date(memory.memorableDate).toLocaleDateString('ko-KR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </Text>
+            )}
+            
             <Text fontSize="lg" lineHeight="tall" whiteSpace="pre-wrap">
               {memory.content}
             </Text>

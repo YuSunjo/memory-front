@@ -38,6 +38,7 @@ const CreateMemoryPage: React.FC = () => {
     locationName: '',
     mapId: null,
     memoryType: 'PUBLIC',
+    memorableDate: new Date().toISOString().split('T')[0], // Default to today
     fileIdList: []
   });
   const [maps, setMaps] = useState<MapData[]>([]);
@@ -302,6 +303,7 @@ const CreateMemoryPage: React.FC = () => {
         locationName: '',
         mapId: null,
         memoryType: 'PUBLIC',
+        memorableDate: new Date().toISOString().split('T')[0],
         fileIdList: []
       });
       setSelectedMap(null);
@@ -349,6 +351,16 @@ const CreateMemoryPage: React.FC = () => {
                   onChange={handleInputChange} 
                   placeholder="Describe your memory"
                   minHeight="150px"
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel>Memorable Date</FormLabel>
+                <Input 
+                  name="memorableDate" 
+                  type="date"
+                  value={formData.memorableDate} 
+                  onChange={handleInputChange}
                 />
               </FormControl>
 

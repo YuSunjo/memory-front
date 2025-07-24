@@ -83,6 +83,7 @@ const PublicMemoriesPage: React.FC<PublicMemoriesPageProps> = ({ title, requireA
                 profileImage: memory.member.profile?.fileUrl || ''
               }}
               comments={memory.commentsCount || 0} // API에서 댓글 수 직접 제공
+              memorableDate={memory.memorableDate}
               source="sharing" // sharing memories에서 온 경우
             />
           ))}

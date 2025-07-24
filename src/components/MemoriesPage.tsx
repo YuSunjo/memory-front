@@ -85,6 +85,7 @@ const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireA
                 profileImage: memory.member.profile?.fileUrl || ''
               }}
               comments={memory.commentsCount || 0} // API에서 댓글 수 직접 제공
+              memorableDate={memory.memorableDate}
             />
           ))}
         </VStack>

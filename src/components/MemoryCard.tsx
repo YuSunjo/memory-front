@@ -15,6 +15,7 @@ interface MemoryCardProps {
   description: string;
   author: Author;
   comments: number;
+  memorableDate?: string;
   source?: string; // sharing memories에서 온 경우 'sharing'
 }
 
@@ -23,7 +24,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
   images, 
   description, 
   author, 
-  comments, 
+  comments,
+  memorableDate,
   source
 }) => {
   const navigate = useNavigate();
@@ -58,7 +60,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
             name={author.name} 
             src={author.profileImage} 
           />
-          <Text fontWeight="bold">{author.name}</Text>
+          <Box>
+            <Text fontWeight="bold">{author.name}</Text>
+            {memorableDate && (
+              <Text fontSize="sm" color="gray.500">
+                {new Date(memorableDate).toLocaleDateString()}
+              </Text>
+            )}
+          </Box>
         </HStack>
         
         {/* 상세보기 버튼 */}

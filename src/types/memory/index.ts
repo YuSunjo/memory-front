@@ -9,6 +9,7 @@ export interface MemoryFormData {
   locationName: string;
   mapId: number | null;
   memoryType: 'PUBLIC' | 'PRIVATE' | 'RELATIONSHIP';
+  memorableDate: string;
   fileIdList?: number[];
 }
 
@@ -32,6 +33,7 @@ export interface MemoryResponse {
   member: Member;
   map: MapData;
   memoryType: 'PUBLIC';
+  memorableDate: string;
   files: FileResponse[];
   createDate: string;
   updateDate: string;
