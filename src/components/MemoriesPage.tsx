@@ -21,14 +21,21 @@ const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireA
   const { isAuthenticated } = useAuth(requireAuth);
 
   // Only fetch memories if authentication is not required or user is authenticated
-  const { memories, loading, hasMore, memoriesRef, fetchMemories, isInitialLoad } = useMemories({ 
+  const { memories, loading, hasMore, memoriesRef, fetchMemories, isInitialLoad } = useMemories({
     memoryType,
     skipFetch: requireAuth && !isAuthenticated
   });
 
+  const fetchMemoriesRef = useRef(fetchMemories);
+
   const handleCreateMemory = () => {
     navigate('/create-memory');
   };
+
+  // fetchMemories ref 업데이트
+  useEffect(() => {
+    fetchMemoriesRef.current = fetchMemories;
+  }, [fetchMemories]);
 
   // Setup intersection observer for infinite scrolling
   useEffect(() => {
@@ -40,7 +47,7 @@ const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireA
         if (entries[0].isIntersecting && hasMore && !loading) {
           const currentMemories = memoriesRef.current;
           const lastMemoryId = currentMemories.length > 0 ? currentMemories[currentMemories.length - 1].id : undefined;
-          fetchMemories(lastMemoryId);
+          fetchMemoriesRef.current(lastMemoryId);
         }
       },
       { threshold: 0.9 } // Trigger when 90% of the element is visible
@@ -57,7 +64,7 @@ const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireA
         observerRef.current.unobserve(loadingRef.current);
       }
     };
-  }, [isInitialLoad, hasMore, loading, fetchMemories]);
+  }, [isInitialLoad, hasMore, loading]);
 
   return (
     <Container maxW="container.lg" centerContent flex="1" py={8}>
