@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import useApi from './useApi';
-import type { CreateGameSessionRequest, CreateGameSessionData, GameSession, GameSetting, GameQuestion, SubmitAnswerRequest } from '../types/game';
+import type { CreateGameSessionRequest, CreateGameSessionData, GameSession, GameSetting, GameQuestion, SubmitAnswerRequest, GameSessionWithSetting } from '../types/game';
 
 export const useGameApi = () => {
   const api = useApi();
@@ -128,6 +128,33 @@ export const useGameApi = () => {
     }
   };
 
+  const getGameSessions = async (size: number = 10, lastSessionId?: number): Promise<GameSessionWithSetting[] | null> => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      let url = `/v1/game/sessions?size=${size}`;
+      if (lastSessionId) {
+        url += `&lastSessionId=${lastSessionId}`;
+      }
+
+      const response = await api.get(url);
+      
+      if (response.data.statusCode === 200) {
+        return response.data.data as GameSessionWithSetting[];
+      } else {
+        throw new Error(response.data.message || 'Failed to get game sessions');
+      }
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to get game sessions';
+      setError(errorMessage);
+      console.error('Error getting game sessions:', err);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Base64 복호화 유틸리티 함수
   const decryptCoordinate = (encryptedValue: string): number => {
     try {
@@ -144,6 +171,7 @@ export const useGameApi = () => {
     getNextQuestion,
     submitAnswer,
     giveUpGame,
+    getGameSessions,
     decryptCoordinate,
     loading,
     error

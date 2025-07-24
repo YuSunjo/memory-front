@@ -70,3 +70,19 @@ export interface CreateGameSessionData {
   endTime: string | null;
   createDate: string;
 }
+
+export interface GameSessionWithSetting {
+  gameSetting: GameSetting;
+  id: number;
+  memberId: number;
+  targetMemberId: number | null;
+  gameMode: 'MY_MEMORIES' | 'MEMORIES_RANDOM' | 'RANDOM';
+  status: 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  totalScore: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  accuracy: number;
+  startTime: string;
+  endTime: string | null;
+  createDate: string;
+}
