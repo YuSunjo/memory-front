@@ -12,6 +12,7 @@ const usePublicMemories = ({ pageSize = 5, skipFetch = false }: UsePublicMemorie
   const [memories, setMemories] = useState<MemoryResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const memoriesRef = useRef<MemoryResponse[]>([]);
 
   const fetchMemories = useCallback(async (lastMemoryId?: number) => {
@@ -28,33 +29,41 @@ const usePublicMemories = ({ pageSize = 5, skipFetch = false }: UsePublicMemorie
       const newMemories = response.data.data;
 
       setMemories(prev => {
-        const updatedMemories = [...prev, ...newMemories];
+        const updatedMemories = lastMemoryId ? [...prev, ...newMemories] : newMemories;
         memoriesRef.current = updatedMemories;
         return updatedMemories;
       });
 
-      // 한 번 호출 후 더 이상 호출하지 않음
-      setHasMore(false);
+      // 받은 데이터가 pageSize보다 적으면 더 이상 데이터가 없음
+      if (newMemories.length < pageSize) {
+        setHasMore(false);
+      }
+
+      // 초기 로드 완료 표시
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
+      }
     } catch (error) {
       console.error('Failed to fetch public memories:', error);
     } finally {
       setLoading(false);
     }
-  }, [api, pageSize, skipFetch]);
+  }, [api, pageSize, skipFetch, isInitialLoad]);
 
-  // Initial load
+  // Initial load - 한 번만 실행
   useEffect(() => {
-    if (!skipFetch) {
+    if (!skipFetch && isInitialLoad) {
       fetchMemories();
     }
-  }, [fetchMemories, skipFetch]);
+  }, [skipFetch, isInitialLoad]);
 
   return {
     memories,
     loading,
     hasMore,
     memoriesRef,
-    fetchMemories
+    fetchMemories,
+    isInitialLoad
   };
 };
 

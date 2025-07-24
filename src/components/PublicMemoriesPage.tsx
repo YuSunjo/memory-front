@@ -20,7 +20,7 @@ const PublicMemoriesPage: React.FC<PublicMemoriesPageProps> = ({ title, requireA
   const { isAuthenticated } = useAuth(requireAuth);
 
   // Only fetch memories if authentication is not required or user is authenticated
-  const { memories, loading, hasMore, memoriesRef, fetchMemories } = usePublicMemories({ 
+  const { memories, loading, hasMore, memoriesRef, fetchMemories, isInitialLoad } = usePublicMemories({ 
     skipFetch: requireAuth && !isAuthenticated
   });
 
@@ -30,11 +30,12 @@ const PublicMemoriesPage: React.FC<PublicMemoriesPageProps> = ({ title, requireA
 
   // Setup intersection observer for infinite scrolling
   useEffect(() => {
-    if (loading) return;
+    // 초기 로드 중이거나 로딩 중이면 observer 설정하지 않음
+    if (isInitialLoad || loading) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
+        if (entries[0].isIntersecting && hasMore && !loading) {
           const currentMemories = memoriesRef.current;
           const lastMemoryId = currentMemories.length > 0 ? currentMemories[currentMemories.length - 1].id : undefined;
           fetchMemories(lastMemoryId);
@@ -54,7 +55,7 @@ const PublicMemoriesPage: React.FC<PublicMemoriesPageProps> = ({ title, requireA
         observerRef.current.unobserve(loadingRef.current);
       }
     };
-  }, [fetchMemories, hasMore, loading, memoriesRef]);
+  }, [isInitialLoad, hasMore, loading, fetchMemories]);
 
   return (
     <Container maxW="container.lg" centerContent flex="1" py={8}>

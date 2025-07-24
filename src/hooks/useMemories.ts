@@ -15,6 +15,7 @@ const useMemories = ({ memoryType, pageSize = 5, skipFetch = false }: UseMemorie
   const [memories, setMemories] = useState<MemoryResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const memoriesRef = useRef<MemoryResponse[]>([]);
 
   const fetchMemories = useCallback(async (lastMemoryId?: number) => {
@@ -31,33 +32,41 @@ const useMemories = ({ memoryType, pageSize = 5, skipFetch = false }: UseMemorie
       const newMemories = response.data.data;
 
       setMemories(prev => {
-        const updatedMemories = [...prev, ...newMemories];
+        const updatedMemories = lastMemoryId ? [...prev, ...newMemories] : newMemories;
         memoriesRef.current = updatedMemories;
         return updatedMemories;
       });
 
-      // 한 번 호출 후 더 이상 호출하지 않음
-      setHasMore(false);
+      // 받은 데이터가 pageSize보다 적으면 더 이상 데이터가 없음
+      if (newMemories.length < pageSize) {
+        setHasMore(false);
+      }
+
+      // 초기 로드 완료 표시
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
+      }
     } catch (error) {
       console.error(`Failed to fetch ${memoryType} memories:`, error);
     } finally {
       setLoading(false);
     }
-  }, [api, memoryType, pageSize, skipFetch]);
+  }, [api, memoryType, pageSize, skipFetch, isInitialLoad]);
 
-  // Initial load
+  // Initial load - 한 번만 실행
   useEffect(() => {
-    if (!skipFetch) {
+    if (!skipFetch && isInitialLoad) {
       fetchMemories();
     }
-  }, [fetchMemories, skipFetch]);
+  }, [memoryType, skipFetch, isInitialLoad]);
 
   return {
     memories,
     loading,
     hasMore,
     memoriesRef,
-    fetchMemories
+    fetchMemories,
+    isInitialLoad
   };
 };
 
