@@ -33,9 +33,8 @@ const usePublicMemories = ({ pageSize = 5, skipFetch = false }: UsePublicMemorie
         return updatedMemories;
       });
 
-      if (newMemories.length < pageSize) {
-        setHasMore(false);
-      }
+      // 한 번 호출 후 더 이상 호출하지 않음
+      setHasMore(false);
     } catch (error) {
       console.error('Failed to fetch public memories:', error);
     } finally {

@@ -36,9 +36,8 @@ const useMemories = ({ memoryType, pageSize = 5, skipFetch = false }: UseMemorie
         return updatedMemories;
       });
 
-      if (newMemories.length < pageSize) {
-        setHasMore(false);
-      }
+      // 한 번 호출 후 더 이상 호출하지 않음
+      setHasMore(false);
     } catch (error) {
       console.error(`Failed to fetch ${memoryType} memories:`, error);
     } finally {
