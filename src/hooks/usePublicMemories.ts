@@ -41,7 +41,7 @@ const usePublicMemories = ({ pageSize = 5, skipFetch = false }: UsePublicMemorie
     } finally {
       setLoading(false);
     }
-  }, [api, pageSize, loading, hasMore, skipFetch]);
+  }, [api, pageSize, skipFetch]);
 
   // Initial load
   useEffect(() => {

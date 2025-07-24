@@ -44,7 +44,7 @@ const useMemories = ({ memoryType, pageSize = 5, skipFetch = false }: UseMemorie
     } finally {
       setLoading(false);
     }
-  }, [api, memoryType, pageSize, loading, hasMore, skipFetch]);
+  }, [api, memoryType, pageSize, skipFetch]);
 
   // Initial load
   useEffect(() => {
