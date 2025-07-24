@@ -277,7 +277,7 @@ const MemoryDetailPage: React.FC = () => {
           </Flex>
 
           {/* 이미지 캐러셀 및 지도 */}
-          {memory.files.length > 0 && (
+          {memory.files.length > 0 ? (
             <Box position="relative" mb={6}>
               <Image 
                 src={memory.files[currentImageIndex].fileUrl} 
@@ -377,42 +377,62 @@ const MemoryDetailPage: React.FC = () => {
                 </Flex>
               )}
             </Box>
-          )}
-          
-          {/* 이미지가 없지만 지도가 있는 경우 */}
-          {memory.files.length === 0 && memory.map && (
+          ) : (
+            /* 이미지가 없는 경우 */
             <Box mb={6}>
-              <Box
-                width="100%"
+              <Flex 
+                width="100%" 
                 height="300px"
+                bg="gray.100"
+                align="center"
+                justify="center"
+                direction="column"
+                color="gray.500"
                 borderRadius="lg"
-                overflow="hidden"
-                border="1px solid"
-                borderColor="gray.200"
-                shadow="md"
-                bg="white"
+                border="2px dashed"
+                borderColor="gray.300"
               >
-                <ReadOnlyMap
-                  lat={parseCoordinate(memory.map.latitude)}
-                  lng={parseCoordinate(memory.map.longitude)}
-                  zoom={15}
-                  style={{ width: '100%', height: '100%' }}
-                />
-              </Box>
+                <Text fontSize="2xl" mb={2}>📷</Text>
+                <Text fontSize="lg" fontWeight="medium">사진이 없습니다</Text>
+              </Flex>
               
-              {/* 위치 정보 */}
-              {memory.locationName && (
-                <Text
-                  mt={3}
-                  fontSize="sm"
-                  color="gray.600"
-                  textAlign="center"
-                >
-                  📍 {memory.locationName}
-                </Text>
+              {/* 지도가 있는 경우 지도 표시 */}
+              {memory.map && (
+                <Box mt={4}>
+                  <Box
+                    width="100%"
+                    height="300px"
+                    borderRadius="lg"
+                    overflow="hidden"
+                    border="1px solid"
+                    borderColor="gray.200"
+                    shadow="md"
+                    bg="white"
+                  >
+                    <ReadOnlyMap
+                      lat={parseCoordinate(memory.map.latitude)}
+                      lng={parseCoordinate(memory.map.longitude)}
+                      zoom={15}
+                      style={{ width: '100%', height: '100%' }}
+                    />
+                  </Box>
+                  
+                  {/* 위치 정보 */}
+                  {memory.locationName && (
+                    <Text
+                      mt={3}
+                      fontSize="sm"
+                      color="gray.600"
+                      textAlign="center"
+                    >
+                      📍 {memory.locationName}
+                    </Text>
+                  )}
+                </Box>
               )}
             </Box>
           )}
+          
 
           {/* 메모리 내용 */}
           <Box bg="white" borderRadius="lg" shadow="sm" p={6}>

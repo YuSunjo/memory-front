@@ -84,16 +84,31 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
 
       {/* Image carousel */}
       <Box position="relative">
-        <Image 
-          src={images[currentImageIndex]} 
-          alt={`Memory image ${currentImageIndex + 1}`} 
-          width="100%" 
-          height="auto"
-          objectFit="cover"
-          aspectRatio={1}
-        />
+        {images.length > 0 ? (
+          <Image 
+            src={images[currentImageIndex]} 
+            alt={`Memory image ${currentImageIndex + 1}`} 
+            width="100%" 
+            height="auto"
+            objectFit="cover"
+            aspectRatio={1}
+          />
+        ) : (
+          <Flex 
+            width="100%" 
+            height="300px"
+            bg="gray.100"
+            align="center"
+            justify="center"
+            direction="column"
+            color="gray.500"
+          >
+            <Text fontSize="lg" fontWeight="medium">📷</Text>
+            <Text fontSize="sm" mt={1}>사진이 없습니다</Text>
+          </Flex>
+        )}
 
-        {/* Navigation arrows */}
+        {/* Navigation arrows - only show when there are multiple images */}
         {images.length > 1 && (
           <>
             <IconButton
@@ -129,7 +144,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
           </>
         )}
 
-        {/* Image indicator dots */}
+        {/* Image indicator dots - only show when there are multiple images */}
         {images.length > 1 && (
           <Flex position="absolute" bottom="2" width="100%" justify="center" gap={1}>
             {images.map((_, index) => (
