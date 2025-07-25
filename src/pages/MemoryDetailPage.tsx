@@ -15,7 +15,8 @@ import {
   Spinner,
   Alert,
   AlertIcon,
-  useToast
+  useToast,
+  Tag
 } from '@chakra-ui/react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowBackIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
@@ -452,9 +453,20 @@ const MemoryDetailPage: React.FC = () => {
               </Text>
             )}
             
-            <Text fontSize="lg" lineHeight="tall" whiteSpace="pre-wrap">
+            <Text fontSize="lg" lineHeight="tall" whiteSpace="pre-wrap" mb={4}>
               {memory.content}
             </Text>
+
+            {/* Hash tags */}
+            {memory.hashTagNames && memory.hashTagNames.length > 0 && (
+              <Flex wrap="wrap" gap={2} mb={4}>
+                {memory.hashTagNames.map((tag, index) => (
+                  <Tag key={index} size="md" colorScheme="blue" variant="subtle">
+                    #{tag}
+                  </Tag>
+                ))}
+              </Flex>
+            )}
             
             {memory.updateDate !== memory.createDate && (
               <>

@@ -94,6 +94,7 @@ const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireA
               }}
               comments={memory.commentsCount || 0} // API에서 댓글 수 직접 제공
               memorableDate={memory.memorableDate}
+              hashTags={memory.hashTagNames || []}
             />
           ))}
         </VStack>

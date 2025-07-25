@@ -26,6 +26,7 @@ import {
 import { CloseIcon } from '@chakra-ui/icons';
 import GoogleMap from '../components/GoogleMap';
 import useApi from '../hooks/useApi';
+import useHashtagService from '../hooks/useHashtagService';
 import useMemberStore from '../store/memberStore';
 import type {LocationData, MapData, MapFormData, MemoryFormData, FileResponse} from "../types";
 
@@ -39,7 +40,8 @@ const CreateMemoryPage: React.FC = () => {
     mapId: null,
     memoryType: 'PUBLIC',
     memorableDate: new Date().toISOString().split('T')[0], // Default to today
-    fileIdList: []
+    fileIdList: [],
+    hashTagList: []
   });
   const [maps, setMaps] = useState<MapData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -51,8 +53,12 @@ const CreateMemoryPage: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<FileResponse[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [hashTagInput, setHashTagInput] = useState<string>('');
+  const [hashTagSuggestions, setHashTagSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const api = useApi();
+  const { searchHashtags } = useHashtagService();
   const { isAuthenticated } = useMemberStore();
   const toast = useToast();
 
@@ -77,6 +83,23 @@ const CreateMemoryPage: React.FC = () => {
       fetchMaps();
     }
   }, [isAuthenticated]);
+
+  // Search hashtags when input changes
+  useEffect(() => {
+    const searchHashtagsDebounced = async () => {
+      if (hashTagInput.trim()) {
+        const suggestions = await searchHashtags(hashTagInput.trim());
+        setHashTagSuggestions(suggestions);
+        setShowSuggestions(suggestions.length > 0);
+      } else {
+        setHashTagSuggestions([]);
+        setShowSuggestions(false);
+      }
+    };
+
+    const timeoutId = setTimeout(searchHashtagsDebounced, 300);
+    return () => clearTimeout(timeoutId);
+  }, [hashTagInput]);
 
   // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -278,7 +301,8 @@ const CreateMemoryPage: React.FC = () => {
       await api.post('/v1/memories', {
         ...formData,
         mapId,
-        fileIdList: formData.fileIdList
+        fileIdList: formData.fileIdList,
+        hashTagList: formData.hashTagList
       });
 
       toast({
@@ -304,8 +328,10 @@ const CreateMemoryPage: React.FC = () => {
         mapId: null,
         memoryType: 'PUBLIC',
         memorableDate: new Date().toISOString().split('T')[0],
-        fileIdList: []
+        fileIdList: [],
+        hashTagList: []
       });
+      setHashTagInput('');
       setSelectedMap(null);
       setSelectedLocation(null);
       setUploadedFiles([]);
@@ -387,6 +413,130 @@ const CreateMemoryPage: React.FC = () => {
                     <Radio value="RELATIONSHIP">Relationship</Radio>
                   </HStack>
                 </RadioGroup>
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Hash Tags</FormLabel>
+                <Flex direction="column" gap={2}>
+                  <Box position="relative">
+                    <Flex gap={2}>
+                      <Input 
+                        value={hashTagInput}
+                        onChange={(e) => setHashTagInput(e.target.value)}
+                        placeholder="Enter hashtag and press Enter"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const tag = hashTagInput.trim();
+                            if (tag && !formData.hashTagList?.includes(tag)) {
+                              setFormData(prev => ({
+                                ...prev,
+                                hashTagList: [...(prev.hashTagList || []), tag]
+                              }));
+                              setHashTagInput('');
+                              setShowSuggestions(false);
+                            }
+                          }
+                        }}
+                        onFocus={() => {
+                          if (hashTagSuggestions.length > 0) {
+                            setShowSuggestions(true);
+                          }
+                        }}
+                        onBlur={() => {
+                          setTimeout(() => setShowSuggestions(false), 150);
+                        }}
+                      />
+                      <Button
+                        onClick={() => {
+                          const tag = hashTagInput.trim();
+                          if (tag && !formData.hashTagList?.includes(tag)) {
+                            setFormData(prev => ({
+                              ...prev,
+                              hashTagList: [...(prev.hashTagList || []), tag]
+                            }));
+                            setHashTagInput('');
+                            setShowSuggestions(false);
+                          }
+                        }}
+                        colorScheme="blue"
+                        size="md"
+                      >
+                        Add
+                      </Button>
+                    </Flex>
+                    
+                    {/* Hashtag suggestions dropdown */}
+                    {showSuggestions && hashTagSuggestions.length > 0 && (
+                      <Box
+                        position="absolute"
+                        top="100%"
+                        left="0"
+                        right="0"
+                        bg="white"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        borderRadius="md"
+                        boxShadow="md"
+                        zIndex="10"
+                        maxH="200px"
+                        overflowY="auto"
+                      >
+                        {hashTagSuggestions.map((suggestion, index) => (
+                          <Box
+                            key={index}
+                            px={3}
+                            py={2}
+                            cursor="pointer"
+                            _hover={{ bg: "gray.50" }}
+                            onClick={() => {
+                              if (!formData.hashTagList?.includes(suggestion)) {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  hashTagList: [...(prev.hashTagList || []), suggestion]
+                                }));
+                              }
+                              setHashTagInput('');
+                              setShowSuggestions(false);
+                            }}
+                          >
+                            <Text fontSize="sm">#{suggestion}</Text>
+                          </Box>
+                        ))}
+                      </Box>
+                    )}
+                  </Box>
+                  {formData.hashTagList && formData.hashTagList.length > 0 && (
+                    <Flex wrap="wrap" gap={2}>
+                      {formData.hashTagList.map((tag, index) => (
+                        <Flex
+                          key={index}
+                          align="center"
+                          bg="blue.100"
+                          px={2}
+                          py={1}
+                          borderRadius="md"
+                          fontSize="sm"
+                        >
+                          <Text>#{tag}</Text>
+                          <IconButton
+                            aria-label="Remove hashtag"
+                            icon={<CloseIcon />}
+                            size="xs"
+                            variant="ghost"
+                            ml={1}
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                hashTagList: prev.hashTagList?.filter((_, i) => i !== index) || []
+                              }));
+                            }}
+                          />
+                        </Flex>
+                      ))}
+                    </Flex>
+                  )}
+                </Flex>
               </FormControl>
 
               <FormControl>

@@ -11,6 +11,7 @@ export interface MemoryFormData {
   memoryType: 'PUBLIC' | 'PRIVATE' | 'RELATIONSHIP';
   memorableDate: string;
   fileIdList?: number[];
+  hashTagList?: string[];
 }
 
 export interface FileResponse {
@@ -38,4 +39,5 @@ export interface MemoryResponse {
   createDate: string;
   updateDate: string;
   commentsCount?: number; // 댓글 수 추가
+  hashTagNames?: string[];
 }

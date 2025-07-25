@@ -1,5 +1,5 @@
 import useApi from './useApi';
-import type {MemoryResponse} from '../types';
+import type {MemoryResponse, MemoryFormData} from '../types';
 
 const useMemoryService = () => {
   const api = useApi();
@@ -36,25 +36,34 @@ const useMemoryService = () => {
     }
   };
 
+  // 메모리 생성
+  const createMemory = async (memoryData: MemoryFormData): Promise<MemoryResponse> => {
+    try {
+      const response = await api.post<MemoryResponse, MemoryFormData>('/v1/memories', memoryData);
+      return response.data.data;
+    } catch (error) {
+      console.error('Error creating memory:', error);
+      throw error;
+    }
+  };
+
   // 메모리 수정
-  // const updateMemory = async (memoryId: number, content: string, memoryType: string): Promise<MemoryResponse> => {
-  //   try {
-  //     const response = await api.put<MemoryResponse>(`/v1/memories/${memoryId}`, {
-  //       content,
-  //       memoryType
-  //     });
-  //     return response.data.data;
-  //   } catch (error) {
-  //     console.error('Error updating memory:', error);
-  //     throw error;
-  //   }
-  // };
+  const updateMemory = async (memoryId: number, memoryData: Partial<MemoryFormData>): Promise<MemoryResponse> => {
+    try {
+      const response = await api.put<MemoryResponse, Partial<MemoryFormData>>(`/v1/memories/${memoryId}`, memoryData);
+      return response.data.data;
+    } catch (error) {
+      console.error('Error updating memory:', error);
+      throw error;
+    }
+  };
 
   return {
     getMemoryById,
     getPublicMemoryById,
-    deleteMemory,
-    // updateMemory
+    createMemory,
+    updateMemory,
+    deleteMemory
   };
 };
 

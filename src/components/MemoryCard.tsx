@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Image, Text, Flex, IconButton, Link, HStack, Avatar, Button } from '@chakra-ui/react';
+import { Box, Image, Text, Flex, IconButton, Link, HStack, Avatar, Button, Tag } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { ViewIcon, ChatIcon } from '@chakra-ui/icons';
 
@@ -17,6 +17,7 @@ interface MemoryCardProps {
   comments: number;
   memorableDate?: string;
   source?: string; // sharing memories에서 온 경우 'sharing'
+  hashTags?: string[];
 }
 
 const MemoryCard: React.FC<MemoryCardProps> = ({ 
@@ -26,7 +27,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
   author, 
   comments,
   memorableDate,
-  source
+  source,
+  hashTags
 }) => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -178,6 +180,17 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
           >
             {isTextExpanded ? '접기' : '더 보기'}
           </Link>
+        )}
+
+        {/* Hash tags */}
+        {hashTags && hashTags.length > 0 && (
+          <Flex wrap="wrap" gap={1} mt={2}>
+            {hashTags.map((tag, index) => (
+              <Tag key={index} size="sm" colorScheme="blue" variant="subtle">
+                #{tag}
+              </Tag>
+            ))}
+          </Flex>
         )}
       </Box>
 
