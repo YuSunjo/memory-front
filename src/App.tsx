@@ -3,10 +3,11 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import AuthProvider from './components/AuthProvider'
 import { GoogleMapsProvider } from './contexts/GoogleMapsContext';
 import AppContent from './components/AppContent';
+import theme from './theme';
 
 function App() {
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <GoogleMapsProvider>
         <Router>
           <AuthProvider>

@@ -21,6 +21,7 @@ import MemoryDetailPage from '../pages/MemoryDetailPage';
 import IntroBanner from './IntroBanner';
 import Navbar from './Navbar';
 import FloatingActionButton from './FloatingActionButton';
+import { MobileNavigation } from './design-system';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -69,6 +70,9 @@ const AppContent: React.FC = () => {
       
       {/* Floating Action Button - 로그인 사용자에게만 표시 (Create Memory 페이지 제외) */}
       <FloatingActionButton isVisible={shouldShowFAB} />
+      
+      {/* Mobile Navigation - 인증된 사용자에게만 표시 */}
+      {isAuthenticated && <MobileNavigation />}
     </Box>
   );
 };

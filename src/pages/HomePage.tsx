@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Flex, Box, Spinner, Alert, AlertIcon, Text, Button } from '@chakra-ui/react';
+import { Flex, Box, Spinner, Alert, AlertIcon, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import GoogleMap from '../components/GoogleMap';
 import type {LocationData, MapData} from '../types';
@@ -7,6 +7,13 @@ import UpcomingEvents from '../components/UpcomingEvents';
 import SaveMap from '../components/SaveMap';
 import useApi from '../hooks/useApi';
 import useMemberStore from '../store/memberStore';
+import { 
+  GlassCard, 
+  GradientButton, 
+  ResponsiveGrid, 
+  ResponsiveContainer,
+  HeroSection 
+} from '../components/design-system';
 
 const HomePage: React.FC = () => {
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
@@ -53,92 +60,78 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <Container maxW="container.xl" p={6} flex="1">
+    <ResponsiveContainer maxWidth="xl" padding centerContent>
       {/* Welcome Hero Section */}
-      <Box 
-        mb={8} 
-        p={8} 
-        bg="rgba(255, 255, 255, 0.9)"
-        backdropFilter="blur(20px)"
-        borderRadius="3xl"
-        boxShadow="0 25px 50px rgba(0, 0, 0, 0.15)"
-        textAlign="center"
-      >
-        <Text 
-          fontSize="3xl" 
-          fontWeight="bold" 
-          bgGradient="linear(45deg, #667eea, #764ba2)"
-          bgClip="text"
-          mb={4}
-        >
-          안녕하세요! 오늘도 특별한 하루를 기록해보세요 ✨
-        </Text>
-        <Text fontSize="lg" color="gray.600" maxW="2xl" mx="auto">
-          당신의 소중한 순간들이 아름다운 추억으로 남을 수 있도록 도와드릴게요
-        </Text>
-      </Box>
+      <HeroSection
+        mb={8}
+        title="소중한 순간을 영원히 ✨"
+        subtitle="당신만의 추억 아카이브를 만들어보세요. 매일의 특별한 순간들이 아름다운 이야기가 됩니다."
+        variant="card"
+        animated
+      />
 
       <Flex direction="column" gap={6}>
-        {/* Dashboard Grid */}
-        <Flex height="500px" gap={6}>
+        {/* Responsive Dashboard Grid */}
+        <ResponsiveGrid 
+          layout="dashboard" 
+          gap={6} 
+          minHeight={{ base: 'auto', lg: '500px' }}
+        >
           {/* Interactive Map Section */}
-          <Box 
-            width="60%" 
-            height="100%" 
+          <GlassCard 
             position="relative"
-            borderRadius="3xl"
             overflow="hidden"
-            boxShadow="0 20px 40px rgba(0, 0, 0, 0.1)"
+            variant="light"
+            enableBlur
+            minHeight={{ base: '300px', md: '400px', lg: '500px' }}
           >
-              {loading && (
-                <Box 
-                  position="absolute" 
-                  top="0" 
-                  left="0" 
-                  width="100%" 
-                  height="100%" 
-                  bg="rgba(255, 255, 255, 0.7)" 
-                  zIndex="1" 
-                  display="flex" 
-                  alignItems="center" 
-                  justifyContent="center"
-                >
-                  <Spinner size="xl" />
-                </Box>
-              )}
+            {loading && (
+              <Box 
+                position="absolute" 
+                top="0" 
+                left="0" 
+                width="100%" 
+                height="100%" 
+                bg="rgba(255, 255, 255, 0.7)" 
+                zIndex="1" 
+                display="flex" 
+                alignItems="center" 
+                justifyContent="center"
+              >
+                <Spinner size="xl" />
+              </Box>
+            )}
 
-              {error && (
-                <Box 
-                  position="absolute" 
-                  top="4" 
-                  left="4" 
-                  zIndex="1" 
-                  maxWidth="80%"
-                >
-                  <Alert status="error" borderRadius="md">
-                    <AlertIcon />
-                    {error}
-                  </Alert>
-                </Box>
-              )}
+            {error && (
+              <Box 
+                position="absolute" 
+                top="4" 
+                left="4" 
+                zIndex="1" 
+                maxWidth="80%"
+              >
+                <Alert status="error" borderRadius="md">
+                  <AlertIcon />
+                  {error}
+                </Alert>
+              </Box>
+            )}
 
-              <GoogleMap 
-                apiKey={googleMapsApiKey} 
-                onLocationSelect={handleLocationSelect}
-                maps={maps}
-              />
-            </Box>
+            <GoogleMap 
+              apiKey={googleMapsApiKey} 
+              onLocationSelect={handleLocationSelect}
+              maps={maps}
+            />
+          </GlassCard>
 
           {/* Dashboard Sidebar */}
-          <Box width="40%" height="100%" display="flex" flexDirection="column" gap={4}>
+          <Flex direction="column" gap={4} height="100%">
             {/* Quick Actions */}
-            <Box 
+            <GlassCard 
               p={6} 
-              bg="rgba(255, 255, 255, 0.8)"
-              backdropFilter="blur(10px)"
-              borderRadius="2xl"
-              boxShadow="0 10px 30px rgba(0, 0, 0, 0.1)"
-              height="40%"
+              variant="light"
+              enableBlur={false}
+              flex={{ base: 'none', lg: '0 0 40%' }}
             >
               <Text 
                 fontSize="lg" 
@@ -150,58 +143,44 @@ const HomePage: React.FC = () => {
                 🚀 빠른 시작
               </Text>
               <Flex direction="column" gap={3}>
-                <Button
+                <GradientButton
                   leftIcon={<span>📝</span>}
-                  bg="linear-gradient(45deg, #667eea, #764ba2)"
-                  color="white"
-                  borderRadius="xl"
-                  _hover={{
-                    bg: "linear-gradient(45deg, #5a6fd8, #6a4190)",
-                    transform: "translateY(-2px)",
-                  }}
-                  transition="all 0.3s ease"
+                  size="md"
                   onClick={() => navigate('/create-memory')}
                 >
-                  새로운 추억 만들기
-                </Button>
-                <Button
+                  지금 이 순간을 영원히 ✨
+                </GradientButton>
+                <GradientButton
                   leftIcon={<span>💝</span>}
-                  variant="outline"
-                  borderColor="purple.300"
-                  color="purple.600"
-                  borderRadius="xl"
-                  _hover={{
-                    bg: "purple.50",
-                    transform: "translateY(-2px)",
-                  }}
-                  transition="all 0.3s ease"
+                  variant="secondary"
+                  size="md"
                   onClick={() => navigate('/my-memories')}
                 >
-                  내 갤러리 보기
-                </Button>
+                  나만의 추억 보물상자 💎
+                </GradientButton>
               </Flex>
-            </Box>
+            </GlassCard>
 
             {/* Upcoming Events */}
-            <UpcomingEvents />
-          </Box>
-        </Flex>
+            <Box flex="1">
+              <UpcomingEvents />
+            </Box>
+          </Flex>
+        </ResponsiveGrid>
 
         {/* Save Map Section */}
-        <Box 
+        <GlassCard 
           p={6} 
-          bg="rgba(255, 255, 255, 0.8)"
-          backdropFilter="blur(10px)"
-          borderRadius="2xl"
-          boxShadow="0 10px 30px rgba(0, 0, 0, 0.1)"
+          variant="light"
+          enableBlur={false}
         >
           <SaveMap 
             selectedLocation={selectedLocation} 
             onMapSaved={fetchMaps}
           />
-        </Box>
+        </GlassCard>
       </Flex>
-    </Container>
+    </ResponsiveContainer>
   );
 };
 
