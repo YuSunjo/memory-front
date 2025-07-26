@@ -33,6 +33,34 @@ export type { ElevationProps } from './Elevation';
 export { default as ColorSystem, BrandBox, SuccessBox, WarningBox, ErrorBox, InfoBox } from './ColorSystem';
 export type { ColorSystemProps, ColorVariant, ColorIntensity } from './ColorSystem';
 
+// Phase 5.1: Interaction & Animation Components
+export { default as PageTransition } from './PageTransition';
+export type { PageTransitionProps } from './PageTransition';
+
+export { 
+  MemoryCardSkeleton,
+  ListItemSkeleton,
+  NavigationSkeleton,
+  ProfileSkeleton,
+  ContentSkeleton 
+} from './SkeletonLoader';
+export type { SkeletonLoaderProps } from './SkeletonLoader';
+
+export { 
+  LikeButton,
+  ActionButton 
+} from './InteractiveButton';
+export type { LikeButtonProps, ActionButtonProps } from './InteractiveButton';
+
+export { 
+  ScrollAnimation,
+  ParallaxContainer,
+  StaggerContainer,
+  HoverScale,
+  ScrollProgress
+} from './ScrollAnimation';
+export type { ScrollAnimationProps, ParallaxProps, StaggerContainerProps, HoverScaleProps } from './ScrollAnimation';
+
 // Design Tokens
 export { designTokens } from '../../theme/tokens';
 export type { DesignTokens, BrandColors, SemanticColors, SpacingScale, BorderRadiusScale } from '../../theme/tokens';

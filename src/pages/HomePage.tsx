@@ -13,7 +13,9 @@ import {
   ResponsiveContainer,
   HeroSection,
   Card,
-  Title
+  Title,
+  ScrollAnimation,
+  StaggerContainer
 } from '../components/design-system';
 
 const HomePage: React.FC = () => {
@@ -63,21 +65,24 @@ const HomePage: React.FC = () => {
   return (
     <ResponsiveContainer maxWidth="xl" padding centerContent>
       {/* Welcome Hero Section */}
-      <HeroSection
-        mb={8}
-        title="소중한 순간을 영원히 ✨"
-        subtitle="당신만의 추억 아카이브를 만들어보세요. 매일의 특별한 순간들이 아름다운 이야기가 됩니다."
-        variant="card"
-        animated
-      />
+      <ScrollAnimation animation="fadeIn" duration={0.8}>
+        <HeroSection
+          mb={8}
+          title="소중한 순간을 영원히 ✨"
+          subtitle="당신만의 추억 아카이브를 만들어보세요. 매일의 특별한 순간들이 아름다운 이야기가 됩니다."
+          variant="card"
+          animated
+        />
+      </ScrollAnimation>
 
       <Flex direction="column" gap={6}>
         {/* Responsive Dashboard Grid */}
-        <ResponsiveGrid 
-          layout="dashboard" 
-          gap={6} 
-          minHeight={{ base: 'auto', lg: '500px' }}
-        >
+        <StaggerContainer staggerDelay={0.2} childAnimation="slideUp">
+          <ResponsiveGrid 
+            layout="dashboard" 
+            gap={6} 
+            minHeight={{ base: 'auto', lg: '500px' }}
+          >
           {/* Interactive Map Section */}
           <Card 
             position="relative"
@@ -160,17 +165,18 @@ const HomePage: React.FC = () => {
               <ResponsiveUpcomingEvents />
             </Box>
           </Flex>
-        </ResponsiveGrid>
+          </ResponsiveGrid>
 
-        {/* Save Map Section */}
-        <Card 
-          p={6} 
-        >
-          <SaveMap 
-            selectedLocation={selectedLocation} 
-            onMapSaved={fetchMaps}
-          />
-        </Card>
+          {/* Save Map Section */}
+          <Card 
+            p={6} 
+          >
+            <SaveMap 
+              selectedLocation={selectedLocation} 
+              onMapSaved={fetchMaps}
+            />
+          </Card>
+        </StaggerContainer>
       </Flex>
     </ResponsiveContainer>
   );

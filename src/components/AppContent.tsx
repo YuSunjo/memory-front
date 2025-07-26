@@ -21,7 +21,7 @@ import MemoryDetailPage from '../pages/MemoryDetailPage';
 import IntroBanner from './IntroBanner';
 import ResponsiveNavbar from './ResponsiveNavbar';
 import FloatingActionButton from './FloatingActionButton';
-import { MobileNavigation } from './design-system';
+import { MobileNavigation, PageTransition } from './design-system';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -51,23 +51,25 @@ const AppContent: React.FC = () => {
     >
       <IntroBanner />
       <ResponsiveNavbar />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/profile/edit" element={<ProfileEditPage />} />
-        <Route path="/relationship" element={<RelationshipPage />} />
-        <Route path="/memories-with-relationship" element={<MemoriesWithRelationshipPage />} />
-        <Route path="/my-memories" element={<MyMemoriesPage />} />
-        <Route path="/create-memory" element={<CreateMemoryPage />} />
-        <Route path="/sharing-memories" element={<SharingMemoriesPage />} />
-        <Route path="/memory-quest" element={<MemoryQuestPage />} />
-        <Route path="/calendar" element={<CalendarPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/link-page/:memberId" element={<LinkPage />} />
-        <Route path="/memory/:memoryId" element={<MemoryDetailPage />} />
-      </Routes>
+      <PageTransition variant="slide" duration={0.3}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/edit" element={<ProfileEditPage />} />
+          <Route path="/relationship" element={<RelationshipPage />} />
+          <Route path="/memories-with-relationship" element={<MemoriesWithRelationshipPage />} />
+          <Route path="/my-memories" element={<MyMemoriesPage />} />
+          <Route path="/create-memory" element={<CreateMemoryPage />} />
+          <Route path="/sharing-memories" element={<SharingMemoriesPage />} />
+          <Route path="/memory-quest" element={<MemoryQuestPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/link-page/:memberId" element={<LinkPage />} />
+          <Route path="/memory/:memoryId" element={<MemoryDetailPage />} />
+        </Routes>
+      </PageTransition>
       
       {/* Floating Action Button - 로그인 사용자에게만 표시 (Create Memory 페이지 제외) */}
       <FloatingActionButton isVisible={shouldShowFAB} />

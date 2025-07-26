@@ -5,14 +5,13 @@ import {
   HStack,
   Text, 
   Badge,
-  Spinner,
   Alert,
   AlertIcon,
   useBreakpointValue
 } from '@chakra-ui/react';
 import { useCalendarService } from '../services/calendarService';
 import type { DdayEventResponse } from '../types/calendar';
-import { GlassCard, HeroSection } from './design-system';
+import { GlassCard, HeroSection, ListItemSkeleton } from './design-system';
 import { designTokens } from '../theme/tokens';
 
 const ResponsiveUpcomingEvents: React.FC = () => {
@@ -100,10 +99,7 @@ const ResponsiveUpcomingEvents: React.FC = () => {
       />
 
       {loading ? (
-        <VStack spacing={3} align="center" py={4}>
-          <Spinner size="md" color="brand.500" thickness="3px" />
-          <Text fontSize="sm" color="gray.600">일정을 불러오고 있어요...</Text>
-        </VStack>
+        <ListItemSkeleton count={3} speed={1.2} />
       ) : error ? (
         <Alert status="error" borderRadius="lg" fontSize="sm">
           <AlertIcon />
