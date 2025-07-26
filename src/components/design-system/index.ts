@@ -46,6 +46,10 @@ export {
 } from './SkeletonLoader';
 export type { SkeletonLoaderProps } from './SkeletonLoader';
 
+// Phase 5.2: Performance Optimization Components
+export { default as LazyImage } from './LazyImage';
+export { default as ImageGallery } from './ImageGallery';
+
 export { 
   LikeButton,
   ActionButton 
