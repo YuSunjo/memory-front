@@ -2,6 +2,7 @@ import React from 'react';
 import { Box } from '@chakra-ui/react';
 import { Routes, Route } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import useMemberStore from '../store/memberStore';
 import HomePage from '../pages/HomePage';
 import SignupPage from '../pages/SignupPage';
 import LoginPage from '../pages/LoginPage';
@@ -23,9 +24,10 @@ import FloatingActionButton from './FloatingActionButton';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
+  const { isAuthenticated } = useMemberStore();
   
-  // Create Memory 페이지에서는 FAB를 숨김
-  const shouldShowFAB = location.pathname !== '/create-memory';
+  // 로그인 상태이고 Create Memory 페이지가 아닐 때만 FAB를 표시
+  const shouldShowFAB = isAuthenticated && location.pathname !== '/create-memory';
 
   return (
     <Box 
@@ -65,7 +67,7 @@ const AppContent: React.FC = () => {
         <Route path="/memory/:memoryId" element={<MemoryDetailPage />} />
       </Routes>
       
-      {/* Floating Action Button - Create Memory 페이지 제외하고 표시 */}
+      {/* Floating Action Button - 로그인 사용자에게만 표시 (Create Memory 페이지 제외) */}
       <FloatingActionButton isVisible={shouldShowFAB} />
     </Box>
   );
