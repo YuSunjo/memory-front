@@ -12,6 +12,7 @@ import {
   TabPanel,
   useDisclosure
 } from '@chakra-ui/react';
+import useAuth from '../hooks/useAuth';
 import { useCalendarService } from '../services/calendarService';
 import type {TodoResponse, DiaryResponse, EventResponse, TodoRequest, DiaryRequest, EventRequest, RoutineRequest, RoutineResponse, RoutinePreview} from '../types/calendar';
 import CalendarGrid from '../components/calendar/CalendarGrid';
@@ -26,6 +27,9 @@ import RoutineList from '../components/calendar/RoutineList';
 import { useRoutine } from '../hooks/useRoutine';
 
 const CalendarPage: React.FC = () => {
+  // 인증 확인 - 로그인이 필요한 페이지
+  useAuth(true, '/login');
+  
   const calendarService = useCalendarService();
   const navigate = useNavigate();
   const location = useLocation();

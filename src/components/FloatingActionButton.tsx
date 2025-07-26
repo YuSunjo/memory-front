@@ -9,15 +9,18 @@ interface FloatingActionButtonProps {
 
 const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ isVisible = true }) => {
   const navigate = useNavigate();
-  const size = useBreakpointValue({ base: 'lg', md: 'lg' });
-  const bottomPosition = useBreakpointValue({ base: '20px', md: '30px' });
+  const size = useBreakpointValue({ base: 'md', md: 'lg' });
+  // Adjust bottom position to account for mobile navigation (80px height + 20px padding)
+  const bottomPosition = useBreakpointValue({ base: '100px', md: '30px' });
   const rightPosition = useBreakpointValue({ base: '20px', md: '30px' });
+  // Show on all devices - mobile and desktop (web version style)
+  const showOnCurrentBreakpoint = useBreakpointValue({ base: true, lg: true });
 
   const handleCreateMemory = () => {
     navigate('/create-memory');
   };
 
-  if (!isVisible) return null;
+  if (!isVisible || !showOnCurrentBreakpoint) return null;
 
   return (
     <Tooltip 
@@ -37,23 +40,23 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ isVisible =
         position="fixed"
         bottom={bottomPosition}
         right={rightPosition}
-        zIndex={1000}
+        zIndex={1200}
         bg="linear-gradient(45deg, #667eea, #764ba2)"
         color="white"
         borderRadius="full"
-        boxShadow="0 8px 32px rgba(102, 126, 234, 0.4)"
+        boxShadow={{ base: "0 6px 24px rgba(102, 126, 234, 0.5)", md: "0 8px 32px rgba(102, 126, 234, 0.4)" }}
         _hover={{
           bg: "linear-gradient(45deg, #5a6fd8, #6a4190)",
           transform: "scale(1.1)",
-          boxShadow: "0 12px 40px rgba(102, 126, 234, 0.6)"
+          boxShadow: { base: "0 8px 32px rgba(102, 126, 234, 0.7)", md: "0 12px 40px rgba(102, 126, 234, 0.6)" }
         }}
         _active={{
           transform: "scale(0.95)"
         }}
         transition="all 0.3s ease"
-        width="60px"
-        height="60px"
-        fontSize="xl"
+        width={{ base: "56px", md: "60px" }}
+        height={{ base: "56px", md: "60px" }}
+        fontSize={{ base: "lg", md: "xl" }}
         // 펄스 애니메이션을 위한 가상 요소
         _before={{
           content: '""',

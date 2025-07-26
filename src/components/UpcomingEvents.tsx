@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { 
   Box, 
   VStack, 
@@ -19,24 +19,24 @@ const UpcomingEvents: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { fetchDdayEvents } = useCalendarService();
 
-  useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const ddayEvents = await fetchDdayEvents();
-        console.log('📅 Fetched dday events:', ddayEvents); // 디버깅용
-        setEvents(ddayEvents);
-      } catch (err) {
-        setError('Failed to load upcoming events');
-        console.error('Error loading dday events:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadEvents = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const ddayEvents = await fetchDdayEvents();
+      console.log('📅 Fetched dday events:', ddayEvents); // 디버깅용
+      setEvents(ddayEvents);
+    } catch (err) {
+      setError('Failed to load upcoming events');
+      console.error('Error loading dday events:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchDdayEvents]); // fetchDdayEvents가 이제 useCallback으로 메모이제이션됨
 
+  useEffect(() => {
     loadEvents();
-  }, []);
+  }, [loadEvents]);
 
   const formatDday = (daysUntil: number | undefined | null): { text: string; color: string } => {
     // 안전한 dday 처리

@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react';
 import axios, {type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import type {ServerResponse} from '../types';
 
@@ -32,33 +33,33 @@ api.interceptors.request.use(
 
 // Hook for making API requests
 const useApi = () => {
-  const get = <T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
+  const get = useCallback(<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
     return api.get<ServerResponse<T>>(url, config);
-  };
+  }, []);
 
-  const post = <T, D>(url: string, data?: D, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
+  const post = useCallback(<T, D>(url: string, data?: D, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
     return api.post<ServerResponse<T>>(url, data, config);
-  };
+  }, []);
 
-  const put = <T, D>(url: string, data?: D, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
+  const put = useCallback(<T, D>(url: string, data?: D, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
     return api.put<ServerResponse<T>>(url, data, config);
-  };
+  }, []);
 
-    const patch = <T, D>(url: string, data?: D, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
-        return api.patch<ServerResponse<T>>(url, data, config);
-    };
+  const patch = useCallback(<T, D>(url: string, data?: D, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
+    return api.patch<ServerResponse<T>>(url, data, config);
+  }, []);
 
-  const del = <T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
+  const del = useCallback(<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ServerResponse<T>>> => {
     return api.delete<ServerResponse<T>>(url, config);
-  };
+  }, []);
 
-  return {
+  return useMemo(() => ({
     get,
     post,
     put,
     patch,
     delete: del,
-  };
+  }), [get, post, put, patch, del]);
 };
 
 // Export the hook and the axios instance for direct use

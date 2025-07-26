@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { Flex, Box, Spinner, Alert, AlertIcon, Text } from '@chakra-ui/react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Flex, Box, Spinner, Alert, AlertIcon } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import GoogleMap from '../components/GoogleMap';
 import type {LocationData, MapData} from '../types';
-import UpcomingEvents from '../components/UpcomingEvents';
+import ResponsiveUpcomingEvents from '../components/ResponsiveUpcomingEvents';
 import SaveMap from '../components/SaveMap';
 import useApi from '../hooks/useApi';
 import useMemberStore from '../store/memberStore';
 import { 
-  GlassCard, 
   GradientButton, 
   ResponsiveGrid, 
   ResponsiveContainer,
-  HeroSection 
+  HeroSection,
+  Card,
+  Title
 } from '../components/design-system';
 
 const HomePage: React.FC = () => {
@@ -31,7 +32,7 @@ const HomePage: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const fetchMaps = async () => {
+  const fetchMaps = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -49,11 +50,11 @@ const HomePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthenticated, api]);
 
   useEffect(() => {
     fetchMaps();
-  }, [isAuthenticated]);
+  }, [fetchMaps]);
 
   const handleLocationSelect = (location: LocationData) => {
     setSelectedLocation(location);
@@ -78,11 +79,9 @@ const HomePage: React.FC = () => {
           minHeight={{ base: 'auto', lg: '500px' }}
         >
           {/* Interactive Map Section */}
-          <GlassCard 
+          <Card 
             position="relative"
             overflow="hidden"
-            variant="light"
-            enableBlur
             minHeight={{ base: '300px', md: '400px', lg: '500px' }}
           >
             {loading && (
@@ -122,26 +121,21 @@ const HomePage: React.FC = () => {
               onLocationSelect={handleLocationSelect}
               maps={maps}
             />
-          </GlassCard>
+          </Card>
 
           {/* Dashboard Sidebar */}
           <Flex direction="column" gap={4} height="100%">
             {/* Quick Actions */}
-            <GlassCard 
+            <Card 
               p={6} 
-              variant="light"
-              enableBlur={false}
               flex={{ base: 'none', lg: '0 0 40%' }}
             >
-              <Text 
-                fontSize="lg" 
-                fontWeight="bold" 
+              <Title 
+                gradient 
                 mb={4}
-                bgGradient="linear(45deg, #667eea, #764ba2)"
-                bgClip="text"
               >
                 🚀 빠른 시작
-              </Text>
+              </Title>
               <Flex direction="column" gap={3}>
                 <GradientButton
                   leftIcon={<span>📝</span>}
@@ -159,26 +153,24 @@ const HomePage: React.FC = () => {
                   나만의 추억 보물상자 💎
                 </GradientButton>
               </Flex>
-            </GlassCard>
+            </Card>
 
             {/* Upcoming Events */}
             <Box flex="1">
-              <UpcomingEvents />
+              <ResponsiveUpcomingEvents />
             </Box>
           </Flex>
         </ResponsiveGrid>
 
         {/* Save Map Section */}
-        <GlassCard 
+        <Card 
           p={6} 
-          variant="light"
-          enableBlur={false}
         >
           <SaveMap 
             selectedLocation={selectedLocation} 
             onMapSaved={fetchMaps}
           />
-        </GlassCard>
+        </Card>
       </Flex>
     </ResponsiveContainer>
   );

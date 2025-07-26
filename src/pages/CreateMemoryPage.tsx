@@ -26,11 +26,15 @@ import {
 import { CloseIcon } from '@chakra-ui/icons';
 import GoogleMap from '../components/GoogleMap';
 import useApi from '../hooks/useApi';
+import useAuth from '../hooks/useAuth';
 import useHashtagService from '../hooks/useHashtagService';
 import useMemberStore from '../store/memberStore';
 import type {LocationData, MapData, MapFormData, MemoryFormData, FileResponse} from "../types";
 
 const CreateMemoryPage: React.FC = () => {
+  // 인증 확인 - 로그인이 필요한 페이지
+  useAuth(true, '/login');
+  
   const navigate = useNavigate();
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
   const [formData, setFormData] = useState<MemoryFormData>({

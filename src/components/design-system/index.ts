@@ -23,6 +23,16 @@ export type { MobileNavigationProps } from './MobileNavigation';
 export { default as HeroSection } from './HeroSection';
 export type { HeroSectionProps } from './HeroSection';
 
+// Phase 4: Enhanced Visual Hierarchy Components
+export { default as Typography, Title, Subtitle, Subheading, Body, Caption } from './Typography';
+export type { TypographyProps } from './Typography';
+
+export { default as Elevation, Surface, Card, FloatingCard, Modal, Popover, Tooltip } from './Elevation';
+export type { ElevationProps } from './Elevation';
+
+export { default as ColorSystem, BrandBox, SuccessBox, WarningBox, ErrorBox, InfoBox } from './ColorSystem';
+export type { ColorSystemProps, ColorVariant, ColorIntensity } from './ColorSystem';
+
 // Design Tokens
 export { designTokens } from '../../theme/tokens';
 export type { DesignTokens, BrandColors, SemanticColors, SpacingScale, BorderRadiusScale } from '../../theme/tokens';

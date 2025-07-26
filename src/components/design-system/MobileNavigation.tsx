@@ -5,9 +5,15 @@ import {
   Text, 
   Center,
   Badge,
+  Avatar,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
   useBreakpointValue 
 } from '@chakra-ui/react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import useMemberStore from '../../store/memberStore';
 import { designTokens } from '../../theme/tokens';
 
 /**
@@ -54,11 +60,11 @@ const defaultNavigationItems: NavigationItem[] = [
     color: 'memory.500',
   },
   {
-    id: 'create',
-    path: '/create-memory',
-    label: '만들기',
-    icon: '+',
-    color: 'brand.500',
+    id: 'quest',
+    path: '/memory-quest',
+    label: '탐험',
+    icon: '🎯',
+    color: 'purple.500',
   },
   {
     id: 'discover',
@@ -66,13 +72,6 @@ const defaultNavigationItems: NavigationItem[] = [
     label: '발견',
     icon: '🌟',
     color: 'discovery.500',
-  },
-  {
-    id: 'profile',
-    path: '/profile',
-    label: '내정보',
-    icon: '👤',
-    color: 'gray.600',
   },
 ];
 
@@ -84,6 +83,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { member, logout } = useMemberStore();
   
   // Auto-hide on desktop unless forced to show
   const shouldShow = useBreakpointValue({
@@ -99,6 +99,12 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
     }
     
     navigate(path);
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   // Don't render if hidden
@@ -123,10 +129,12 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
       <Flex
         height="100%"
         align="center"
-        justify="space-around"
+        justify="space-between"
         px={2}
       >
-        {items.map((item) => {
+        {/* Navigation Items */}
+        <Flex flex={1} justify="space-around" align="center" px={2}>
+          {items.map((item) => {
           const isActive = location.pathname === item.path;
           
           return (
@@ -142,6 +150,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
               }}
               // Touch target optimization
               minHeight="60px"
+              minWidth="60px"
               position="relative"
             >
               {/* Icon with badge */}
@@ -221,6 +230,75 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
             </Center>
           );
         })}
+        </Flex>
+
+        {/* Profile Menu */}
+        <Box>
+          <Menu>
+            <MenuButton>
+              <Center
+                cursor="pointer"
+                transition={`all ${designTokens.animation.fast} ${designTokens.animation.easing.ease}`}
+                _active={{
+                  transform: 'scale(0.95)',
+                }}
+                minHeight="60px"
+                minWidth="60px"
+                position="relative"
+                flexDirection="column"
+              >
+                <Avatar 
+                  size="md"
+                  name={member?.name || member?.nickname} 
+                  src={member?.profile?.fileUrl}
+                  bg="brand.500" 
+                  color="white"
+                  w="36px"
+                  h="36px"
+                  fontSize="16px"
+                  transition={`all ${designTokens.animation.normal} ${designTokens.animation.easing.ease}`}
+                  _hover={{ transform: 'scale(1.2)' }}
+                />
+                <Text
+                  fontSize="xs"
+                  fontWeight="medium"
+                  color="gray.600"
+                  textAlign="center"
+                  lineHeight="1"
+                  mt={1}
+                >
+                  프로필
+                </Text>
+              </Center>
+            </MenuButton>
+            <MenuList 
+              borderRadius="xl" 
+              boxShadow={designTokens.shadows.xl}
+              mb={2}
+            >
+              <MenuItem onClick={() => handleNavigate('/profile')} borderRadius="lg" _hover={{ bg: 'brand.50' }}>
+                <Text fontWeight="bold" display="flex" alignItems="center" gap={2}>
+                  <span>👤</span> 내 프로필
+                </Text>
+              </MenuItem>
+              <MenuItem onClick={() => handleNavigate('/relationship')} borderRadius="lg" _hover={{ bg: 'brand.50' }}>
+                <Text fontWeight="bold" display="flex" alignItems="center" gap={2}>
+                  <span>💕</span> 소중한 사람들
+                </Text>
+              </MenuItem>
+              <MenuItem onClick={() => handleNavigate('/calendar')} borderRadius="lg" _hover={{ bg: 'brand.50' }}>
+                <Text fontWeight="bold" display="flex" alignItems="center" gap={2}>
+                  <span>📅</span> 일정 관리
+                </Text>
+              </MenuItem>
+              <MenuItem onClick={handleLogout} borderRadius="lg" _hover={{ bg: 'red.50' }}>
+                <Text color="red.500" fontWeight="medium" display="flex" alignItems="center" gap={2}>
+                  <span>👋</span> 로그아웃
+                </Text>
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </Box>
       </Flex>
     </Box>
   );

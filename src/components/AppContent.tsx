@@ -19,7 +19,7 @@ import AboutPage from '../pages/AboutPage';
 import LinkPage from '../pages/LinkPage';
 import MemoryDetailPage from '../pages/MemoryDetailPage';
 import IntroBanner from './IntroBanner';
-import Navbar from './Navbar';
+import ResponsiveNavbar from './ResponsiveNavbar';
 import FloatingActionButton from './FloatingActionButton';
 import { MobileNavigation } from './design-system';
 
@@ -28,6 +28,7 @@ const AppContent: React.FC = () => {
   const { isAuthenticated } = useMemberStore();
   
   // 로그인 상태이고 Create Memory 페이지가 아닐 때만 FAB를 표시
+  // 모바일에서는 네비게이션에 Create 버튼이 있으므로 FAB 숨김
   const shouldShowFAB = isAuthenticated && location.pathname !== '/create-memory';
 
   return (
@@ -49,7 +50,7 @@ const AppContent: React.FC = () => {
       }}
     >
       <IntroBanner />
-      <Navbar />
+      <ResponsiveNavbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<SignupPage />} />
