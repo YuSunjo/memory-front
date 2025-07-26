@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
       <Box>
         <Box>
           <Image 
-            src="/my-memory-logo.png" 
+            src="/memory-logo-navbar.png"
             alt="Memory Logo" 
             height="64px" 
             objectFit="contain"
