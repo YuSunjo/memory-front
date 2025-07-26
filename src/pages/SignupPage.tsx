@@ -140,82 +140,164 @@ const SignupPage: React.FC = () => {
 
   return (
     <Container maxW="container.md" py={8}>
-      <Box bg="white" p={8} rounded="md" shadow="md">
+      <Box 
+        bg="rgba(255, 255, 255, 0.95)" 
+        backdropFilter="blur(20px)"
+        p={10} 
+        borderRadius="3xl" 
+        boxShadow="0 25px 50px rgba(0, 0, 0, 0.15)"
+        border="1px solid rgba(255, 255, 255, 0.2)"
+      >
         <VStack spacing={6} align="stretch">
-          <Heading as="h1" size="xl" textAlign="center">Sign Up</Heading>
-          <Text textAlign="center" color="gray.600">Create your account to get started</Text>
+          <Heading 
+            as="h1" 
+            size="xl" 
+            textAlign="center"
+            bgGradient="linear(45deg, #667eea, #764ba2)"
+            bgClip="text"
+            fontWeight="bold"
+          >
+            새로운 시작을 환영해요! 🌟
+          </Heading>
+          <Text textAlign="center" color="gray.600" fontSize="lg">
+            당신만의 특별한 추억 공간을 만들어보세요
+          </Text>
 
           <form onSubmit={handleSubmit}>
             <VStack spacing={4}>
               <FormControl isInvalid={!!errors.email}>
-                <FormLabel>Email</FormLabel>
+                <FormLabel color="gray.700" fontWeight="medium">이메일</FormLabel>
                 <Input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="Enter your email"
+                  placeholder="이메일을 입력해주세요"
+                  borderRadius="xl"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: "purple.300" }}
+                  _focus={{ 
+                    borderColor: "purple.500", 
+                    boxShadow: "0 0 0 1px rgba(102, 126, 234, 0.3)" 
+                  }}
+                  transition="all 0.3s ease"
+                  py={6}
                 />
                 <FormErrorMessage>{errors.email}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.password}>
-                <FormLabel>Password</FormLabel>
+                <FormLabel color="gray.700" fontWeight="medium">비밀번호</FormLabel>
                 <Input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Enter your password"
+                  placeholder="비밀번호를 입력해주세요"
+                  borderRadius="xl"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: "purple.300" }}
+                  _focus={{ 
+                    borderColor: "purple.500", 
+                    boxShadow: "0 0 0 1px rgba(102, 126, 234, 0.3)" 
+                  }}
+                  transition="all 0.3s ease"
+                  py={6}
                 />
                 <FormErrorMessage>{errors.password}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.confirmPassword}>
-                <FormLabel>Confirm Password</FormLabel>
+                <FormLabel color="gray.700" fontWeight="medium">비밀번호 확인</FormLabel>
                 <Input
                   type="password"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  placeholder="Confirm your password"
+                  placeholder="비밀번호를 다시 입력해주세요"
+                  borderRadius="xl"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: "purple.300" }}
+                  _focus={{ 
+                    borderColor: "purple.500", 
+                    boxShadow: "0 0 0 1px rgba(102, 126, 234, 0.3)" 
+                  }}
+                  transition="all 0.3s ease"
+                  py={6}
                 />
                 <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.name}>
-                <FormLabel>Name</FormLabel>
+                <FormLabel color="gray.700" fontWeight="medium">이름</FormLabel>
                 <Input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Enter your name"
+                  placeholder="실명을 입력해주세요"
+                  borderRadius="xl"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: "purple.300" }}
+                  _focus={{ 
+                    borderColor: "purple.500", 
+                    boxShadow: "0 0 0 1px rgba(102, 126, 234, 0.3)" 
+                  }}
+                  transition="all 0.3s ease"
+                  py={6}
                 />
                 <FormErrorMessage>{errors.name}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.nickname}>
-                <FormLabel>Nickname</FormLabel>
+                <FormLabel color="gray.700" fontWeight="medium">닉네임</FormLabel>
                 <Input
                   type="text"
                   name="nickname"
                   value={formData.nickname}
                   onChange={handleChange}
-                  placeholder="Enter your nickname"
+                  placeholder="다른 사람들에게 보여질 이름을 입력해주세요"
+                  borderRadius="xl"
+                  border="2px solid"
+                  borderColor="gray.200"
+                  _hover={{ borderColor: "purple.300" }}
+                  _focus={{ 
+                    borderColor: "purple.500", 
+                    boxShadow: "0 0 0 1px rgba(102, 126, 234, 0.3)" 
+                  }}
+                  transition="all 0.3s ease"
+                  py={6}
                 />
                 <FormErrorMessage>{errors.nickname}</FormErrorMessage>
               </FormControl>
 
               <Button
                 type="submit"
-                colorScheme="blue"
+                bg="linear-gradient(45deg, #667eea, #764ba2)"
+                color="white"
                 width="full"
-                mt={4}
+                mt={6}
+                py={7}
+                borderRadius="xl"
+                fontSize="lg"
+                fontWeight="bold"
                 isLoading={isSubmitting}
-                loadingText="Signing up"
+                loadingText="계정 생성 중..."
+                _hover={{
+                  bg: "linear-gradient(45deg, #5a6fd8, #6a4190)",
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 10px 30px rgba(102, 126, 234, 0.4)"
+                }}
+                _active={{
+                  transform: "translateY(0px)"
+                }}
+                transition="all 0.3s ease"
               >
-                Sign Up
+                추억 여행 시작하기 🚀
               </Button>
             </VStack>
           </form>

@@ -34,8 +34,11 @@ const IntroBanner: React.FC = () => {
           fontWeight="bold"
           whiteSpace="nowrap"
           className="banner-scroll"
+          display="flex"
+          alignItems="center"
+          gap={3}
         >
-          🌟 Memory - 소중한 추억을 아름답게 기록하고 영원히 간직하는 디지털 추억 저장소 ✨
+          ✨ 당신의 이야기가 시작되는 곳 • 💫 특별한 순간들을 영원히 간직하세요 • 🎨 아름다운 추억이 살아 숨쉬는 공간 • 💝 소중한 사람들과 함께하는 기억의 여행 ✨
         </Text>
       </Box>
     </Box>

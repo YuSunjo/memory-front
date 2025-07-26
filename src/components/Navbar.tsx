@@ -37,9 +37,15 @@ const Navbar: React.FC = () => {
       align="center"
       justify="space-between"
       padding="1rem 2rem"
-      bg="white"
-      boxShadow="0 2px 4px rgba(0, 0, 0, 0.1)"
+      bg="rgba(255, 255, 255, 0.95)"
+      backdropFilter="blur(20px)"
+      boxShadow="0 8px 32px rgba(31, 38, 135, 0.37)"
+      borderBottom="1px solid rgba(255, 255, 255, 0.18)"
       width="100%"
+      position="sticky"
+      top="0"
+      zIndex="100"
+      transition="all 0.3s ease"
     >
       <Box>
         <Box>
@@ -54,58 +60,94 @@ const Navbar: React.FC = () => {
             }}
           />
         </Box>
-        <HStack spacing={4} mt={2}>
+        <HStack spacing={6} mt={2}>
           <Text 
             fontSize="sm" 
-            fontWeight={location.pathname === '/memories-with-relationship' ? "bold" : "normal"}
-            color={location.pathname === '/memories-with-relationship' ? "blue.500" : "gray.600"} 
+            fontWeight={location.pathname === '/my-memories' ? "bold" : "medium"}
+            color={location.pathname === '/my-memories' ? "white" : "gray.700"} 
             cursor="pointer" 
-            _hover={{ color: "blue.500" }}
-            onClick={() => navigate('/memories-with-relationship')}
-            borderBottom={location.pathname === '/memories-with-relationship' ? "2px solid" : "none"}
-            borderColor="blue.500"
-            pb={1}
-          >
-            Memories with relationship
-          </Text>
-          <Text 
-            fontSize="sm" 
-            fontWeight={location.pathname === '/my-memories' ? "bold" : "normal"}
-            color={location.pathname === '/my-memories' ? "blue.500" : "gray.600"} 
-            cursor="pointer" 
-            _hover={{ color: "blue.500" }}
+            _hover={{ 
+              color: "white",
+              transform: "translateY(-2px)",
+              textShadow: "0 4px 8px rgba(0, 0, 0, 0.3)"
+            }}
             onClick={() => navigate('/my-memories')}
-            borderBottom={location.pathname === '/my-memories' ? "2px solid" : "none"}
-            borderColor="blue.500"
-            pb={1}
+            bg={location.pathname === '/my-memories' ? "linear-gradient(45deg, #667eea, #764ba2)" : "transparent"}
+            px={location.pathname === '/my-memories' ? 4 : 0}
+            py={location.pathname === '/my-memories' ? 2 : 1}
+            borderRadius="full"
+            transition="all 0.3s ease"
+            display="flex"
+            alignItems="center"
+            gap={2}
           >
-            My Memories
+            <span>💝</span> 추억 갤러리
           </Text>
           <Text 
             fontSize="sm" 
-            fontWeight={location.pathname === '/sharing-memories' ? "bold" : "normal"}
-            color={location.pathname === '/sharing-memories' ? "blue.500" : "gray.600"} 
+            fontWeight={location.pathname === '/memories-with-relationship' ? "bold" : "medium"}
+            color={location.pathname === '/memories-with-relationship' ? "white" : "gray.700"} 
             cursor="pointer" 
-            _hover={{ color: "blue.500" }}
+            _hover={{ 
+              color: "white",
+              transform: "translateY(-2px)",
+              textShadow: "0 4px 8px rgba(0, 0, 0, 0.3)"
+            }}
+            onClick={() => navigate('/memories-with-relationship')}
+            bg={location.pathname === '/memories-with-relationship' ? "linear-gradient(45deg, #667eea, #764ba2)" : "transparent"}
+            px={location.pathname === '/memories-with-relationship' ? 4 : 0}
+            py={location.pathname === '/memories-with-relationship' ? 2 : 1}
+            borderRadius="full"
+            transition="all 0.3s ease"
+            display="flex"
+            alignItems="center"
+            gap={2}
+          >
+            <span>👥</span> 함께한 순간
+          </Text>
+          <Text 
+            fontSize="sm" 
+            fontWeight={location.pathname === '/sharing-memories' ? "bold" : "medium"}
+            color={location.pathname === '/sharing-memories' ? "white" : "gray.700"} 
+            cursor="pointer" 
+            _hover={{ 
+              color: "white",
+              transform: "translateY(-2px)",
+              textShadow: "0 4px 8px rgba(0, 0, 0, 0.3)"
+            }}
             onClick={() => navigate('/sharing-memories')}
-            borderBottom={location.pathname === '/sharing-memories' ? "2px solid" : "none"}
-            borderColor="blue.500"
-            pb={1}
+            bg={location.pathname === '/sharing-memories' ? "linear-gradient(45deg, #667eea, #764ba2)" : "transparent"}
+            px={location.pathname === '/sharing-memories' ? 4 : 0}
+            py={location.pathname === '/sharing-memories' ? 2 : 1}
+            borderRadius="full"
+            transition="all 0.3s ease"
+            display="flex"
+            alignItems="center"
+            gap={2}
           >
-            Sharing Memories
+            <span>🌟</span> 발견하기
           </Text>
           <Text 
             fontSize="sm" 
-            fontWeight={location.pathname === '/memory-quest' ? "bold" : "normal"}
-            color={location.pathname === '/memory-quest' ? "blue.500" : "gray.600"} 
+            fontWeight={location.pathname === '/memory-quest' ? "bold" : "medium"}
+            color={location.pathname === '/memory-quest' ? "white" : "gray.700"} 
             cursor="pointer" 
-            _hover={{ color: "blue.500" }}
+            _hover={{ 
+              color: "white",
+              transform: "translateY(-2px)",
+              textShadow: "0 4px 8px rgba(0, 0, 0, 0.3)"
+            }}
             onClick={() => navigate('/memory-quest')}
-            borderBottom={location.pathname === '/memory-quest' ? "2px solid" : "none"}
-            borderColor="blue.500"
-            pb={1}
+            bg={location.pathname === '/memory-quest' ? "linear-gradient(45deg, #667eea, #764ba2)" : "transparent"}
+            px={location.pathname === '/memory-quest' ? 4 : 0}
+            py={location.pathname === '/memory-quest' ? 2 : 1}
+            borderRadius="full"
+            transition="all 0.3s ease"
+            display="flex"
+            alignItems="center"
+            gap={2}
           >
-            🎮 Memory Quest
+            <span>🎯</span> 추억 탐험
           </Text>
         </HStack>
       </Box>
@@ -188,18 +230,26 @@ const Navbar: React.FC = () => {
                   cursor="pointer"
                 />
               </MenuButton>
-              <MenuList>
-                <MenuItem onClick={() => navigate('/profile')}>
-                  <Text fontWeight="bold">Profile</Text>
+              <MenuList borderRadius="xl" boxShadow="0 10px 30px rgba(0, 0, 0, 0.1)">
+                <MenuItem onClick={() => navigate('/profile')} borderRadius="lg" _hover={{ bg: 'purple.50' }}>
+                  <Text fontWeight="bold" display="flex" alignItems="center" gap={2}>
+                    <span>👤</span> 내 프로필
+                  </Text>
                 </MenuItem>
-                <MenuItem onClick={() => navigate('/relationship')}>
-                  <Text fontWeight="bold">Relationship</Text>
+                <MenuItem onClick={() => navigate('/relationship')} borderRadius="lg" _hover={{ bg: 'purple.50' }}>
+                  <Text fontWeight="bold" display="flex" alignItems="center" gap={2}>
+                    <span>💕</span> 소중한 사람들
+                  </Text>
                 </MenuItem>
-                <MenuItem onClick={() => navigate('/calendar')}>
-                  <Text fontWeight="bold">Calendar</Text>
+                <MenuItem onClick={() => navigate('/calendar')} borderRadius="lg" _hover={{ bg: 'purple.50' }}>
+                  <Text fontWeight="bold" display="flex" alignItems="center" gap={2}>
+                    <span>📅</span> 일정 관리
+                  </Text>
                 </MenuItem>
-                <MenuItem onClick={handleLogout}>
-                  <Text color="red.500">Logout</Text>
+                <MenuItem onClick={handleLogout} borderRadius="lg" _hover={{ bg: 'red.50' }}>
+                  <Text color="red.500" fontWeight="medium" display="flex" alignItems="center" gap={2}>
+                    <span>👋</span> 로그아웃
+                  </Text>
                 </MenuItem>
               </MenuList>
             </Menu>
@@ -209,18 +259,30 @@ const Navbar: React.FC = () => {
             <Button 
               variant="ghost" 
               color="gray.700" 
-              _hover={{ bg: 'gray.100' }}
+              _hover={{ 
+                bg: 'rgba(255, 255, 255, 0.2)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+              }}
+              transition="all 0.3s ease"
               onClick={() => navigate('/login')}
             >
-              Login
+              로그인
             </Button>
             <Button 
-              bg="#646cff" 
+              bg="linear-gradient(45deg, #667eea, #764ba2)" 
               color="white" 
-              _hover={{ bg: '#535bf2' }}
+              _hover={{ 
+                bg: 'linear-gradient(45deg, #5a6fd8, #6a4190)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 25px rgba(102, 126, 234, 0.4)'
+              }}
+              transition="all 0.3s ease"
+              borderRadius="full"
+              px={6}
               onClick={() => navigate('/signup')}
             >
-              SignUp
+              시작하기 ✨
             </Button>
           </>
         )}

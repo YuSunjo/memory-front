@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Flex, Box, Spinner, Alert, AlertIcon } from '@chakra-ui/react';
+import { Container, Flex, Box, Spinner, Alert, AlertIcon, Text, Button } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import GoogleMap from '../components/GoogleMap';
 import type {LocationData, MapData} from '../types';
@@ -53,13 +53,43 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <Container maxW="container.xl" p={0} flex="1">
-      <Flex direction="column" height="calc(100vh - 72px)">
-        {/* Google Map - takes up 2/3 of the screen height */}
-        <Box height="66.67%" width="100%">
-          <Flex height="100%">
-            {/* Google Map - takes up 2/3 of the screen width */}
-            <Box width="66.67%" height="100%" position="relative">
+    <Container maxW="container.xl" p={6} flex="1">
+      {/* Welcome Hero Section */}
+      <Box 
+        mb={8} 
+        p={8} 
+        bg="rgba(255, 255, 255, 0.9)"
+        backdropFilter="blur(20px)"
+        borderRadius="3xl"
+        boxShadow="0 25px 50px rgba(0, 0, 0, 0.15)"
+        textAlign="center"
+      >
+        <Text 
+          fontSize="3xl" 
+          fontWeight="bold" 
+          bgGradient="linear(45deg, #667eea, #764ba2)"
+          bgClip="text"
+          mb={4}
+        >
+          안녕하세요! 오늘도 특별한 하루를 기록해보세요 ✨
+        </Text>
+        <Text fontSize="lg" color="gray.600" maxW="2xl" mx="auto">
+          당신의 소중한 순간들이 아름다운 추억으로 남을 수 있도록 도와드릴게요
+        </Text>
+      </Box>
+
+      <Flex direction="column" gap={6}>
+        {/* Dashboard Grid */}
+        <Flex height="500px" gap={6}>
+          {/* Interactive Map Section */}
+          <Box 
+            width="60%" 
+            height="100%" 
+            position="relative"
+            borderRadius="3xl"
+            overflow="hidden"
+            boxShadow="0 20px 40px rgba(0, 0, 0, 0.1)"
+          >
               {loading && (
                 <Box 
                   position="absolute" 
@@ -99,18 +129,76 @@ const HomePage: React.FC = () => {
               />
             </Box>
 
-            {/* Content - takes up 1/3 of the screen width */}
-            <Box width="33.33%" height="100%">
-              {/* Top section - Upcoming events */}
-              <UpcomingEvents />
-
-              {/* Bottom section - Save a map */}
-              <SaveMap 
-                selectedLocation={selectedLocation} 
-                onMapSaved={fetchMaps}
-              />
+          {/* Dashboard Sidebar */}
+          <Box width="40%" height="100%" display="flex" flexDirection="column" gap={4}>
+            {/* Quick Actions */}
+            <Box 
+              p={6} 
+              bg="rgba(255, 255, 255, 0.8)"
+              backdropFilter="blur(10px)"
+              borderRadius="2xl"
+              boxShadow="0 10px 30px rgba(0, 0, 0, 0.1)"
+              height="40%"
+            >
+              <Text 
+                fontSize="lg" 
+                fontWeight="bold" 
+                mb={4}
+                bgGradient="linear(45deg, #667eea, #764ba2)"
+                bgClip="text"
+              >
+                🚀 빠른 시작
+              </Text>
+              <Flex direction="column" gap={3}>
+                <Button
+                  leftIcon={<span>📝</span>}
+                  bg="linear-gradient(45deg, #667eea, #764ba2)"
+                  color="white"
+                  borderRadius="xl"
+                  _hover={{
+                    bg: "linear-gradient(45deg, #5a6fd8, #6a4190)",
+                    transform: "translateY(-2px)",
+                  }}
+                  transition="all 0.3s ease"
+                  onClick={() => navigate('/create-memory')}
+                >
+                  새로운 추억 만들기
+                </Button>
+                <Button
+                  leftIcon={<span>💝</span>}
+                  variant="outline"
+                  borderColor="purple.300"
+                  color="purple.600"
+                  borderRadius="xl"
+                  _hover={{
+                    bg: "purple.50",
+                    transform: "translateY(-2px)",
+                  }}
+                  transition="all 0.3s ease"
+                  onClick={() => navigate('/my-memories')}
+                >
+                  내 갤러리 보기
+                </Button>
+              </Flex>
             </Box>
-          </Flex>
+
+            {/* Upcoming Events */}
+            <UpcomingEvents />
+          </Box>
+        </Flex>
+
+        {/* Save Map Section */}
+        <Box 
+          p={6} 
+          bg="rgba(255, 255, 255, 0.8)"
+          backdropFilter="blur(10px)"
+          borderRadius="2xl"
+          boxShadow="0 10px 30px rgba(0, 0, 0, 0.1)"
+        >
+          <SaveMap 
+            selectedLocation={selectedLocation} 
+            onMapSaved={fetchMaps}
+          />
         </Box>
       </Flex>
     </Container>

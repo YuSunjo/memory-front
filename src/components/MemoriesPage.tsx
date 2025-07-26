@@ -1,7 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Container, Box, Heading, VStack, Button, Flex, Spinner, Center } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
-import { useNavigate } from 'react-router-dom';
+import { Container, Box, Heading, VStack, Spinner, Center } from '@chakra-ui/react';
 import MemoryCard from './MemoryCard';
 import useAuth from '../hooks/useAuth';
 import useMemories from '../hooks/useMemories';
@@ -13,7 +11,6 @@ interface MemoriesPageProps {
 }
 
 const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireAuth = true }) => {
-  const navigate = useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingRef = useRef<HTMLDivElement | null>(null);
 
@@ -27,10 +24,6 @@ const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireA
   });
 
   const fetchMemoriesRef = useRef(fetchMemories);
-
-  const handleCreateMemory = () => {
-    navigate('/create-memory');
-  };
 
   // fetchMemories ref 업데이트
   useEffect(() => {
@@ -69,16 +62,26 @@ const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireA
   return (
     <Container maxW="container.lg" centerContent flex="1" py={8}>
       <Box width="100%" maxW="600px">
-        <Flex justifyContent="space-between" alignItems="center" mb={6} width="100%">
-          <Heading as="h1" size="xl">{title}</Heading>
-          <Button 
-            colorScheme="blue" 
-            onClick={handleCreateMemory}
-            leftIcon={<AddIcon />}
+        <Box mb={8} textAlign="center">
+          <Heading 
+            as="h1" 
+            size="2xl" 
+            bgGradient="linear(45deg, #667eea, #764ba2)"
+            bgClip="text"
+            fontWeight="bold"
+            mb={4}
           >
-            Create Memory
-          </Button>
-        </Flex>
+            {title}
+          </Heading>
+          <Box 
+            height="4px" 
+            width="80px" 
+            bg="linear-gradient(45deg, #667eea, #764ba2)"
+            borderRadius="full"
+            mx="auto"
+            opacity={0.6}
+          />
+        </Box>
 
         <VStack spacing={8} align="stretch">
           {memories.map(memory => (
