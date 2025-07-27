@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { 
   Box, 
   VStack, 
@@ -19,24 +19,24 @@ const UpcomingEvents: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { fetchDdayEvents } = useCalendarService();
 
-  useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const ddayEvents = await fetchDdayEvents();
-        console.log('📅 Fetched dday events:', ddayEvents); // 디버깅용
-        setEvents(ddayEvents);
-      } catch (err) {
-        setError('Failed to load upcoming events');
-        console.error('Error loading dday events:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadEvents = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const ddayEvents = await fetchDdayEvents();
+      console.log('📅 Fetched dday events:', ddayEvents); // 디버깅용
+      setEvents(ddayEvents);
+    } catch (err) {
+      setError('Failed to load upcoming events');
+      console.error('Error loading dday events:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchDdayEvents]); // fetchDdayEvents가 이제 useCallback으로 메모이제이션됨
 
+  useEffect(() => {
     loadEvents();
-  }, []);
+  }, [loadEvents]);
 
   const formatDday = (daysUntil: number | undefined | null): { text: string; color: string } => {
     // 안전한 dday 처리
@@ -77,12 +77,27 @@ const UpcomingEvents: React.FC = () => {
 
   if (loading) {
     return (
-      <Box height="50%" p={4} borderBottom="1px" borderColor="gray.200">
+      <Box 
+        height="50%" 
+        p={6} 
+        bg="rgba(255, 255, 255, 0.8)"
+        backdropFilter="blur(10px)"
+        borderRadius="2xl"
+        boxShadow="0 10px 30px rgba(0, 0, 0, 0.1)"
+      >
         <VStack spacing={4} align="start">
-          <Heading as="h2" size="lg" color="gray.700">Upcoming events</Heading>
+          <Heading 
+            as="h2" 
+            size="lg" 
+            bgGradient="linear(45deg, #667eea, #764ba2)"
+            bgClip="text"
+            fontWeight="bold"
+          >
+            📅 다가오는 일정
+          </Heading>
           <HStack>
-            <Spinner size="sm" />
-            <Text fontSize="md" color="gray.600">Loading events...</Text>
+            <Spinner size="sm" color="purple.500" />
+            <Text fontSize="md" color="gray.600">일정을 불러오고 있어요...</Text>
           </HStack>
         </VStack>
       </Box>
@@ -118,21 +133,44 @@ const UpcomingEvents: React.FC = () => {
   }
 
   return (
-    <Box height="50%" p={4} borderBottom="1px" borderColor="gray.200" overflowY="auto">
+    <Box 
+      height="50%" 
+      p={6} 
+      bg="rgba(255, 255, 255, 0.8)"
+      backdropFilter="blur(10px)"
+      borderRadius="2xl"
+      boxShadow="0 10px 30px rgba(0, 0, 0, 0.1)"
+      overflowY="auto"
+    >
       <VStack spacing={4} align="stretch">
-        <Heading as="h2" size="lg" color="gray.700">Upcoming events</Heading>
+        <Heading 
+          as="h2" 
+          size="lg" 
+          bgGradient="linear(45deg, #667eea, #764ba2)"
+          bgClip="text"
+          fontWeight="bold"
+        >
+          📅 다가오는 일정
+        </Heading>
         {events.map((event) => {
           console.log('🔍 Event data:', event); // 디버깅용
           const dday = formatDday(event.dday);
           return (
             <Box
               key={event.id}
-              p={3}
-              borderRadius="md"
-              border="1px"
-              borderColor="gray.200"
-              bg="white"
-              _hover={{ bg: 'gray.50' }}
+              p={4}
+              borderRadius="xl"
+              bg="rgba(255, 255, 255, 0.7)"
+              backdropFilter="blur(5px)"
+              border="1px solid"
+              borderColor="rgba(255, 255, 255, 0.3)"
+              boxShadow="0 4px 15px rgba(0, 0, 0, 0.05)"
+              transition="all 0.3s ease"
+              _hover={{ 
+                bg: 'rgba(255, 255, 255, 0.9)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)'
+              }}
             >
               <HStack justify="space-between" align="start">
                 <VStack align="start" spacing={1} flex={1}>
@@ -149,11 +187,16 @@ const UpcomingEvents: React.FC = () => {
                   )}
                 </VStack>
                 <Badge
-                  colorScheme={dday.color}
-                  variant="solid"
+                  bg={dday.color === 'red' ? 'linear-gradient(45deg, #e53e3e, #c53030)' : 
+                      dday.color === 'blue' ? 'linear-gradient(45deg, #667eea, #764ba2)' : 
+                      'linear-gradient(45deg, #a0aec0, #718096)'}
+                  color="white"
                   fontSize="xs"
-                  px={2}
+                  px={3}
                   py={1}
+                  borderRadius="full"
+                  fontWeight="bold"
+                  boxShadow="0 2px 8px rgba(0, 0, 0, 0.15)"
                 >
                   {dday.text}
                 </Badge>

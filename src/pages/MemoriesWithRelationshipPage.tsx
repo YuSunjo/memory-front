@@ -2,7 +2,13 @@ import React from 'react';
 import MemoriesPage from '../components/MemoriesPage';
 
 const MemoriesWithRelationshipPage: React.FC = () => {
-  return <MemoriesPage title="Memories with Relationship" memoryType="RELATIONSHIP" />;
+  return (
+    <MemoriesPage 
+      title="👥 함께한 순간들" 
+      memoryType="RELATIONSHIP" 
+      requireAuth={true} 
+    />
+  );
 };
 
 export default MemoriesWithRelationshipPage;

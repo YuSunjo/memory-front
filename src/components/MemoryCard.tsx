@@ -53,7 +53,20 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
   };
 
   return (
-    <Box borderWidth="1px" borderRadius="lg" overflow="hidden" boxShadow="md" bg="white" mb={6}>
+    <Box 
+      borderWidth="0px" 
+      borderRadius="2xl" 
+      overflow="hidden" 
+      boxShadow="0 20px 40px rgba(0, 0, 0, 0.1)" 
+      bg="rgba(255, 255, 255, 0.95)"
+      backdropFilter="blur(20px)"
+      mb={8}
+      transition="all 0.3s ease"
+      _hover={{
+        transform: "translateY(-8px)",
+        boxShadow: "0 30px 60px rgba(0, 0, 0, 0.15)"
+      }}
+    >
       {/* Author header */}
       <Flex p={3} align="center" justify="space-between">
         <HStack spacing={3} align="center">
@@ -78,9 +91,16 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
           icon={<ViewIcon />}
           size="sm"
           variant="ghost"
-          colorScheme="blue"
+          bg="linear-gradient(45deg, #667eea, #764ba2)"
+          color="white"
+          borderRadius="full"
           onClick={handleViewDetail}
-          _hover={{ bg: 'blue.50' }}
+          _hover={{ 
+            bg: 'linear-gradient(45deg, #5a6fd8, #6a4190)',
+            transform: 'scale(1.1)',
+            boxShadow: '0 8px 25px rgba(102, 126, 234, 0.4)'
+          }}
+          transition="all 0.3s ease"
         />
       </Flex>
 
@@ -119,13 +139,20 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
                 <path d="M15 19L8 12L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>}
               position="absolute"
-              left="2"
+              left="3"
               top="50%"
               transform="translateY(-50%)"
               borderRadius="full"
-              bg="white"
-              opacity="0.7"
-              _hover={{ opacity: 1 }}
+              bg="rgba(255, 255, 255, 0.9)"
+              backdropFilter="blur(10px)"
+              boxShadow="0 8px 32px rgba(31, 38, 135, 0.37)"
+              opacity="0.8"
+              _hover={{ 
+                opacity: 1, 
+                transform: "translateY(-50%) scale(1.1)",
+                bg: "rgba(255, 255, 255, 0.95)"
+              }}
+              transition="all 0.3s ease"
               onClick={handlePrevImage}
             />
             <IconButton
@@ -134,13 +161,20 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
                 <path d="M9 5L16 12L9 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>}
               position="absolute"
-              right="2"
+              right="3"
               top="50%"
               transform="translateY(-50%)"
               borderRadius="full"
-              bg="white"
-              opacity="0.7"
-              _hover={{ opacity: 1 }}
+              bg="rgba(255, 255, 255, 0.9)"
+              backdropFilter="blur(10px)"
+              boxShadow="0 8px 32px rgba(31, 38, 135, 0.37)"
+              opacity="0.8"
+              _hover={{ 
+                opacity: 1, 
+                transform: "translateY(-50%) scale(1.1)",
+                bg: "rgba(255, 255, 255, 0.95)"
+              }}
+              transition="all 0.3s ease"
               onClick={handleNextImage}
             />
           </>
@@ -184,9 +218,26 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
 
         {/* Hash tags */}
         {hashTags && hashTags.length > 0 && (
-          <Flex wrap="wrap" gap={1} mt={2}>
+          <Flex wrap="wrap" gap={2} mt={3}>
             {hashTags.map((tag, index) => (
-              <Tag key={index} size="sm" colorScheme="blue" variant="subtle">
+              <Tag 
+                key={index} 
+                size="sm" 
+                bg="linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1))"
+                color="gray.700"
+                borderRadius="full"
+                px={3}
+                py={1}
+                fontSize="xs"
+                fontWeight="medium"
+                border="1px solid"
+                borderColor="rgba(102, 126, 234, 0.2)"
+                _hover={{
+                  bg: "linear-gradient(45deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2))",
+                  transform: "scale(1.05)"
+                }}
+                transition="all 0.2s ease"
+              >
                 #{tag}
               </Tag>
             ))}
@@ -203,7 +254,13 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
             size="sm"
             colorScheme="gray"
             onClick={handleViewDetail}
-            _hover={{ bg: 'gray.50' }}
+            borderRadius="full"
+            _hover={{ 
+              bg: 'rgba(102, 126, 234, 0.1)', 
+              color: 'purple.600',
+              transform: 'scale(1.05)'
+            }}
+            transition="all 0.3s ease"
           >
             댓글 {comments}개
           </Button>

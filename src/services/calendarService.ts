@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import useApi from '../hooks/useApi';
 import type {TodoResponse, DiaryResponse, EventResponse, DdayEventResponse, TodoRequest, DiaryRequest, EventRequest, CombinedTodoResponse} from '../types/calendar';
 
@@ -107,26 +108,23 @@ export const useCalendarService = () => {
     }
   };
 
-  const fetchDdayEvents = async (): Promise<DdayEventResponse[]> => {
+  const fetchDdayEvents = useCallback(async (): Promise<DdayEventResponse[]> => {
     try {
       const response = await api.get<DdayEventResponse[]>('/v1/calendar/events/dday');
-      console.log('🔥 Raw API response:', response.data); // 디버깅용
       
       const data = response.data.data;
       
       // 배열이 비어있는 경우
       if (!data || !Array.isArray(data) || data.length === 0) {
-        console.log('💭 No dday events found');
         return [];
       }
       
-      console.log(`📅 Found ${data.length} dday events`);
       return data;
     } catch (error) {
       console.error('Error fetching dday events:', error);
       return [];
     }
-  };
+  }, [api]);
 
   return {
     fetchTodos,

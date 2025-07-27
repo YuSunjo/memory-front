@@ -209,7 +209,7 @@ const MemoryQuestPage: React.FC = () => {
   }
 
   return (
-    <Container maxW="container.xl" py={8}>
+    <Container maxW="container.xl" py={8} px={{ base: 4, md: 8 }} pb={{ base: 24, lg: 8 }}>
       <VStack spacing={8} align="stretch">
         {/* 헤더 섹션 */}
         <Box
@@ -232,12 +232,14 @@ const MemoryQuestPage: React.FC = () => {
         <VStack spacing={6} align="stretch">
           <Heading size="lg" textAlign="center">게임 모드 선택</Heading>
           
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6} w="100%">
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6} w="100%" justifyItems="center">
             {/* 내 추억 모드 */}
             <Card 
               bg={cardBg} 
               shadow="lg" 
               borderRadius="xl" 
+              w="100%"
+              maxW="320px"
               _hover={{ transform: "translateY(-4px)", shadow: "xl" }}
               transition="all 0.3s"
               cursor="pointer"
@@ -294,6 +296,8 @@ const MemoryQuestPage: React.FC = () => {
               bg={cardBg} 
               shadow="lg" 
               borderRadius="xl" 
+              w="100%"
+              maxW="320px"
               _hover={{ transform: "translateY(-4px)", shadow: "xl" }}
               transition="all 0.3s"
               cursor="pointer"
@@ -323,7 +327,8 @@ const MemoryQuestPage: React.FC = () => {
               bg={cardBg} 
               shadow="lg" 
               borderRadius="xl" 
-              w={{ base: "100%", md: "300px" }}
+              w="100%"
+              maxW="320px"
               _hover={{ transform: "translateY(-4px)", shadow: "xl" }}
               transition="all 0.3s"
               cursor="pointer"

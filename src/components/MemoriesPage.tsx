@@ -1,10 +1,9 @@
 import React, { useRef, useEffect } from 'react';
-import { Container, Box, Heading, VStack, Button, Flex, Spinner, Center } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
-import { useNavigate } from 'react-router-dom';
-import MemoryCard from './MemoryCard';
+import { Box, VStack, Spinner, Center } from '@chakra-ui/react';
+import ResponsiveMemoryCard from './ResponsiveMemoryCard';
 import useAuth from '../hooks/useAuth';
 import useMemories from '../hooks/useMemories';
+import { ResponsiveContainer, HeroSection } from './design-system';
 
 interface MemoriesPageProps {
   title: string;
@@ -13,7 +12,6 @@ interface MemoriesPageProps {
 }
 
 const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireAuth = true }) => {
-  const navigate = useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingRef = useRef<HTMLDivElement | null>(null);
 
@@ -27,10 +25,6 @@ const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireA
   });
 
   const fetchMemoriesRef = useRef(fetchMemories);
-
-  const handleCreateMemory = () => {
-    navigate('/create-memory');
-  };
 
   // fetchMemories ref 업데이트
   useEffect(() => {
@@ -67,22 +61,24 @@ const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireA
   }, [isInitialLoad, hasMore, loading]);
 
   return (
-    <Container maxW="container.lg" centerContent flex="1" py={8}>
-      <Box width="100%" maxW="600px">
-        <Flex justifyContent="space-between" alignItems="center" mb={6} width="100%">
-          <Heading as="h1" size="xl">{title}</Heading>
-          <Button 
-            colorScheme="blue" 
-            onClick={handleCreateMemory}
-            leftIcon={<AddIcon />}
-          >
-            Create Memory
-          </Button>
-        </Flex>
+    <ResponsiveContainer maxWidth="lg" centerContent padding>
+      <Box width="100%" py={8}>
+        <HeroSection
+          title={title}
+          variant="minimal"
+          textAlign="center"
+          mb={8}
+        />
 
-        <VStack spacing={8} align="stretch">
+        <VStack 
+          spacing={{ base: 6, md: 8 }} 
+          align="stretch"
+          width="100%"
+          maxWidth="600px"
+          mx="auto"
+        >
           {memories.map(memory => (
-            <MemoryCard 
+            <ResponsiveMemoryCard 
               key={memory.id}
               memoryId={memory.id}
               images={memory.files.map(file => file.fileUrl)}
@@ -100,11 +96,21 @@ const MemoriesPage: React.FC<MemoriesPageProps> = ({ title, memoryType, requireA
         </VStack>
 
         {/* Loading indicator */}
-        <Center ref={loadingRef} py={4}>
-          {loading && <Spinner size="md" />}
+        <Center 
+          ref={loadingRef} 
+          py={8}
+          minHeight="60px"
+        >
+          {loading && (
+            <Spinner 
+              size="lg" 
+              color="brand.500"
+              thickness="3px"
+            />  
+          )}
         </Center>
       </Box>
-    </Container>
+    </ResponsiveContainer>
   );
 };
 

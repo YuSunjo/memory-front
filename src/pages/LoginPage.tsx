@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
 import {
   Box,
-  Button,
   FormControl,
   FormLabel,
   Input,
   VStack,
-  Heading,
-  Text,
   FormErrorMessage,
   useToast,
-  Container
+  useBreakpointValue
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import useMemberStore from '../store/memberStore';
+import { 
+  GradientButton, 
+  ResponsiveContainer,
+  Card,
+  Title,
+  Body
+} from '../components/design-system';
+import { designTokens } from '../theme/tokens';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -113,54 +118,109 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  // Responsive configurations
+  const formPadding = useBreakpointValue({ 
+    base: designTokens.spacing.md, 
+    md: designTokens.spacing.lg, 
+    lg: designTokens.spacing.xl 
+  });
+
+  const containerMaxWidth = useBreakpointValue({ 
+    base: '100%', 
+    md: '500px', 
+    lg: '600px' 
+  });
+
   return (
-    <Container maxW="container.md" py={8}>
-      <Box bg="white" p={8} rounded="md" shadow="md">
-        <VStack spacing={6} align="stretch">
-          <Heading as="h1" size="xl" textAlign="center">Login</Heading>
-          <Text textAlign="center" color="gray.600">Sign in to your account</Text>
-
-          <form onSubmit={handleSubmit}>
-            <VStack spacing={4}>
-              <FormControl isInvalid={!!errors.email}>
-                <FormLabel>Email</FormLabel>
-                <Input 
-                  type="email" 
-                  name="email" 
-                  value={formData.email} 
-                  onChange={handleChange} 
-                  placeholder="Enter your email"
-                />
-                <FormErrorMessage>{errors.email}</FormErrorMessage>
-              </FormControl>
-
-              <FormControl isInvalid={!!errors.password}>
-                <FormLabel>Password</FormLabel>
-                <Input 
-                  type="password" 
-                  name="password" 
-                  value={formData.password} 
-                  onChange={handleChange} 
-                  placeholder="Enter your password"
-                />
-                <FormErrorMessage>{errors.password}</FormErrorMessage>
-              </FormControl>
-
-              <Button 
-                type="submit" 
-                colorScheme="blue" 
-                width="full" 
-                mt={4} 
-                isLoading={isSubmitting || isLoading}
-                loadingText="Logging in"
+    <ResponsiveContainer maxWidth="md" centerContent padding>
+      <Box py={8} width="100%" maxWidth={containerMaxWidth}>
+        <Card 
+          p={formPadding}
+          borderRadius="3xl"
+          border="1px solid"
+          borderColor="whiteAlpha.200"
+        >
+          <VStack spacing={6} align="stretch">
+            <VStack spacing={4} textAlign="center">
+              <Title 
+                gradient
+                responsive
+                fontSize={{ base: '2xl', md: '3xl' }}
               >
-                Login
-              </Button>
+                추억 속으로, 다시 돌아오셨네요 🌟
+              </Title>
+              <Body 
+                color="gray.600"
+                fontSize={{ base: 'md', md: 'lg' }}
+                maxW="md"
+              >
+                당신의 소중한 추억들이 기다리고 있어요
+              </Body>
             </VStack>
-          </form>
-        </VStack>
+
+            <form onSubmit={handleSubmit}>
+              <VStack spacing={5}>
+                <FormControl isInvalid={!!errors.email}>
+                  <FormLabel 
+                    color="gray.700" 
+                    fontWeight="medium"
+                    fontSize={{ base: 'sm', md: 'md' }}
+                  >
+                    이메일
+                  </FormLabel>
+                  <Input 
+                    type="email" 
+                    name="email" 
+                    value={formData.email} 
+                    onChange={handleChange} 
+                    placeholder="이메일을 입력해주세요"
+                    variant="glass"
+                    size={{ base: 'md', md: 'lg' }}
+                    fontSize={{ base: 'sm', md: 'md' }}
+                  />
+                  <FormErrorMessage fontSize="sm">{errors.email}</FormErrorMessage>
+                </FormControl>
+
+                <FormControl isInvalid={!!errors.password}>
+                  <FormLabel 
+                    color="gray.700" 
+                    fontWeight="medium"
+                    fontSize={{ base: 'sm', md: 'md' }}
+                  >
+                    비밀번호
+                  </FormLabel>
+                  <Input 
+                    type="password" 
+                    name="password" 
+                    value={formData.password} 
+                    onChange={handleChange} 
+                    placeholder="비밀번호를 입력해주세요"
+                    variant="glass"
+                    size={{ base: 'md', md: 'lg' }}
+                    fontSize={{ base: 'sm', md: 'md' }}
+                  />
+                  <FormErrorMessage fontSize="sm">{errors.password}</FormErrorMessage>
+                </FormControl>
+
+                <Box width="full" pt={4}>
+                  <GradientButton 
+                    type="submit" 
+                    variant="primary"
+                    size={useBreakpointValue({ base: 'md', md: 'lg' })}
+                    width="full"
+                    isLoading={isSubmitting || isLoading}
+                    loadingText="로그인 중..."
+                    glowOnHover
+                  >
+                    추억 속으로 떠나기 🌟
+                  </GradientButton>
+                </Box>
+              </VStack>
+            </form>
+          </VStack>
+        </Card>
       </Box>
-    </Container>
+    </ResponsiveContainer>
   );
 };
 
