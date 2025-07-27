@@ -50,6 +50,13 @@ export type { SkeletonLoaderProps } from './SkeletonLoader';
 export { default as LazyImage } from './LazyImage';
 export { default as ImageGallery } from './ImageGallery';
 
+// Phase 6: User Experience & Accessibility Components
+export { AccessibilityProvider, useAccessibility, useFocusManagement, useScreenReader, useMotionPreference } from './AccessibilityProvider';
+export { KeyboardNavigation, SkipLink, RovingTabIndex } from './KeyboardNavigation';
+export { TouchGestures, PullToRefresh } from './TouchGestures';
+export { PWAProvider, usePWA, useOfflineStorage } from './PWAProvider';
+export { OnboardingFlow, FeatureSpotlight } from './OnboardingFlow';
+
 export { 
   LikeButton,
   ActionButton 
