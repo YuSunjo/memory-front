@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import useApi from './useApi';
 import useAuth from './useAuth';
-import type { SearchRequest, SearchResponse, SearchData } from '../types/search';
+import type { SearchRequest, SearchData } from '../types/search';
 
 interface UseSearchServiceReturn {
   searchResults: SearchData | null;
@@ -36,7 +36,7 @@ export const useSearchService = (): UseSearchServiceReturn => {
         ...searchParams
       };
 
-      const response = await api.post<SearchResponse>(endpoint, requestBody);
+      const response = await api.post<SearchData, SearchRequest>(endpoint, requestBody);
 
       if (response.data.statusCode === 200) {
         setSearchResults(response.data.data);

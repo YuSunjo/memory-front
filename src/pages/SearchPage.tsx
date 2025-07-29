@@ -17,7 +17,6 @@ import type { AutocompleteSuggestion } from '../types/search';
 
 const SearchPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(0);
   const [hasSearched, setHasSearched] = useState(false);
 
   const { searchResults, loading, error, searchMemories, clearResults } = useSearchService();
@@ -36,7 +35,6 @@ const SearchPage: React.FC = () => {
     });
 
     setHasSearched(true);
-    setCurrentPage(page);
   }, [searchMemories]);
 
   // 자동완성에서 제안 선택 시
