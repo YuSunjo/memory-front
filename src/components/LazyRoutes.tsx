@@ -93,6 +93,10 @@ export const LazyMemoryDetailPage = createLazyRoute(
   () => import('../pages/MemoryDetailPage')
 );
 
+export const LazySearchPage = createLazyRoute(
+  () => import('../pages/SearchPage')
+);
+
 // Wrapper component with suspense and error boundary
 interface SuspenseRouteProps {
   children: React.ReactNode;
@@ -149,6 +153,7 @@ export default {
   LazyAboutPage,
   LazyLinkPage,
   LazyMemoryDetailPage,
+  LazySearchPage,
   SuspenseRoute,
   ContentRoute
 };

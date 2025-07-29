@@ -23,6 +23,7 @@ import {
   LazyAboutPage,
   LazyLinkPage,
   LazyMemoryDetailPage,
+  LazySearchPage,
   SuspenseRoute
 } from './LazyRoutes';
 
@@ -128,6 +129,11 @@ const AppContent: React.FC = () => {
         <Route path="/memory/:memoryId" element={
           <SuspenseRoute routeName="추억 상세">
             <LazyMemoryDetailPage />
+          </SuspenseRoute>
+        } />
+        <Route path="/search" element={
+          <SuspenseRoute routeName="검색">
+            <LazySearchPage />
           </SuspenseRoute>
         } />
       </Routes>

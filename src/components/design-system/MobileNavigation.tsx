@@ -53,6 +53,13 @@ const defaultNavigationItems: NavigationItem[] = [
     color: 'brand.500',
   },
   {
+    id: 'search',
+    path: '/search',
+    label: '검색',
+    icon: '🔍',
+    color: 'blue.500',
+  },
+  {
     id: 'memories',
     path: '/my-memories',
     label: '추억',

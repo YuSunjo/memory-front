@@ -50,6 +50,10 @@ export type { SkeletonLoaderProps } from './SkeletonLoader';
 export { default as LazyImage } from './LazyImage';
 export { default as ImageGallery } from './ImageGallery';
 
+// Search Components
+export { AutocompleteSearch } from './AutocompleteSearch';
+export type { AutocompleteSearchProps } from './AutocompleteSearch';
+
 // Phase 6: User Experience & Accessibility Components
 export { AccessibilityProvider, useAccessibility, useFocusManagement, useScreenReader, useMotionPreference } from './AccessibilityProvider';
 export { KeyboardNavigation, SkipLink, RovingTabIndex } from './KeyboardNavigation';
