@@ -55,88 +55,93 @@ const AppContent: React.FC = () => {
     >
       <IntroBanner />
       <ResponsiveNavbar />
-      <Routes>
-        <Route path="/" element={
-          <SuspenseRoute routeName="홈">
-            <LazyHomePage />
-          </SuspenseRoute>
-        } />
-        <Route path="/signup" element={
-          <SuspenseRoute routeName="회원가입">
-            <LazySignupPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/login" element={
-          <SuspenseRoute routeName="로그인">
-            <LazyLoginPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/profile" element={
-          <SuspenseRoute routeName="프로필">
-            <LazyProfilePage />
-          </SuspenseRoute>
-        } />
-        <Route path="/profile/edit" element={
-          <SuspenseRoute routeName="프로필 편집">
-            <LazyProfileEditPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/relationship" element={
-          <SuspenseRoute routeName="소중한 사람들">
-            <LazyRelationshipPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/memories-with-relationship" element={
-          <SuspenseRoute routeName="함께한 추억">
-            <LazyMemoriesWithRelationshipPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/my-memories" element={
-          <SuspenseRoute routeName="내 추억">
-            <LazyMyMemoriesPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/create-memory" element={
-          <SuspenseRoute routeName="추억 만들기">
-            <LazyCreateMemoryPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/sharing-memories" element={
-          <SuspenseRoute routeName="추억 공유">
-            <LazySharingMemoriesPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/memory-quest" element={
-          <SuspenseRoute routeName="추억 탐험">
-            <LazyMemoryQuestPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/calendar" element={
-          <SuspenseRoute routeName="캘린더">
-            <LazyCalendarPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/about" element={
-          <SuspenseRoute routeName="소개">
-            <LazyAboutPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/link-page/:memberId" element={
-          <SuspenseRoute routeName="링크">
-            <LazyLinkPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/memory/:memoryId" element={
-          <SuspenseRoute routeName="추억 상세">
-            <LazyMemoryDetailPage />
-          </SuspenseRoute>
-        } />
-        <Route path="/search" element={
-          <SuspenseRoute routeName="검색">
-            <LazySearchPage />
-          </SuspenseRoute>
-        } />
-      </Routes>
+      <Box 
+        flex="1" 
+        pb={isAuthenticated ? { base: "100px", lg: "0" } : "0"}
+      >
+        <Routes>
+          <Route path="/" element={
+            <SuspenseRoute routeName="홈">
+              <LazyHomePage />
+            </SuspenseRoute>
+          } />
+          <Route path="/signup" element={
+            <SuspenseRoute routeName="회원가입">
+              <LazySignupPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/login" element={
+            <SuspenseRoute routeName="로그인">
+              <LazyLoginPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/profile" element={
+            <SuspenseRoute routeName="프로필">
+              <LazyProfilePage />
+            </SuspenseRoute>
+          } />
+          <Route path="/profile/edit" element={
+            <SuspenseRoute routeName="프로필 편집">
+              <LazyProfileEditPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/relationship" element={
+            <SuspenseRoute routeName="소중한 사람들">
+              <LazyRelationshipPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/memories-with-relationship" element={
+            <SuspenseRoute routeName="함께한 추억">
+              <LazyMemoriesWithRelationshipPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/my-memories" element={
+            <SuspenseRoute routeName="내 추억">
+              <LazyMyMemoriesPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/create-memory" element={
+            <SuspenseRoute routeName="추억 만들기">
+              <LazyCreateMemoryPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/sharing-memories" element={
+            <SuspenseRoute routeName="추억 공유">
+              <LazySharingMemoriesPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/memory-quest" element={
+            <SuspenseRoute routeName="추억 탐험">
+              <LazyMemoryQuestPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/calendar" element={
+            <SuspenseRoute routeName="캘린더">
+              <LazyCalendarPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/about" element={
+            <SuspenseRoute routeName="소개">
+              <LazyAboutPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/link-page/:memberId" element={
+            <SuspenseRoute routeName="링크">
+              <LazyLinkPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/memory/:memoryId" element={
+            <SuspenseRoute routeName="추억 상세">
+              <LazyMemoryDetailPage />
+            </SuspenseRoute>
+          } />
+          <Route path="/search" element={
+            <SuspenseRoute routeName="검색">
+              <LazySearchPage />
+            </SuspenseRoute>
+          } />
+        </Routes>
+      </Box>
       
       {/* Floating Action Button - 로그인 사용자에게만 표시 (Create Memory 페이지 제외) */}
       <FloatingActionButton isVisible={shouldShowFAB} />
