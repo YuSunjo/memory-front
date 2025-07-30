@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { SearchIcon, CloseIcon } from '@chakra-ui/icons';
 import { useAutocompleteService } from '../../hooks/useAutocompleteService';
-import type { AutocompleteSuggestion } from '../../types/search';
+import type { AutocompleteSuggestion, GroupedAutocompleteSuggestion } from '../../types/search';
 
 export interface AutocompleteSearchProps {
   placeholder?: string;
@@ -24,6 +24,36 @@ export interface AutocompleteSearchProps {
   value?: string;
   onChange?: (value: string) => void;
 }
+
+// 동일한 텍스트의 제안을 그룹화하는 유틸리티 함수
+const groupSuggestions = (suggestions: AutocompleteSuggestion[]): GroupedAutocompleteSuggestion[] => {
+  const groupMap = new Map<string, GroupedAutocompleteSuggestion>();
+
+  suggestions.forEach(suggestion => {
+    const existing = groupMap.get(suggestion.text);
+    
+    if (existing) {
+      // 이미 존재하는 텍스트면 타입과 카운트를 추가
+      if (!existing.types.includes(suggestion.type)) {
+        existing.types.push(suggestion.type);
+      }
+      existing.totalMatchCount += suggestion.matchCount;
+      existing.maxScore = Math.max(existing.maxScore, suggestion.score);
+    } else {
+      // 새로운 텍스트면 새 그룹 생성
+      groupMap.set(suggestion.text, {
+        text: suggestion.text,
+        types: [suggestion.type],
+        totalMatchCount: suggestion.matchCount,
+        maxScore: suggestion.score
+      });
+    }
+  });
+
+  // 점수 높은 순으로 정렬
+  return Array.from(groupMap.values())
+    .sort((a, b) => b.maxScore - a.maxScore);
+};
 
 export const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
   placeholder = '검색어를 입력하세요...',
@@ -40,6 +70,9 @@ export const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
   const suggestionBoxRef = useRef<HTMLDivElement>(null);
 
   const { suggestions, loading, searchAutocomplete, clearSuggestions } = useAutocompleteService();
+  
+  // 그룹화된 제안 목록 생성
+  const groupedSuggestions = groupSuggestions(suggestions);
 
   const bgColor = useColorModeValue('white', 'gray.700');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -73,17 +106,23 @@ export const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
   };
 
   // 제안 선택 처리
-  const handleSuggestionClick = (suggestion: AutocompleteSuggestion) => {
-    setQuery(suggestion.text);
-    onChange?.(suggestion.text);
+  const handleSuggestionClick = (groupedSuggestion: GroupedAutocompleteSuggestion) => {
+    setQuery(groupedSuggestion.text);
+    onChange?.(groupedSuggestion.text);
     setShowSuggestions(false);
-    onSuggestionSelect?.(suggestion);
+    
+    // 원본 제안 중에서 첫 번째 것을 사용하여 콜백 호출
+    const originalSuggestion = suggestions.find(s => s.text === groupedSuggestion.text);
+    if (originalSuggestion) {
+      onSuggestionSelect?.(originalSuggestion);
+    }
+    
     inputRef.current?.focus();
   };
 
   // 키보드 네비게이션
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!showSuggestions || suggestions.length === 0) {
+    if (!showSuggestions || groupedSuggestions.length === 0) {
       if (e.key === 'Enter' && query.trim()) {
         onSearch?.(query);
         setShowSuggestions(false);
@@ -95,19 +134,19 @@ export const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
       case 'ArrowDown':
         e.preventDefault();
         setSelectedIndex(prev => 
-          prev < suggestions.length - 1 ? prev + 1 : 0
+          prev < groupedSuggestions.length - 1 ? prev + 1 : 0
         );
         break;
       case 'ArrowUp':
         e.preventDefault();
         setSelectedIndex(prev => 
-          prev > 0 ? prev - 1 : suggestions.length - 1
+          prev > 0 ? prev - 1 : groupedSuggestions.length - 1
         );
         break;
       case 'Enter':
         e.preventDefault();
-        if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
-          handleSuggestionClick(suggestions[selectedIndex]);
+        if (selectedIndex >= 0 && selectedIndex < groupedSuggestions.length) {
+          handleSuggestionClick(groupedSuggestions[selectedIndex]);
         } else if (query.trim()) {
           onSearch?.(query);
           setShowSuggestions(false);
@@ -199,7 +238,7 @@ export const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
         )}
       </InputGroup>
 
-      {showSuggestions && suggestions.length > 0 && (
+      {showSuggestions && groupedSuggestions.length > 0 && (
         <Box
           ref={suggestionBoxRef}
           position="absolute"
@@ -217,29 +256,34 @@ export const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
           mt="1"
         >
           <VStack spacing={0} align="stretch">
-            {suggestions.map((suggestion, index) => (
+            {groupedSuggestions.map((groupedSuggestion, index) => (
               <HStack
-                key={`${suggestion.text}-${index}`}
+                key={`${groupedSuggestion.text}-${index}`}
                 p={3}
                 spacing={3}
                 cursor="pointer"
                 bg={index === selectedIndex ? selectedBgColor : 'transparent'}
                 _hover={{ bg: hoverBgColor }}
-                onClick={() => handleSuggestionClick(suggestion)}
+                onClick={() => handleSuggestionClick(groupedSuggestion)}
                 align="center"
               >
                 <SearchIcon boxSize={4} color="gray.400" />
                 <Text flex={1} fontSize="sm">
-                  {suggestion.text}
+                  {groupedSuggestion.text}
                 </Text>
-                <Badge
-                  size="sm"
-                  colorScheme={suggestion.type === 'TITLE' ? 'blue' : 'green'}
-                >
-                  {suggestion.type === 'TITLE' ? '제목' : '태그'}
-                </Badge>
+                <HStack spacing={1}>
+                  {groupedSuggestion.types.map((type) => (
+                    <Badge
+                      key={type}
+                      size="sm"
+                      colorScheme={type === 'TITLE' ? 'blue' : 'green'}
+                    >
+                      {type === 'TITLE' ? '제목' : '태그'}
+                    </Badge>
+                  ))}
+                </HStack>
                 <Text fontSize="xs" color="gray.500">
-                  {suggestion.matchCount}
+                  {groupedSuggestion.totalMatchCount}
                 </Text>
               </HStack>
             ))}

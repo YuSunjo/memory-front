@@ -8,6 +8,13 @@ export interface AutocompleteSuggestion {
   score: number;
 }
 
+export interface GroupedAutocompleteSuggestion {
+  text: string;
+  types: ('TITLE' | 'HASHTAG')[];
+  totalMatchCount: number;
+  maxScore: number;
+}
+
 export interface AutocompleteData {
   suggestions: AutocompleteSuggestion[];
   responseTimeMs: number;
