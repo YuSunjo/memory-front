@@ -29,6 +29,8 @@ const MemorySearchCard: React.FC<MemorySearchCardProps> = ({ memory }) => {
   const navigate = useNavigate();
   const cardBg = useColorModeValue('white', 'gray.700');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const memberTextColor = useColorModeValue('gray.700', 'gray.300');
+  const secondaryTextColor = useColorModeValue('gray.500', 'gray.400');
 
   const handleCardClick = () => {
     navigate(`/memory/${memory.memoryId}`);
@@ -118,17 +120,66 @@ const MemorySearchCard: React.FC<MemorySearchCardProps> = ({ memory }) => {
           )}
 
           {/* Member info */}
-          <HStack spacing={2} pt={2} borderTop="1px solid" borderColor={borderColor}>
-            <Avatar size="xs" />
-            <Text fontSize="sm" color="gray.600">
-              사용자 ID: {memory.memberId}
-            </Text>
-            {memory.relationshipMemberId && (
-              <Text fontSize="sm" color="gray.500">
-                • 관계 ID: {memory.relationshipMemberId}
-              </Text>
+          <VStack spacing={2} align="stretch" pt={2} borderTop="1px solid" borderColor={borderColor}>
+            {/* Primary member (작성자) */}
+            <HStack spacing={3}>
+              <Avatar 
+                size="sm" 
+                name={memory.memberName}
+                src={memory.memberFileUrl || undefined}
+                bg="blue.500"
+                color="white"
+              />
+              <VStack align="start" spacing={0} flex={1}>
+                <HStack spacing={2}>
+                  <Text fontSize="sm" fontWeight="medium" color={memberTextColor}>
+                    {memory.memberName}
+                  </Text>
+                  {memory.memberNickname && memory.memberNickname !== memory.memberName && (
+                    <Text fontSize="xs" color={secondaryTextColor}>
+                      ({memory.memberNickname})
+                    </Text>
+                  )}
+                </HStack>
+                <Text fontSize="xs" color={secondaryTextColor}>
+                  {memory.memberEmail}
+                </Text>
+              </VStack>
+            </HStack>
+            
+            {/* Relationship member (if exists) */}
+            {memory.relationshipMemberId && memory.relationshipMemberName && (
+              <HStack spacing={3} pl={2} borderLeft="2px solid" borderColor="purple.200">
+                <Avatar 
+                  size="xs" 
+                  name={memory.relationshipMemberName}
+                  src={memory.relationshipMemberFileUrl || undefined}
+                  bg="purple.500"
+                  color="white"
+                />
+                <VStack align="start" spacing={0} flex={1}>
+                  <HStack spacing={2}>
+                    <Text fontSize="xs" fontWeight="medium" color={memberTextColor}>
+                      {memory.relationshipMemberName}
+                    </Text>
+                    {memory.relationshipMemberNickname && memory.relationshipMemberNickname !== memory.relationshipMemberName && (
+                      <Text fontSize="xs" color={secondaryTextColor}>
+                        ({memory.relationshipMemberNickname})
+                      </Text>
+                    )}
+                    <Badge size="xs" colorScheme="purple" variant="subtle">
+                      관계
+                    </Badge>
+                  </HStack>
+                  {memory.relationshipMemberEmail && (
+                    <Text fontSize="xs" color={secondaryTextColor}>
+                      {memory.relationshipMemberEmail}
+                    </Text>
+                  )}
+                </VStack>
+              </HStack>
             )}
-          </HStack>
+          </VStack>
         </VStack>
       </CardBody>
     </Card>

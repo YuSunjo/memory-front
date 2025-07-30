@@ -36,7 +36,15 @@ export interface SearchMemory {
   memoryType: 'PUBLIC' | 'PRIVATE' | 'RELATIONSHIP';
   hashtags: string[];
   memberId: number;
-  relationshipMemberId: number;
+  memberName: string;
+  memberNickname: string;
+  memberEmail: string;
+  memberFileUrl: string | null;
+  relationshipMemberId: number | null;
+  relationshipMemberName: string | null;
+  relationshipMemberNickname: string | null;
+  relationshipMemberEmail: string | null;
+  relationshipMemberFileUrl: string | null;
   highlights: any;
 }
 
