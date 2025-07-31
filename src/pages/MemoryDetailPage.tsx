@@ -45,8 +45,11 @@ const MemoryDetailPage: React.FC = () => {
   const source = searchParams.get('source'); // 'sharing' 또는 null
 
   useEffect(() => {
-    if (memoryId) {
+    if (memoryId && !isNaN(parseInt(memoryId))) {
       loadMemory();
+    } else if (memoryId) {
+      setError('잘못된 메모리 ID입니다.');
+      setLoading(false);
     }
   }, [memoryId]);
 
@@ -479,10 +482,12 @@ const MemoryDetailPage: React.FC = () => {
           </Box>
 
           {/* 댓글 섹션 */}
-          <CommentList 
-            memoryId={parseInt(memoryId!)}
-            initialCollapsed={false}
-          />
+          {memoryId && !isNaN(parseInt(memoryId)) && (
+            <CommentList 
+              memoryId={parseInt(memoryId)}
+              initialCollapsed={false}
+            />
+          )}
         </Box>
       </VStack>
     </Container>

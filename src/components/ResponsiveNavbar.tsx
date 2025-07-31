@@ -64,6 +64,7 @@ const ResponsiveNavbar: React.FC = () => {
 
   // Navigation items data
   const navItems = [
+    { path: '/search', label: '🔍 검색', mobileLabel: '검색' },
     { path: '/my-memories', label: '💝 추억 갤러리', mobileLabel: '추억' },
     { path: '/memories-with-relationship', label: '👥 함께한 순간', mobileLabel: '함께' },
     { path: '/sharing-memories', label: '🌟 발견하기', mobileLabel: '발견' },

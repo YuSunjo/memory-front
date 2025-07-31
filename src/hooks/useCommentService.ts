@@ -21,6 +21,12 @@ const useCommentService = () => {
       setLoading(true);
       const { memoryId, page = 0, size = 10 } = params;
       
+      // memoryId 유효성 검사
+      if (!memoryId || isNaN(memoryId)) {
+        console.error('Invalid memoryId:', memoryId);
+        return null;
+      }
+      
       // 로그인 상태에 따라 API 엔드포인트 결정
       const endpoint = currentUser 
         ? `/v1/comments/memory/${memoryId}/top-level?page=${page}&size=${size}`
